@@ -1,6 +1,6 @@
 /**
  * Socket Room Handlers
- * Lobby creation, joining, ready toggles, and participant broadcasts
+ * Lobby creation, joining, reconnection, ready toggles, and participant broadcasts
  */
 
 const {
@@ -11,13 +11,18 @@ const {
   getSortedLeaderboard
 } = require('../services/roomService');
 
+const {
+  getMatchHistory,
+  getGlobalLeaderboard
+} = require('../services/historyService');
+
 module.exports = function registerRoomHandlers(io, socket) {
   /**
    * Create a new room
    */
-  socket.on('room:create', ({ playerName, avatar }) => {
+  socket.on('room:create', ({ playerName, avatar, playerId }) => {
     try {
-      const result = createRoom(playerName, socket.id, avatar);
+      const result = createRoom(playerName, socket.id, avatar, playerId);
       if (!result.success) {
         socket.emit('server:error', { error: result.error, message: result.message });
         return;
@@ -42,11 +47,11 @@ module.exports = function registerRoomHandlers(io, socket) {
   });
 
   /**
-   * Join an existing room
+   * Join or reconnect to an existing room
    */
-  socket.on('room:join', ({ roomCode, playerName, avatar }) => {
+  socket.on('room:join', ({ roomCode, playerName, avatar, playerId }) => {
     try {
-      const result = joinRoom(roomCode, playerName, socket.id, avatar);
+      const result = joinRoom(roomCode, playerName, socket.id, avatar, playerId);
       if (!result.success) {
         socket.emit('server:error', { error: result.error, message: result.message });
         return;
@@ -58,13 +63,20 @@ module.exports = function registerRoomHandlers(io, socket) {
         roomCode: result.room.roomCode,
         player: result.player,
         players: result.room.players,
-        isReconnect: result.isReconnect || false
+        isReconnect: result.isReconnect || false,
+        gameState: result.gameState || null
       });
 
       io.to(result.room.roomCode).emit('room:players', {
         roomCode: result.room.roomCode,
         players: result.room.players
       });
+
+      // If reconnecting during active game, sync standings immediately
+      if (result.isReconnect && result.gameState) {
+        const leaderboard = getSortedLeaderboard(result.room.roomCode);
+        socket.emit('leaderboard:update', { players: leaderboard });
+      }
     } catch (err) {
       console.error('[SOCKET ERROR] room:join', err);
       socket.emit('server:error', { error: 'INTERNAL_ERROR', message: 'Failed to join room.' });
@@ -88,6 +100,19 @@ module.exports = function registerRoomHandlers(io, socket) {
       });
     } catch (err) {
       console.error('[SOCKET ERROR] player:ready', err);
+    }
+  });
+
+  /**
+   * Query match history
+   */
+  socket.on('history:get', () => {
+    try {
+      const matches = getMatchHistory(10);
+      const global = getGlobalLeaderboard(10);
+      socket.emit('history:data', { matches, global });
+    } catch (err) {
+      console.error('[SOCKET ERROR] history:get', err);
     }
   });
 

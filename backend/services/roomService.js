@@ -1,11 +1,12 @@
 /**
  * Room Service
- * In-memory room and match state machine
+ * In-memory room and match state machine with full reconnection and persistence integration
  */
 
 const { generateRoomCode, generatePlayerId, generateRoundId } = require('../utils/idGenerator');
 const { selectQuestionsForRound, getPublicQuestion } = require('./questionService');
 const { calculateScore } = require('./scoringService');
+const { recordMatch } = require('./historyService');
 
 const rooms = new Map(); // roomCode -> Room Object
 const socketToRoom = new Map(); // socketId -> roomCode
@@ -20,9 +21,9 @@ const DEFAULT_AVATARS = [
 /**
  * Create a new room
  */
-function createRoom(hostName = 'Player 1', socketId, avatar) {
+function createRoom(hostName = 'Player 1', socketId, avatar, existingPlayerId) {
   const roomCode = generateRoomCode(rooms);
-  const hostId = generatePlayerId();
+  const hostId = existingPlayerId || generatePlayerId();
   const roundId = generateRoundId();
 
   const hostPlayer = {
@@ -37,7 +38,8 @@ function createRoom(hostName = 'Player 1', socketId, avatar) {
     totalTime: 0,
     answeredQuestions: [],
     currentQuestionAnswered: false,
-    status: 'waiting'
+    status: 'waiting',
+    isDisconnected: false
   };
 
   const room = {
@@ -60,9 +62,9 @@ function createRoom(hostName = 'Player 1', socketId, avatar) {
 }
 
 /**
- * Join an existing room
+ * Join or reconnect to an existing room
  */
-function joinRoom(roomCode, playerName = 'Player', socketId, avatar) {
+function joinRoom(roomCode, playerName = 'Player', socketId, avatar, playerId) {
   const code = (roomCode || '').toUpperCase().trim();
   const room = rooms.get(code);
 
@@ -70,15 +72,49 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar) {
     return { success: false, error: 'ROOM_NOT_FOUND', message: `Room "${code}" not found.` };
   }
 
-  if (room.status === 'playing') {
-    // Check if player reconnecting
-    const existing = room.players.find(p => p.socketId === socketId || (p.name === playerName && p.isDisconnected));
-    if (existing) {
-      existing.socketId = socketId;
-      existing.isDisconnected = false;
-      socketToRoom.set(socketId, code);
-      return { success: true, room, player: existing, isReconnect: true };
+  // 1. Check for Reconnection by playerId or socketId
+  const existing = room.players.find(p =>
+    (playerId && p.id === playerId) ||
+    p.socketId === socketId ||
+    (p.name === playerName && p.isDisconnected)
+  );
+
+  if (existing) {
+    existing.socketId = socketId;
+    existing.isDisconnected = false;
+    socketToRoom.set(socketId, code);
+
+    console.log(`[RECONNECT] Player ${existing.name} reconnected to room ${code} (status: ${room.status})`);
+
+    let gameState = null;
+    if (room.status === 'playing') {
+      const currentQ = room.questions[room.currentQuestionIndex];
+      const elapsedSec = Math.max(0, Math.round((Date.now() - room.questionStartedAt) / 1000));
+      const timeRemaining = currentQ ? Math.max(0, currentQ.timeLimit - elapsedSec) : 0;
+
+      gameState = {
+        status: room.status,
+        questionNumber: room.currentQuestionIndex + 1,
+        totalQuestions: room.questions.length,
+        question: currentQ ? getPublicQuestion(currentQ) : null,
+        timeRemaining,
+        timeLimit: currentQ ? currentQ.timeLimit : 30,
+        isAnswered: existing.currentQuestionAnswered,
+        leaderboard: getSortedLeaderboard(code)
+      };
     }
+
+    return {
+      success: true,
+      room,
+      player: existing,
+      isReconnect: true,
+      gameState
+    };
+  }
+
+  // 2. Reject new joins if match in progress
+  if (room.status === 'playing' || room.status === 'starting') {
     return { success: false, error: 'MATCH_IN_PROGRESS', message: 'Match already in progress.' };
   }
 
@@ -86,11 +122,12 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar) {
     return { success: false, error: 'ROOM_FULL', message: 'Room has reached maximum capacity.' };
   }
 
-  const playerId = generatePlayerId();
+  // 3. Add fresh new player
+  const newPlayerId = playerId || generatePlayerId();
   const avatarUrl = avatar || DEFAULT_AVATARS[room.players.length % DEFAULT_AVATARS.length];
 
   const newPlayer = {
-    id: playerId,
+    id: newPlayerId,
     name: playerName,
     socketId,
     avatar: avatarUrl,
@@ -101,14 +138,15 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar) {
     totalTime: 0,
     answeredQuestions: [],
     currentQuestionAnswered: false,
-    status: 'waiting'
+    status: 'waiting',
+    isDisconnected: false
   };
 
   room.players.push(newPlayer);
   socketToRoom.set(socketId, code);
 
   console.log(`[ROOM] ${playerName} joined ${code} (total players: ${room.players.length})`);
-  return { success: true, room, player: newPlayer };
+  return { success: true, room, player: newPlayer, isReconnect: false };
 }
 
 /**
@@ -141,7 +179,7 @@ function startRoomGame(roomCode, socketId) {
     return { success: false, error: 'INVALID_STATUS', message: 'Game cannot be started in current state.' };
   }
 
-  // Pick 10 questions for this round
+  // Pick 10 questions for this round from question bank
   room.questions = selectQuestionsForRound(10);
   room.currentQuestionIndex = 0;
   room.status = 'starting';
@@ -310,7 +348,7 @@ function recordPlayerTimeout(roomCode, socketId, questionId) {
 }
 
 /**
- * Check if all players have completed current question
+ * Check if all connected players have completed current question
  */
 function allPlayersAnswered(roomCode) {
   const room = rooms.get(roomCode);
@@ -348,7 +386,7 @@ function getSortedLeaderboard(roomCode) {
 }
 
 /**
- * Calculate final match statistics for results view
+ * Calculate final match statistics, save to persistent database store, and return results
  */
 function calculateFinalResults(roomCode) {
   const room = rooms.get(roomCode);
@@ -396,14 +434,19 @@ function calculateFinalResults(roomCode) {
     };
   });
 
-  console.log(`[GAME] Match finished for room ${roomCode}. Winner: ${leaderboard[0]?.playerName} (${leaderboard[0]?.score} pts)`);
-
-  return {
+  const finalData = {
     roomCode,
     roundId: room.roundId,
     leaderboard,
     playerResults
   };
+
+  // Persist to history database file
+  recordMatch(finalData);
+
+  console.log(`[GAME] Match finished for room ${roomCode}. Winner: ${leaderboard[0]?.playerName} (${leaderboard[0]?.score} pts)`);
+
+  return finalData;
 }
 
 /**
@@ -452,7 +495,7 @@ function handleDisconnect(socketId) {
   const player = room.players[playerIndex];
 
   if (room.status === 'waiting') {
-    // Remove player completely
+    // Remove player from lobby
     room.players.splice(playerIndex, 1);
     socketToRoom.delete(socketId);
 
@@ -475,7 +518,7 @@ function handleDisconnect(socketId) {
   } else {
     // In match: mark as disconnected without crashing match
     player.isDisconnected = true;
-    console.log(`[ROOM] Player ${player.name} disconnected from active match in ${roomCode}`);
+    console.log(`[ROOM] Player ${player.name} marked disconnected from active match in ${roomCode}`);
     return { roomCode, room, action: 'marked_disconnected', player };
   }
 }

@@ -113,7 +113,11 @@ const ArenaApp = (() => {
         state.roomCode = data.roomCode;
         state.isHost = true;
         state.isUserReady = true;
-        state.playerId = data.player?.id;
+        state.playerId = data.player?.id || state.playerId;
+        try {
+          sessionStorage.setItem('arena_player_id', state.playerId);
+          sessionStorage.setItem('arena_room_code', data.roomCode);
+        } catch (e) {}
         syncPlayersFromBackend(data.players);
         showToast(`Room created: ${data.roomCode}`);
         switchView('waiting-room');
@@ -121,12 +125,40 @@ const ArenaApp = (() => {
 
       state.socket.on('room:joined', (data) => {
         state.roomCode = data.roomCode;
-        state.isHost = false;
-        state.isUserReady = false;
-        state.playerId = data.player?.id;
+        state.isHost = data.player?.isHost || false;
+        state.isUserReady = data.player?.isReady || false;
+        state.playerId = data.player?.id || state.playerId;
+        try {
+          sessionStorage.setItem('arena_player_id', state.playerId);
+          sessionStorage.setItem('arena_room_code', data.roomCode);
+        } catch (e) {}
         syncPlayersFromBackend(data.players);
-        showToast(`Joined room: ${data.roomCode}`);
-        switchView('waiting-room');
+
+        if (data.isReconnect && data.gameState) {
+          showToast(`Reconnected to active match (Q${data.gameState.questionNumber})!`);
+          state.matchInProgress = true;
+          state.currentQuestionIndex = data.gameState.questionNumber - 1;
+          state.currentQuestionData = data.gameState.question;
+          state.questionTimeLimit = data.gameState.timeLimit;
+          state.timeRemaining = data.gameState.timeRemaining;
+          state.questionLocked = data.gameState.isAnswered;
+          switchView('live');
+          if (data.gameState.question) {
+            renderServerQuestion({
+              questionNumber: data.gameState.questionNumber,
+              totalQuestions: data.gameState.totalQuestions,
+              question: data.gameState.question,
+              timeLimit: data.gameState.timeLimit,
+              startedAt: Date.now() - (data.gameState.timeLimit - data.gameState.timeRemaining) * 1000
+            });
+            if (data.gameState.isAnswered) {
+              document.querySelectorAll('.option-btn').forEach(btn => btn.setAttribute('disabled', 'true'));
+            }
+          }
+        } else {
+          showToast(`Joined room: ${data.roomCode}`);
+          switchView('waiting-room');
+        }
       });
 
       state.socket.on('room:players', (data) => {
@@ -375,7 +407,8 @@ const ArenaApp = (() => {
     if (state.isRealtimeActive && state.socket) {
       state.socket.emit('room:create', {
         playerName: state.userName,
-        avatar: state.userAvatar
+        avatar: state.userAvatar,
+        playerId: state.playerId
       });
     } else {
       // Local fallback
@@ -402,7 +435,8 @@ const ArenaApp = (() => {
       state.socket.emit('room:join', {
         roomCode: code,
         playerName: 'Rahul Sharma',
-        avatar: state.userAvatar
+        avatar: state.userAvatar,
+        playerId: state.playerId
       });
     } else {
       state.roomCode = code;
@@ -415,7 +449,8 @@ const ArenaApp = (() => {
     if (state.isRealtimeActive && state.socket) {
       state.socket.emit('room:create', {
         playerName: state.userName,
-        avatar: state.userAvatar
+        avatar: state.userAvatar,
+        playerId: state.playerId
       });
     } else {
       state.roomCode = 'QM-' + Math.floor(100 + Math.random() * 900);
@@ -424,7 +459,21 @@ const ArenaApp = (() => {
   };
 
   const filterCategory = (cat) => { showToast(`Filtering challenges for ${cat}...`); };
-  const showMatchHistoryModal = () => { showToast('Past 10 matches: 8 Wins, 2 Podiums.'); };
+  const showMatchHistoryModal = async () => {
+    try {
+      const res = await fetch(`${CONFIG.BACKEND_URL}/api/history`);
+      if (res.ok) {
+        const data = await res.json();
+        const matches = data.matches || [];
+        const wins = matches.filter(m => m.winner?.name?.includes('YOU') || m.winner?.name?.includes(state.userName)).length;
+        showToast(`Match History (${matches.length} recorded): ${wins} Wins. Database active!`);
+      } else {
+        showToast('Past 10 matches: 8 Wins, 2 Podiums.');
+      }
+    } catch (e) {
+      showToast('Past 10 matches: 8 Wins, 2 Podiums.');
+    }
+  };
 
   // ==========================================
   // 6. SCREEN 2: WAITING ROOM & INSTRUCTIONS

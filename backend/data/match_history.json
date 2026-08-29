@@ -1,0 +1,53 @@
+{
+  "matches": [
+    {
+      "roundId": "rnd_seed1",
+      "roomCode": "7K4P9",
+      "timestamp": "2026-08-29T10:40:06.704Z",
+      "totalQuestions": 10,
+      "winner": {
+        "name": "Rahul (YOU)",
+        "score": 480
+      },
+      "leaderboard": [
+        {
+          "rank": 1,
+          "playerName": "Rahul (YOU)",
+          "score": 480,
+          "accuracy": 90,
+          "totalTime": 42
+        },
+        {
+          "rank": 2,
+          "playerName": "Ananya Deshmukh",
+          "score": 420,
+          "accuracy": 80,
+          "totalTime": 48
+        },
+        {
+          "rank": 3,
+          "playerName": "Arjun Nair",
+          "score": 360,
+          "accuracy": 70,
+          "totalTime": 55
+        },
+        {
+          "rank": 4,
+          "playerName": "Priya Patel",
+          "score": 300,
+          "accuracy": 60,
+          "totalTime": 62
+        }
+      ]
+    }
+  ],
+  "playerStats": {
+    "Rahul (YOU)": {
+      "matchesPlayed": 24,
+      "wins": 18,
+      "totalScore": 9680,
+      "highestScore": 560,
+      "avgAccuracy": 88
+    }
+  }
+}
