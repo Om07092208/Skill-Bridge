@@ -439,24 +439,26 @@
 
         <div id="lobby-players-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Player 1: Current User (Host) -->
-          <div class="player-card bg-surface-container-lowest border-2 border-secondary rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+          <div class="player-card bg-surface-container-lowest border-2 border-secondary rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 relative overflow-hidden shadow-sm">
             <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
-            <div class="relative shrink-0">
-              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Rahul" />
-              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
-                <span class="material-symbols-outlined text-xs">check</span>
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="relative shrink-0">
+                <img class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Rahul" />
+                <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
+                  <span class="material-symbols-outlined text-xs">check</span>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  <h4 class="font-bold text-sm sm:text-base text-on-surface truncate">Rahul Sharma</h4>
+                  <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0">Host (You)</span>
+                </div>
+                <p class="text-xs text-secondary font-semibold flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">verified</span> Ready to Compete
+                </p>
               </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h4 class="font-bold text-base text-on-surface truncate">Rahul Sharma</h4>
-                <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Host (You)</span>
-              </div>
-              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">verified</span> Ready to Compete
-              </p>
-            </div>
-            <button onclick="ArenaApp.toggleUserReady()" id="user-ready-toggle-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-secondary text-secondary hover:bg-secondary hover:text-white transition">
+            <button onclick="ArenaApp.toggleUserReady()" id="user-ready-toggle-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-secondary text-secondary hover:bg-secondary hover:text-white transition shrink-0 ml-auto">
               Ready
             </button>
           </div>

@@ -252,9 +252,12 @@ const ArenaApp = (() => {
         state.isUserReady = !!p.isReady;
       }
 
+      const rawName = p.name || p.playerName || 'Player';
+      const cleanName = rawName.replace(/\s*\(YOU\)/gi, '').trim();
+
       return {
         id: p.id || p.playerId || `p_${idx}`,
-        name: isSelf ? `${p.name || p.playerName} (YOU)` : (p.name || p.playerName),
+        name: cleanName,
         isUser: isSelf,
         isHost: !!p.isHost,
         isReady: !!p.isReady,
@@ -500,26 +503,28 @@ const ArenaApp = (() => {
           : `<p class="text-xs text-on-surface-variant font-medium flex items-center gap-1"><span class="material-symbols-outlined text-sm animate-spin">sync</span> Waiting...</p>`;
 
         const hostBadge = p.isHost
-          ? `<span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${isSelf ? 'Host (You)' : 'Host'}</span>`
-          : (isSelf ? `<span class="bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full">You</span>` : '');
+          ? `<span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0">${isSelf ? 'Host (You)' : 'Host'}</span>`
+          : (isSelf ? `<span class="bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">You</span>` : '');
 
         const toggleBtn = isSelf
-          ? `<button onclick="ArenaApp.toggleUserReady()" id="user-ready-toggle-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border ${isReady ? 'border-secondary text-secondary hover:bg-secondary hover:text-white' : 'border-outline-variant text-on-surface-variant hover:bg-surface-container-high'} transition">${isReady ? 'Ready' : 'Not Ready'}</button>`
+          ? `<button onclick="ArenaApp.toggleUserReady()" id="user-ready-toggle-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border ${isReady ? 'border-secondary text-secondary hover:bg-secondary hover:text-white' : 'border-outline-variant text-on-surface-variant hover:bg-surface-container-high'} transition shrink-0 ml-auto">${isReady ? 'Ready' : 'Not Ready'}</button>`
           : '';
 
         return `
-          <div class="player-card bg-surface-container-lowest border-2 ${borderColor} rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+          <div class="player-card bg-surface-container-lowest border-2 ${borderColor} rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 relative overflow-hidden shadow-sm">
             <div class="absolute left-0 top-0 bottom-0 w-1.5 ${isReady ? 'bg-secondary' : 'bg-outline-variant'}"></div>
-            <div class="relative shrink-0">
-              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="${p.avatar}" alt="${p.name}" />
-              ${readyBadge}
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h4 class="font-bold text-base text-on-surface truncate">${p.name}</h4>
-                ${hostBadge}
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="relative shrink-0">
+                <img class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="${p.avatar}" alt="${p.name}" />
+                ${readyBadge}
               </div>
-              ${statusText}
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  <h4 class="font-bold text-sm sm:text-base text-on-surface truncate">${p.name}</h4>
+                  ${hostBadge}
+                </div>
+                ${statusText}
+              </div>
             </div>
             ${toggleBtn}
           </div>
