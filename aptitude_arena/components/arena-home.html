@@ -1,0 +1,58 @@
+<!-- SkillBridge Aptitude Arena - Modular Section: Arena Home -->
+<section id="arena-home-component" class="flex flex-col gap-8 max-w-7xl mx-auto">
+  <!-- Header Banner -->
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#c7c4d8]/60 pb-6">
+    <div>
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e2dfff] text-[#3525cd] text-xs font-semibold mb-2">
+        <span class="material-symbols-outlined text-sm">workspace_premium</span>
+        Multiplayer Aptitude Arena
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[#191c1e]">Aptitude Arena</h1>
+      <p class="text-base text-[#464555] mt-1">Compete live on speed, deductive logic, and quantitative accuracy with peers.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="bg-white border border-[#c7c4d8] text-[#191c1e] text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-[#f2f4f6] transition-all shadow-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">history</span>
+        Match History
+      </button>
+    </div>
+  </div>
+
+  <!-- Matchmaking Cards -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white rounded-2xl border border-[#c7c4d8] p-6 sm:p-8 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="text-center p-6 bg-[#f2f4f6] rounded-xl border border-[#c7c4d8]/60 flex flex-col items-center justify-between h-full">
+          <div class="w-14 h-14 rounded-2xl bg-[#e2dfff] flex items-center justify-center text-[#3525cd] mb-4 mx-auto">
+            <span class="material-symbols-outlined text-3xl">add_circle</span>
+          </div>
+          <h3 class="text-xl font-bold text-[#191c1e] mb-2">Create Room</h3>
+          <p class="text-xs text-[#464555] mb-6">Host a custom private arena and invite friends with a 5-letter room code.</p>
+          <button class="w-full bg-[#3525cd] text-white font-semibold py-3 px-4 rounded-xl hover:bg-[#4f46e5] transition shadow-md shadow-[#3525cd]/20">
+            Create New Room
+          </button>
+        </div>
+        <div class="flex flex-col justify-center p-2">
+          <h3 class="text-xl font-bold text-[#191c1e] mb-2">Join Room</h3>
+          <p class="text-xs text-[#464555] mb-4">Enter an active 5-digit room code to join your friends' lobby.</p>
+          <input type="text" maxlength="6" placeholder="Enter 5-digit code" class="w-full bg-[#f2f4f6] border border-[#c7c4d8] p-3.5 rounded-xl font-mono text-lg text-center tracking-widest uppercase mb-3" />
+          <button class="w-full bg-[#e6e8ea] hover:bg-[#3525cd] hover:text-white text-[#191c1e] font-semibold py-3 rounded-xl transition">
+            Join Match
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Match CTA -->
+    <div class="bg-gradient-to-br from-[#3525cd] via-[#4338ca] to-[#312e81] text-white rounded-2xl p-8 shadow-xl flex flex-col items-center justify-between text-center relative overflow-hidden group cursor-pointer">
+      <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-[#6cf8bb] mb-4 mt-2">
+        <span class="material-symbols-outlined text-4xl">bolt</span>
+      </div>
+      <h3 class="text-2xl font-bold mb-2">Quick Match</h3>
+      <p class="text-xs text-white/80 max-w-xs mb-6">Auto-match instantly with 3 peers at your skill rating for a fast 10-question battle.</p>
+      <div class="w-full bg-white text-[#3525cd] font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2">
+        <span>Find Match Now</span>
+      </div>
+    </div>
+  </div>
+</section>

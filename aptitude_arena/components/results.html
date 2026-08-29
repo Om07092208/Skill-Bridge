@@ -1,0 +1,107 @@
+<!-- SkillBridge Aptitude Arena - Modular Section: Results & Analytics -->
+<section id="results-component" class="flex flex-col gap-8 max-w-5xl mx-auto py-2">
+  <!-- Trophy Header -->
+  <header class="text-center flex flex-col items-center gap-2">
+    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center shadow-lg mb-2">
+      <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+    </div>
+    <span class="text-xs font-bold uppercase tracking-widest text-[#3525cd] bg-[#e2dfff] px-3 py-1 rounded-full">
+      Arena Round Finalized
+    </span>
+    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#191c1e]">Game Complete!</h2>
+    <p class="text-sm text-[#464555] max-w-md">
+      Session completed. Review your accuracy breakdown, response times, and points breakdown below.
+    </p>
+  </header>
+
+  <!-- 5-Metric Bento Summary -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="bg-white border-2 border-[#3525cd]/40 shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
+      <span class="text-[10px] font-bold text-[#464555] uppercase tracking-widest mb-1">Final Rank</span>
+      <div class="flex items-baseline gap-0.5 text-[#3525cd]">
+        <span class="text-lg font-bold">#</span>
+        <span class="text-4xl font-extrabold">2</span>
+      </div>
+      <span class="text-[10px] text-[#006c49] font-bold mt-1">Podium Finish!</span>
+    </div>
+
+    <div class="bg-white border border-[#c7c4d8] shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+      <span class="text-[10px] font-bold text-[#464555] uppercase tracking-widest mb-1">Arena Score</span>
+      <span class="text-3xl font-extrabold text-[#191c1e]">395</span>
+    </div>
+
+    <div class="bg-white border border-[#c7c4d8] shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+      <span class="text-[10px] font-bold text-[#464555] uppercase tracking-widest mb-1">Accuracy</span>
+      <span class="text-3xl font-extrabold text-[#006c49]">80%</span>
+    </div>
+
+    <div class="bg-white border border-[#c7c4d8] shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+      <span class="text-[10px] font-bold text-[#464555] uppercase tracking-widest mb-1">Correct</span>
+      <span class="text-3xl font-extrabold text-[#191c1e]">8<span class="text-base text-[#464555] font-normal">/10</span></span>
+    </div>
+
+    <div class="bg-white border border-[#c7c4d8] shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
+      <span class="text-[10px] font-bold text-[#464555] uppercase tracking-widest mb-1">Avg Response</span>
+      <span class="text-3xl font-extrabold text-[#191c1e]">14<span class="text-base text-[#464555] font-normal">s</span></span>
+    </div>
+  </div>
+
+  <!-- Detailed Analytics -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="bg-white border border-[#c7c4d8] shadow-sm rounded-2xl p-6 flex flex-col gap-5">
+      <h3 class="font-bold text-base text-[#191c1e] border-b border-[#c7c4d8]/60 pb-3">Category Breakdown</h3>
+      <div>
+        <div class="flex justify-between text-xs mb-1.5 font-medium">
+          <span>Logical Reasoning</span>
+          <span class="text-[#3525cd] font-bold">80%</span>
+        </div>
+        <div class="w-full bg-[#e6e8ea] h-2.5 rounded-full overflow-hidden">
+          <div class="bg-[#3525cd] h-full rounded-full" style="width: 80%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1.5 font-medium">
+          <span>Verbal Ability</span>
+          <span class="text-[#006c49] font-bold">90%</span>
+        </div>
+        <div class="w-full bg-[#e6e8ea] h-2.5 rounded-full overflow-hidden">
+          <div class="bg-[#006c49] h-full rounded-full" style="width: 90%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1.5 font-medium">
+          <span>Quantitative Aptitude</span>
+          <span class="text-[#3130c0] font-bold">70%</span>
+        </div>
+        <div class="w-full bg-[#e6e8ea] h-2.5 rounded-full overflow-hidden">
+          <div class="bg-[#3130c0] h-full rounded-full" style="width: 70%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="lg:col-span-2 bg-white border border-[#c7c4d8] shadow-sm rounded-2xl overflow-hidden">
+      <div class="p-5 border-b border-[#c7c4d8]/60 bg-[#f2f4f6]">
+        <h3 class="font-bold text-base text-[#191c1e]">Final Leaderboard</h3>
+      </div>
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-[#c7c4d8]/60 uppercase tracking-wider text-[#464555] font-bold">
+            <th class="p-3.5 pl-5">Rank</th>
+            <th class="p-3.5">Participant</th>
+            <th class="p-3.5 text-right">Score</th>
+            <th class="p-3.5 pr-5 text-right">Avg Time</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#c7c4d8]/40">
+          <tr class="bg-[#4f46e5]/10 font-bold border-l-4 border-l-[#3525cd]">
+            <td class="p-3.5 pl-5 text-[#3525cd]">#2</td>
+            <td class="p-3.5 text-[#191c1e]">Rahul (YOU)</td>
+            <td class="p-3.5 text-right font-mono text-[#191c1e]">395</td>
+            <td class="p-3.5 pr-5 text-right font-mono text-[#464555]">14s</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

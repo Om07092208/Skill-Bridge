@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aptitude Arena | SkillBridge AI Prep</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  
+  <!-- Material Symbols Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  
+  <!-- Socket.IO Client Library -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  
+  <!-- Tailwind CSS via CDN with container-queries and forms -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3525cd",
+            "primary-container": "#4f46e5",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#dad7ff",
+            "primary-fixed": "#e2dfff",
+            "primary-fixed-dim": "#c3c0ff",
+            "secondary": "#006c49",
+            "secondary-container": "#6cf8bb",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#00714d",
+            "secondary-fixed-dim": "#4edea3",
+            "tertiary": "#3130c0",
+            "tertiary-container": "#4b4dd8",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#d9d8ff",
+            "surface": "#f7f9fb",
+            "background": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "surface-container": "#eceef0",
+            "surface-container-high": "#e6e8ea",
+            "surface-container-highest": "#e0e3e5",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#464555",
+            "outline": "#777587",
+            "outline-variant": "#c7c4d8",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a"
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "2xl": "1.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-surface text-on-surface font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+
+  <!-- ==================== DEMO / VIEW CONTROLLER BAR ==================== -->
+  <div id="demo-bar" class="fixed top-0 left-0 right-0 z-50 bg-inverse-surface/95 text-inverse-on-surface backdrop-blur-md px-4 py-2 flex flex-wrap items-center justify-between text-xs border-b border-white/10 shadow-lg transition-transform duration-300">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary text-white font-semibold tracking-wide">
+        <span class="w-2 h-2 rounded-full bg-secondary-container animate-ping"></span>
+        SkillBridge Arena Subsystem
+      </span>
+      <span class="hidden sm:inline text-white/70">Interactive Flow Navigator:</span>
+    </div>
+    
+    <div class="flex items-center gap-1.5 overflow-x-auto py-1">
+      <button onclick="ArenaApp.switchView('home')" class="view-pill px-3 py-1 rounded-md transition font-medium hover:bg-white/10 active:scale-95" data-view="home">
+        1. Arena Home
+      </button>
+      <button onclick="ArenaApp.switchView('waiting-room')" class="view-pill px-3 py-1 rounded-md transition font-medium hover:bg-white/10 active:scale-95" data-view="waiting-room">
+        2. Waiting Room
+      </button>
+      <button onclick="ArenaApp.switchView('live')" class="view-pill px-3 py-1 rounded-md transition font-medium hover:bg-white/10 active:scale-95" data-view="live">
+        3. Live Arena
+      </button>
+      <button onclick="ArenaApp.switchView('results')" class="view-pill px-3 py-1 rounded-md transition font-medium hover:bg-white/10 active:scale-95" data-view="results">
+        4. Results & Stats
+      </button>
+    </div>
+
+    <div class="hidden lg:flex items-center gap-3">
+      <button onclick="ArenaApp.toggleSound()" id="sound-toggle-btn" class="flex items-center gap-1 text-white/80 hover:text-white px-2 py-1 rounded hover:bg-white/10">
+        <span class="material-symbols-outlined text-sm" id="sound-icon">volume_up</span>
+        <span id="sound-label">Audio ON</span>
+      </button>
+      <button onclick="ArenaApp.toggleDemoBar()" class="text-white/60 hover:text-white p-1" title="Hide Navigation Bar">
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Float expand button when demo bar is hidden -->
+  <button id="restore-demo-bar" onclick="ArenaApp.toggleDemoBar()" class="hidden fixed top-3 right-4 z-50 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-105 transition" title="Show Flow Switcher">
+    <span class="material-symbols-outlined text-sm">swap_horiz</span>
+  </button>
+
+  <!-- ==================== DESKTOP SIDEBAR ==================== -->
+  <aside id="desktop-sidebar" class="hidden lg:flex flex-col p-4 pt-14 gap-2 h-screen w-64 left-0 top-0 border-r border-outline-variant bg-surface-container-low shrink-0 fixed z-30 transition-all duration-300">
+    <!-- Brand Logo -->
+    <div class="mb-6 flex items-center gap-3 px-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-md shadow-primary/20">
+        <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+      </div>
+      <div>
+        <h1 class="font-bold text-lg text-primary leading-tight">SkillBridge</h1>
+        <p class="text-xs text-on-surface-variant font-medium">AI Career Prep Hub</p>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex flex-col gap-1.5 flex-grow">
+      <a href="javascript:void(0)" onclick="ArenaApp.switchView('home')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-98" data-nav="home">
+        <span class="material-symbols-outlined text-[20px]">home</span>
+        Home Dashboard
+      </a>
+      
+      <a href="javascript:void(0)" onclick="ArenaApp.switchView('home')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-primary-container text-on-primary-container shadow-sm active:scale-98 transition-all" data-nav="arena">
+        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+        Aptitude Arena
+        <span class="ml-auto text-[10px] uppercase font-bold tracking-wider bg-secondary text-white px-2 py-0.5 rounded-full">Live</span>
+      </a>
+
+      <a href="javascript:void(0)" onclick="ArenaApp.showToast('Progress Analytics module loaded.')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-98" data-nav="progress">
+        <span class="material-symbols-outlined text-[20px]">trending_up</span>
+        Skill Progress
+      </a>
+
+      <a href="javascript:void(0)" onclick="ArenaApp.showToast('Interview Simulator is ready.')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-98" data-nav="mock">
+        <span class="material-symbols-outlined text-[20px]">record_voice_over</span>
+        AI Mock Interview
+      </a>
+
+      <a href="javascript:void(0)" onclick="ArenaApp.showToast('Settings panel opened.')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-98" data-nav="settings">
+        <span class="material-symbols-outlined text-[20px]">settings</span>
+        Settings
+      </a>
+    </nav>
+
+    <!-- Sidebar Action CTA -->
+    <div class="p-3 bg-primary-fixed/50 rounded-xl border border-primary-fixed-dim/40 mb-4">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="material-symbols-outlined text-primary text-base">psychology</span>
+        <span class="text-xs font-bold text-primary">Daily Arena Streak</span>
+      </div>
+      <p class="text-[11px] text-on-surface-variant mb-2.5">Play 1 match today to keep your 5-day streak active.</p>
+      <button onclick="ArenaApp.startQuickMatch()" class="w-full bg-primary text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-primary-container transition shadow-sm flex items-center justify-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">bolt</span> Quick Battle
+      </button>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="mt-auto border-t border-outline-variant pt-3 flex flex-col gap-1">
+      <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60">
+        <img class="w-8 h-8 rounded-full object-cover border border-primary/20" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Rahul Profile" />
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-bold text-on-surface truncate">Rahul Sharma</p>
+          <p class="text-[10px] text-on-surface-variant truncate">Rank: Top 5% (Master)</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== MOBILE TOP BAR ==================== -->
+  <header class="lg:hidden flex justify-between items-center h-16 pt-10 px-4 w-full top-0 bg-surface-container-lowest border-b border-outline-variant shadow-sm z-20 sticky">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
+        <span class="material-symbols-outlined text-xl">sports_esports</span>
+      </div>
+      <h1 class="text-lg font-bold text-primary">SkillBridge</h1>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <button onclick="ArenaApp.showToast('No new notifications.')" class="p-2 text-on-surface-variant hover:text-primary transition rounded-full hover:bg-surface-container-low">
+        <span class="material-symbols-outlined text-xl">notifications</span>
+      </button>
+      <img class="w-8 h-8 rounded-full border border-outline-variant object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Avatar" />
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT VIEW CONTAINER ==================== -->
+  <main id="main-content" class="flex-grow w-full lg:ml-64 pt-14 pb-20 lg:pb-8 px-4 md:px-8 max-w-7xl mx-auto overflow-y-auto">
+
+    <!-- ========================================================================= -->
+    <!-- SCREEN 1: ARENA HOME -->
+    <!-- ========================================================================= -->
+    <section id="view-home" class="arena-view active fade-in flex flex-col gap-8">
+      <!-- Header Banner -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/60 pb-6">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-primary text-xs font-semibold mb-2">
+            <span class="material-symbols-outlined text-sm">workspace_premium</span>
+            Multiplayer Aptitude Arena
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-on-surface">Aptitude Arena</h1>
+          <p class="text-base text-on-surface-variant mt-1">Compete live on speed, deductive logic, and quantitative accuracy with peers.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="ArenaApp.showMatchHistoryModal()" class="bg-surface-container-lowest border border-outline-variant text-on-surface text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-surface-container-low transition-all shadow-sm flex items-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-lg">history</span>
+            Match History
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Matchmaking Hub Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Create / Join Room Split Card (Span 2) -->
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            
+            <!-- Left: Host Private Room -->
+            <div class="text-center p-6 bg-surface-container-low rounded-xl border border-outline-variant/60 flex flex-col items-center justify-between h-full group hover:border-primary/40 transition">
+              <div>
+                <div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary mb-4 mx-auto group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-3xl">add_circle</span>
+                </div>
+                <h3 class="text-xl font-bold text-on-surface mb-2">Create Room</h3>
+                <p class="text-xs text-on-surface-variant mb-6">Host a custom private arena and invite friends with a 5-letter room code.</p>
+              </div>
+              <button onclick="ArenaApp.createRoom()" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-xl hover:bg-primary-container transition shadow-md shadow-primary/20 flex items-center justify-center gap-2 active:scale-98">
+                <span class="material-symbols-outlined text-lg">rocket_launch</span>
+                Create New Room
+              </button>
+            </div>
+
+            <!-- Right: Join Room via Code -->
+            <div class="flex flex-col justify-center p-2">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-primary text-xl">meeting_room</span>
+                <h3 class="text-xl font-bold text-on-surface">Join Room</h3>
+              </div>
+              <p class="text-xs text-on-surface-variant mb-4">Enter an active 5-digit room code to join your friends' lobby.</p>
+              
+              <div class="flex flex-col gap-3">
+                <div>
+                  <label for="home-room-code-input" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1.5">Room Passcode</label>
+                  <input id="home-room-code-input" type="text" maxlength="6" placeholder="e.g. 7K4P9" class="w-full bg-surface-container-low border border-outline-variant p-3.5 rounded-xl font-mono text-lg text-center tracking-widest uppercase focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition" />
+                </div>
+                <button onclick="ArenaApp.joinRoomFromInput()" class="w-full bg-surface-container-high hover:bg-primary hover:text-white text-on-surface font-semibold py-3 rounded-xl transition duration-200 shadow-sm flex items-center justify-center gap-2 active:scale-98">
+                  <span class="material-symbols-outlined text-lg">login</span>
+                  Join Match
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Quick Match Instant CTA (Span 1) -->
+        <div onclick="ArenaApp.startQuickMatch()" class="bg-gradient-to-br from-primary via-[#4338ca] to-[#312e81] text-white rounded-2xl p-8 shadow-xl flex flex-col items-center justify-between text-center relative overflow-hidden group cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all">
+          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
+          <div class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-white/15 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">
+            Instant Match
+          </div>
+
+          <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-secondary-container mb-4 mt-2 shadow-inner border border-white/20 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+            <span class="material-symbols-outlined text-4xl">bolt</span>
+          </div>
+
+          <div>
+            <h3 class="text-2xl font-bold mb-2">Quick Match</h3>
+            <p class="text-xs text-white/80 max-w-xs mb-6">Auto-match instantly with 3 peers at your skill rating for a fast 10-question battle.</p>
+          </div>
+
+          <div class="w-full bg-white text-primary font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 group-hover:bg-secondary-container group-hover:text-on-secondary-container transition shadow-md">
+            <span>Find Match Now</span>
+            <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Personal Stats Bento Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">bar_chart</span>
+            Personal Performance Telemetry
+          </h2>
+          <span class="text-xs text-on-surface-variant font-medium">Last 30 Days</span>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="stat-card bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary/40 transition">
+            <div class="flex items-center justify-between text-on-surface-variant mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Games Played</span>
+              <span class="material-symbols-outlined text-lg text-primary">sports_score</span>
+            </div>
+            <span id="stat-games-played" class="text-3xl font-bold text-on-surface">24</span>
+            <span class="text-[11px] text-secondary font-medium flex items-center gap-0.5 mt-1">
+              <span class="material-symbols-outlined text-xs">trending_up</span> +6 this week
+            </span>
+          </div>
+
+          <div class="stat-card bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary/40 transition">
+            <div class="flex items-center justify-between text-on-surface-variant mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Best Arena Rank</span>
+              <span class="material-symbols-outlined text-lg text-amber-500">military_tech</span>
+            </div>
+            <span id="stat-best-rank" class="text-3xl font-bold text-primary">#1</span>
+            <span class="text-[11px] text-on-surface-variant font-medium mt-1 block">Held 4 times</span>
+          </div>
+
+          <div class="stat-card bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary/40 transition">
+            <div class="flex items-center justify-between text-on-surface-variant mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Accuracy Rate</span>
+              <span class="material-symbols-outlined text-lg text-secondary">check_circle</span>
+            </div>
+            <span id="stat-accuracy" class="text-3xl font-bold text-on-surface">88%</span>
+            <span class="text-[11px] text-secondary font-medium flex items-center gap-0.5 mt-1">
+              <span class="material-symbols-outlined text-xs">arrow_upward</span> Top 10th percentile
+            </span>
+          </div>
+
+          <div class="stat-card bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary/40 transition">
+            <div class="flex items-center justify-between text-on-surface-variant mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Avg Response Time</span>
+              <span class="material-symbols-outlined text-lg text-indigo-500">speed</span>
+            </div>
+            <span id="stat-avg-time" class="text-3xl font-bold text-on-surface">22s</span>
+            <span class="text-[11px] text-on-surface-variant font-medium mt-1 block">Target: &lt; 25s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Explorer -->
+      <div>
+        <h2 class="text-xl font-bold text-on-surface flex items-center gap-2 mb-4">
+          <span class="material-symbols-outlined text-primary">category</span>
+          Question Domains Covered
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Logical Reasoning -->
+          <div onclick="ArenaApp.filterCategory('logical')" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary hover:shadow-md transition-all cursor-pointer group">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-2xl">psychology</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-on-surface group-hover:text-primary transition-colors">Logical Reasoning</h3>
+                <span class="text-[11px] text-on-surface-variant">Puzzles, Syllogisms, Series</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">Pattern recognition, deductive logic, seating arrangements, and analytical thinking puzzles.</p>
+          </div>
+
+          <!-- Verbal Ability -->
+          <div onclick="ArenaApp.filterCategory('verbal')" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary hover:shadow-md transition-all cursor-pointer group">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-2xl">menu_book</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-on-surface group-hover:text-primary transition-colors">Verbal Ability</h3>
+                <span class="text-[11px] text-on-surface-variant">Comprehension, Grammar</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">Reading comprehension, grammar correction, vocabulary nuance, and verbal critical thinking.</p>
+          </div>
+
+          <!-- Quantitative Aptitude -->
+          <div onclick="ArenaApp.filterCategory('quant')" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 shadow-sm hover:border-primary hover:shadow-md transition-all cursor-pointer group">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-2xl">calculate</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-on-surface group-hover:text-primary transition-colors">Quantitative Aptitude</h3>
+                <span class="text-[11px] text-on-surface-variant">Arithmetic, Algebra, DI</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">Speed calculations, percentages, time & work, permutations, and data interpretation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SCREEN 2: WAITING ROOM LOBBY -->
+    <!-- ========================================================================= -->
+    <section id="view-waiting-room" class="arena-view hidden fade-in flex flex-col gap-6 max-w-5xl mx-auto">
+      <!-- Lobby Header & Code Widget -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+            <span class="text-xs font-bold uppercase tracking-wider text-secondary">Match Lobby Active</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-on-surface" id="lobby-room-title">Elite Aptitude Arena Room</h2>
+          <p class="text-sm text-on-surface-variant flex items-center gap-1.5 mt-1" id="lobby-player-count">
+            <span class="material-symbols-outlined text-base">group</span>
+            4 / 4 Players Connected
+          </p>
+        </div>
+
+        <!-- Room Code Pill with Copy -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-2 pl-5 flex items-center gap-4 shadow-inner">
+          <div class="flex flex-col">
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Room Code</span>
+            <span id="lobby-room-code-display" class="font-mono text-2xl font-bold text-primary tracking-widest leading-none mt-0.5">7K4P9</span>
+          </div>
+          <button onclick="ArenaApp.copyRoomCode()" class="h-11 w-11 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface hover:text-primary hover:bg-primary-fixed transition shadow-sm" title="Copy Room Code">
+            <span class="material-symbols-outlined text-xl">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Player Cards Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-on-surface-variant">Lobby Participants</h3>
+          <span class="text-xs text-on-surface-variant">Waiting for all players to mark Ready</span>
+        </div>
+
+        <div id="lobby-players-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Player 1: Current User (Host) -->
+          <div class="player-card bg-surface-container-lowest border-2 border-secondary rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
+            <div class="relative shrink-0">
+              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Rahul" />
+              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
+                <span class="material-symbols-outlined text-xs">check</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold text-base text-on-surface truncate">Rahul Sharma</h4>
+                <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Host (You)</span>
+              </div>
+              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">verified</span> Ready to Compete
+              </p>
+            </div>
+            <button onclick="ArenaApp.toggleUserReady()" id="user-ready-toggle-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-secondary text-secondary hover:bg-secondary hover:text-white transition">
+              Ready
+            </button>
+          </div>
+
+          <!-- Player 2: Ananya -->
+          <div class="player-card bg-surface-container-lowest border border-secondary/40 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
+            <div class="relative shrink-0">
+              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80" alt="Ananya" />
+              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
+                <span class="material-symbols-outlined text-xs">check</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold text-base text-on-surface truncate">Ananya Deshmukh</h4>
+                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 3%</span>
+              </div>
+              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">check_circle</span> Ready
+              </p>
+            </div>
+          </div>
+
+          <!-- Player 3: Arjun -->
+          <div class="player-card bg-surface-container-lowest border border-secondary/40 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
+            <div class="relative shrink-0">
+              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80" alt="Arjun" />
+              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
+                <span class="material-symbols-outlined text-xs">check</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold text-base text-on-surface truncate">Arjun Nair</h4>
+                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 8%</span>
+              </div>
+              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">check_circle</span> Ready
+              </p>
+            </div>
+          </div>
+
+          <!-- Player 4: Priya -->
+          <div id="player-4-slot" class="player-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm opacity-90 transition-all">
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-outline-variant"></div>
+            <div class="relative shrink-0">
+              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow grayscale-[40%]" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=120&auto=format&fit=crop&q=80" alt="Priya" />
+              <div id="player-4-badge" class="absolute -bottom-1 -right-1 bg-surface-container-highest text-on-surface-variant rounded-full w-5 h-5 flex items-center justify-center shadow">
+                <span class="material-symbols-outlined text-xs">hourglass_empty</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold text-base text-on-surface truncate">Priya Patel</h4>
+                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 5%</span>
+              </div>
+              <p id="player-4-status" class="text-xs text-on-surface-variant font-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm animate-spin">sync</span> Setting up audio/device...
+              </p>
+            </div>
+            <button onclick="ArenaApp.simulatePlayer4Ready()" class="text-[11px] text-primary underline font-medium hover:text-primary-container">
+              Auto-Ready
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match Format Overview Card -->
+      <div class="bg-primary-fixed/30 border border-primary-fixed-dim/50 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary text-2xl">timer</span>
+          <div class="text-xs">
+            <p class="font-bold text-primary">Dynamic Difficulty Timers Active</p>
+            <p class="text-on-surface-variant">Time allocated dynamically per question based on complexity.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+          <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300">🟢 Easy: 30s</span>
+          <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-300">🟡 Med: 1 min</span>
+          <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 border border-rose-300">🔴 Hard: 90s</span>
+        </div>
+      </div>
+
+      <!-- Lobby Footer Action Controls -->
+      <div class="bg-surface-container-lowest border border-outline-variant p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        <button onclick="ArenaApp.switchView('home')" class="w-full sm:w-auto text-on-surface-variant hover:text-on-surface text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-surface-container-low transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          Leave Room
+        </button>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <span id="lobby-status-msg" class="text-xs text-on-surface-variant text-center sm:text-right font-medium">
+            All players ready! Host can start the match.
+          </span>
+          <button id="start-game-btn" onclick="ArenaApp.showInstructionsModal()" class="w-full sm:w-auto bg-primary hover:bg-primary-container text-white font-bold text-sm px-8 py-3 rounded-xl shadow-md shadow-primary/20 transition flex items-center justify-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+            Start Arena Battle
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SCREEN 3: LIVE COMPETITION ARENA -->
+    <!-- ========================================================================= -->
+    <section id="view-live" class="arena-view hidden fade-in flex flex-col lg:flex-row gap-6">
+      
+      <!-- Left & Center: Live Question Canvas -->
+      <div class="flex-grow flex flex-col gap-5">
+        
+        <!-- Top Status Bar -->
+        <div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center shadow-sm">
+              <span class="material-symbols-outlined text-xl">bolt</span>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-on-surface leading-tight">Aptitude Arena Live</h2>
+              <p class="text-xs text-on-surface-variant">Room: <span class="font-mono font-bold text-primary" id="live-room-code-tag">7K4P9</span></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="bg-surface-container-low px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-outline-variant text-xs font-semibold text-on-surface">
+              <span class="material-symbols-outlined text-base text-primary">group</span>
+              <span>4 Players</span>
+            </div>
+
+            <!-- Countdown Timer with Urgent Pulse -->
+            <div id="live-timer-container" class="bg-primary text-white px-3.5 py-1.5 rounded-lg flex items-center gap-2 shadow-sm transition-all">
+              <span class="material-symbols-outlined text-base animate-spin" style="animation-duration: 3s;">timer</span>
+              <span id="live-countdown" class="font-mono text-base font-bold tracking-tight">00:30</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col justify-between flex-grow min-h-[420px] relative overflow-hidden">
+          
+          <!-- Animated Question Timer Progress Bar -->
+          <div class="absolute top-0 left-0 right-0 h-1.5 bg-surface-container-high overflow-hidden">
+            <div id="question-time-bar" class="h-full bg-primary rounded-r-full" style="width: 100%;"></div>
+          </div>
+
+          <!-- Category, Difficulty & Question Number Header -->
+          <div class="pt-1">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-outline-variant/60">
+              <div class="flex items-center gap-2">
+                <span id="live-category-badge" class="text-xs font-bold text-primary uppercase tracking-wider bg-primary-fixed px-3 py-1 rounded-full">
+                  Quantitative Aptitude
+                </span>
+                <!-- Dynamic Difficulty Badge -->
+                <span id="live-difficulty-badge" class="text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm badge-easy">
+                  <span>🟢</span> Easy • 30s
+                </span>
+              </div>
+              <span id="live-question-index-badge" class="text-xs font-semibold text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">
+                Question 1 of 10
+              </span>
+            </div>
+
+            <!-- Question Prompt Title -->
+            <h3 id="live-question-title" class="text-xl sm:text-2xl font-bold text-on-surface leading-snug mb-6">
+              If a train travels at 60 km/h, how long does it take to cover 150 km?
+            </h3>
+          </div>
+
+          <!-- Multiple Choice Options (A, B, C, D) -->
+          <div id="live-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <!-- Bottom: Question 1-10 Progression Dots -->
+          <div class="pt-5 border-t border-outline-variant/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-on-surface-variant font-medium">Progress:</span>
+              <div id="question-dots-container" class="flex items-center gap-1.5">
+                <!-- 10 dots generated by JS -->
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button onclick="ArenaApp.skipQuestion()" class="text-xs font-semibold text-on-surface-variant hover:text-on-surface px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition">
+                Skip
+              </button>
+              <button id="next-question-btn" onclick="ArenaApp.nextQuestion()" class="bg-primary text-white text-xs font-bold px-5 py-2 rounded-xl hover:bg-primary-container transition shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+                Next Question &rarr;
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Sidebar: Real-Time Standings & Leaderboard -->
+      <aside class="w-full lg:w-80 flex flex-col gap-4 shrink-0">
+        
+        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-5 flex flex-col">
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-outline-variant/60">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">leaderboard</span>
+              <h3 class="font-bold text-base text-on-surface">Live Standings</h3>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full animate-pulse">
+              Live Scores
+            </span>
+          </div>
+
+          <!-- Ranked Live Player List -->
+          <div id="live-standings-list" class="flex flex-col gap-2.5">
+            <!-- Dynamically ordered by score via app.js -->
+          </div>
+        </div>
+
+        <!-- Strategy Tip Box -->
+        <div class="bg-surface-container-low rounded-2xl p-4 border border-outline-variant text-center">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-2">
+            <span class="material-symbols-outlined text-lg">lightbulb</span>
+          </div>
+          <h4 class="text-xs font-bold text-on-surface mb-1">Speed Multiplier Active</h4>
+          <p class="text-[11px] text-on-surface-variant leading-relaxed">Answers submitted in &lt; 10 seconds award an extra +20 bonus streak points!</p>
+        </div>
+
+      </aside>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SCREEN 4: RESULTS & ANALYTICS -->
+    <!-- ========================================================================= -->
+    <section id="view-results" class="arena-view hidden fade-in flex flex-col gap-8 max-w-5xl mx-auto py-2">
+      
+      <!-- Trophy Header -->
+      <header class="text-center flex flex-col items-center gap-2">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 mb-2 animate-bounce">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-fixed px-3 py-1 rounded-full">
+          Arena Round Finalized
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-on-surface">Game Complete!</h2>
+        <p class="text-sm text-on-surface-variant max-w-md">
+          Great battle! Review your accuracy breakdown, response times, and points breakdown below.
+        </p>
+      </header>
+
+      <!-- 5-Metric Bento Summary -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        
+        <!-- Final Rank -->
+        <div class="bg-surface-container-lowest border-2 border-primary/40 shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Final Rank</span>
+          <div class="flex items-baseline gap-0.5 text-primary">
+            <span class="text-lg font-bold">#</span>
+            <span id="results-final-rank" class="text-4xl font-extrabold">2</span>
+          </div>
+          <span id="results-rank-subtitle" class="text-[10px] text-secondary font-bold mt-1">Podium Finish!</span>
+        </div>
+
+        <!-- Score -->
+        <div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Arena Score</span>
+          <span id="results-final-score" class="text-3xl font-extrabold text-on-surface">395</span>
+          <span class="text-[10px] text-on-surface-variant mt-1">+45 speed bonus</span>
+        </div>
+
+        <!-- Accuracy -->
+        <div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Accuracy</span>
+          <span id="results-accuracy" class="text-3xl font-extrabold text-secondary">80%</span>
+          <span class="text-[10px] text-secondary font-medium mt-1">Above Average</span>
+        </div>
+
+        <!-- Correct Count -->
+        <div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Correct</span>
+          <span id="results-correct-count" class="text-3xl font-extrabold text-on-surface">8<span class="text-base text-on-surface-variant font-normal">/10</span></span>
+          <span id="results-mistakes-count" class="text-[10px] text-on-surface-variant mt-1">2 Mistakes</span>
+        </div>
+
+        <!-- Avg Time -->
+        <div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl p-5 flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Avg Response</span>
+          <span id="results-avg-time" class="text-3xl font-extrabold text-on-surface">14<span class="text-base text-on-surface-variant font-normal">s</span></span>
+          <span class="text-[10px] text-primary font-bold mt-1">Lightning Fast</span>
+        </div>
+
+      </div>
+
+      <!-- Detailed Breakdown & Leaderboard -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Category Breakdown Analytics -->
+        <div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl p-6 flex flex-col justify-between gap-6">
+          <div>
+            <div class="flex items-center gap-2 border-b border-outline-variant/60 pb-3 mb-4">
+              <span class="material-symbols-outlined text-primary">analytics</span>
+              <h3 class="font-bold text-base text-on-surface">Category Mastery</h3>
+            </div>
+
+            <div class="flex flex-col gap-4">
+              <!-- Logical -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+                  <span class="text-on-surface">Logical Reasoning</span>
+                  <span class="text-primary font-bold" id="results-logical-pct">80%</span>
+                </div>
+                <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                  <div class="bg-primary h-full rounded-full transition-all duration-1000" id="results-logical-bar" style="width: 80%"></div>
+                </div>
+              </div>
+
+              <!-- Verbal -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+                  <span class="text-on-surface">Verbal Ability</span>
+                  <span class="text-secondary font-bold" id="results-verbal-pct">90%</span>
+                </div>
+                <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                  <div class="bg-secondary h-full rounded-full transition-all duration-1000" id="results-verbal-bar" style="width: 90%"></div>
+                </div>
+              </div>
+
+              <!-- Quant -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+                  <span class="text-on-surface">Quantitative Aptitude</span>
+                  <span class="text-tertiary font-bold" id="results-quant-pct">70%</span>
+                </div>
+                <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                  <div class="bg-tertiary h-full rounded-full transition-all duration-1000" id="results-quant-bar" style="width: 70%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/60 text-xs">
+            <span class="font-bold text-on-surface block mb-1">AI Recommendation:</span>
+            <p class="text-on-surface-variant text-[11px] leading-relaxed">Boost speed in Quantitative time-distance formulas to reach 95%+ precision.</p>
+          </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant shadow-sm rounded-2xl overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-outline-variant/60 flex justify-between items-center bg-surface-container-low/50">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">format_list_numbered</span>
+              <h3 class="font-bold text-base text-on-surface">Final Leaderboard</h3>
+            </div>
+            <span class="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
+              <span class="material-symbols-outlined text-xs">timer</span>
+              New match in 02:00
+            </span>
+          </div>
+
+          <div class="overflow-x-auto flex-grow">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-outline-variant/60 bg-surface-container-lowest font-bold text-on-surface-variant uppercase tracking-wider text-[11px]">
+                  <th class="p-3.5 pl-5">Rank</th>
+                  <th class="p-3.5">Participant</th>
+                  <th class="p-3.5 text-right">Score</th>
+                  <th class="p-3.5 text-right">Accuracy</th>
+                  <th class="p-3.5 pr-5 text-right">Avg Time</th>
+                </tr>
+              </thead>
+              <tbody id="results-leaderboard-tbody" class="divide-y divide-outline-variant/40">
+                <!-- Dynamically filled with highlighted player row -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <button onclick="ArenaApp.playAgain()" class="w-full sm:w-auto bg-primary hover:bg-primary-container text-white font-bold text-sm py-3.5 px-8 rounded-xl shadow-md shadow-primary/20 transition duration-200 active:scale-95 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">replay</span>
+          Play Again
+        </button>
+        <button onclick="ArenaApp.switchView('home')" class="w-full sm:w-auto bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-outline-variant font-bold text-sm py-3.5 px-8 rounded-xl shadow-sm transition duration-200 active:scale-95 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">arrow_back</span>
+          Back to Arena Hub
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant flex justify-around items-center h-16 z-30 shadow-lg">
+    <a href="javascript:void(0)" onclick="ArenaApp.switchView('home')" class="flex flex-col items-center gap-1 text-on-surface-variant p-2 active:opacity-80">
+      <span class="material-symbols-outlined text-xl">home</span>
+      <span class="text-[10px] font-semibold">Home</span>
+    </a>
+    <a href="javascript:void(0)" onclick="ArenaApp.switchView('home')" class="flex flex-col items-center gap-1 text-primary p-2 active:opacity-80">
+      <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+      <span class="text-[10px] font-bold">Arena</span>
+    </a>
+    <a href="javascript:void(0)" onclick="ArenaApp.showToast('Progress module')" class="flex flex-col items-center gap-1 text-on-surface-variant p-2 active:opacity-80">
+      <span class="material-symbols-outlined text-xl">trending_up</span>
+      <span class="text-[10px] font-semibold">Progress</span>
+    </a>
+    <a href="javascript:void(0)" onclick="ArenaApp.showToast('Settings opened')" class="flex flex-col items-center gap-1 text-on-surface-variant p-2 active:opacity-80">
+      <span class="material-symbols-outlined text-xl">settings</span>
+      <span class="text-[10px] font-semibold">Settings</span>
+    </a>
+  </nav>
+
+  <!-- ==================== ARENA INSTRUCTIONS & BRIEFING MODAL ==================== -->
+  <div id="instructions-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/80 backdrop-blur-md hidden modal-backdrop">
+    <div class="modal-content bg-surface-container-lowest border border-outline-variant rounded-2xl sm:rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl flex flex-col gap-6 relative">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-outline-variant/60 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-md">
+            <span class="material-symbols-outlined text-2xl">rules</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-primary-fixed text-primary px-2.5 py-0.5 rounded-full">
+                Pre-Match Briefing
+              </span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-on-surface">Arena Rules & Dynamic Timers</h3>
+          </div>
+        </div>
+        <button onclick="ArenaApp.closeInstructionsModal()" class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Core Instructions: Difficulty Based Timer Matrix -->
+      <div class="flex flex-col gap-4">
+        <div class="p-4 bg-primary-fixed/30 rounded-2xl border border-primary-fixed-dim/50">
+          <h4 class="text-sm font-bold text-primary flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-lg">timer</span>
+            Difficulty-Based Dynamic Timer System
+          </h4>
+          <p class="text-xs text-on-surface-variant mb-3">
+            Each question's clock is calibrated based on difficulty level:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <!-- Easy -->
+            <div class="bg-surface-container-lowest p-3.5 rounded-xl border border-emerald-300 shadow-sm flex flex-col justify-between gap-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-emerald-800 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Easy Level
+                </span>
+                <span class="font-mono font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">30s</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-snug">Quick recall, simple arithmetic & fundamental logic.</p>
+            </div>
+
+            <!-- Medium -->
+            <div class="bg-surface-container-lowest p-3.5 rounded-xl border border-amber-300 shadow-sm flex flex-col justify-between gap-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-800 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Medium Level
+                </span>
+                <span class="font-mono font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">1 min</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-snug">Pattern analysis, grammar nuance & work-rate math.</p>
+            </div>
+
+            <!-- Hard -->
+            <div class="bg-surface-container-lowest p-3.5 rounded-xl border border-rose-300 shadow-sm flex flex-col justify-between gap-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-rose-800 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Hard Level
+                </span>
+                <span class="font-mono font-extrabold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">90s</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-snug">Multi-step compound formulas & deductive syllogisms.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scoring Rules -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-surface-container-low rounded-xl border border-outline-variant/60 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-secondary text-lg mt-0.5">bolt</span>
+            <div>
+              <span class="font-bold text-on-surface block">Speed Multiplier</span>
+              <span class="text-[11px] text-on-surface-variant">Answers under 30% of allocated time receive +20 bonus streak points.</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-surface-container-low rounded-xl border border-outline-variant/60 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-error text-lg mt-0.5">timer_off</span>
+            <div>
+              <span class="font-bold text-on-surface block">Automatic Advance</span>
+              <span class="text-[11px] text-on-surface-variant">When the clock hits zero, the question auto-submits with 0 points.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2 border-t border-outline-variant/60">
+        <button onclick="ArenaApp.closeInstructionsModal()" class="w-full sm:w-auto text-on-surface-variant hover:text-on-surface text-xs font-semibold py-2.5 px-4 rounded-xl hover:bg-surface-container-low transition">
+          Back to Lobby
+        </button>
+        <button onclick="ArenaApp.confirmStartMatchNow()" class="w-full sm:w-auto bg-primary hover:bg-primary-container text-white font-bold text-sm py-3 px-8 rounded-xl shadow-md shadow-primary/20 transition flex items-center justify-center gap-2 active:scale-95">
+          <span class="material-symbols-outlined text-lg">play_arrow</span>
+          <span id="instructions-start-btn-label">Begin Arena Battle (3s)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toast-container" class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Application Logic Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

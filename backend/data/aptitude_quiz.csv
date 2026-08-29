@@ -1,0 +1,25 @@
+id,category,difficulty,question,option_a,option_b,option_c,option_d,correct_answer
+Q01,Quantitative Aptitude,Easy,"If a train travels at 60 km/h, how long does it take to cover a distance of 150 km?",2 hours,2.5 hours,3 hours,3.5 hours,option_b
+Q02,Logical Reasoning,Easy,"Find the missing number in the series: 4, 9, 19, 39, 79, ?",119,149,159,169,option_c
+Q03,Verbal Ability,Easy,"Select the word that is most opposite in meaning (Antonym) to 'CANDID':",Deceptive,Blunt,Frank,Sincere,option_a
+Q04,Quantitative Aptitude,Easy,"A shirt originally priced at $80 is on sale for 25% off. What is the sale price?",$55,$60,$65,$70,option_b
+Q05,Logical Reasoning,Easy,"Pointing to a photograph, a man said, 'I have no brother, and that man's father is my father's son.' Whose photograph is it?",His father's,His son's,His own,His nephew's,option_b
+Q06,Verbal Ability,Easy,"Choose the correctly spelt word:",Accomodate,Accommodate,Acommodate,Accommade,option_b
+Q07,Quantitative Aptitude,Easy,"What is 15% of 400?",50,60,70,80,option_b
+Q08,Logical Reasoning,Easy,"Which word does NOT belong with the others: Apple, Banana, Orange, Carrot?",Apple,Banana,Orange,Carrot,option_d
+Q09,Verbal Ability,Easy,"Choose the synonym for 'METICULOUS':",Careless,Precise,Hasty,Vague,option_b
+Q10,Quantitative Aptitude,Medium,"If 'APPLE' is coded as 'EQTPI' in a certain language, what does 'ORANGE' code to?",SVCPKI,SVERKI,SVEOKI,TUERLI,option_b
+Q11,Logical Reasoning,Medium,"Choose the correct grammatical completion: 'Neither the manager nor the employees _____ present at the briefing.'",was,were,is,has been,option_b
+Q12,Verbal Ability,Medium,"Pipe A can fill a tank in 6 hours, while Pipe B can fill it in 3 hours. How long will it take if both operate together?",1.5 hours,2 hours,2.5 hours,4.5 hours,option_b
+Q13,Quantitative Aptitude,Medium,"A trader sells an item for $240 at a 20% profit. What was the cost price?",$180,$200,$210,$220,option_b
+Q14,Logical Reasoning,Medium,"In a row of 25 students, Priya is 8th from the left. What is her rank from the right end?",17th,18th,19th,20th,option_b
+Q15,Verbal Ability,Medium,"Identify the idiom meaning 'to face a difficult situation with courage and fortitude':",Bite the bullet,Spill the beans,Break the ice,Burn bridges,option_a
+Q16,Quantitative Aptitude,Medium,"Two dice are thrown simultaneously. What is the probability of getting a sum of 7?",1/12,1/6,1/4,5/36,option_b
+Q17,Logical Reasoning,Medium,"If SOUTH-EAST becomes NORTH, and NORTH-EAST becomes WEST, what will WEST become?",SOUTH-EAST,SOUTH-WEST,NORTH-WEST,SOUTH,option_a
+Q18,Verbal Ability,Medium,"Complete the analogy: Epilogue is to Novel as ______ is to Symphony.",Overture,Coda,Intermezzo,Cadenza,option_b
+Q19,Quantitative Aptitude,Hard,"What is the compound interest on $1,000 for 2 years at 10% per annum compounded annually?",$200,$210,$220,$250,option_b
+Q20,Logical Reasoning,Hard,"Statements: All roses are flowers. Some flowers fade quickly. Conclusion: Some roses fade quickly.",Definitely True,Definitely False,Cannot be determined,Logically invalid,option_c
+Q21,Verbal Ability,Hard,"Select the correct meaning of 'ESOTERIC':",Intended for or understood by only a small group,Commonly practiced and accepted,Extremely harmful or dangerous,Excessively emotional,option_a
+Q22,Quantitative Aptitude,Hard,"In how many ways can 5 boys and 4 girls sit in a row such that all girls sit together?",2,880,17,280,24,560,40,320,option_b
+Q23,Logical Reasoning,Hard,"Five people A, B, C, D, and E are sitting around a circular table. A is between E and C. D is second to the left of A. Who is sitting to the immediate right of E?",A,B,C,D,option_a
+Q24,Verbal Ability,Hard,"Find the misplaced modifier error: 'Walking to the station, the rain drenched him completely.'",Dangling participle modifying rain,Incorrect verb tense,Wrong preposition,Missing object pronoun,option_a
