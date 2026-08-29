@@ -179,6 +179,11 @@ function startRoomGame(roomCode, socketId) {
     return { success: false, error: 'INVALID_STATUS', message: 'Game cannot be started in current state.' };
   }
 
+  // Minimum 2 players required to start match
+  if (room.players.length < 2) {
+    return { success: false, error: 'MIN_PLAYERS_REQUIRED', message: 'At least 2 players are required to start an Arena Battle.' };
+  }
+
   // Pick 10 questions for this round from question bank
   room.questions = selectQuestionsForRound(10);
   room.currentQuestionIndex = 0;

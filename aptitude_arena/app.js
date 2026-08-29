@@ -564,18 +564,35 @@ const ArenaApp = (() => {
     const startBtn = document.getElementById('start-game-btn');
     const statusMsg = document.getElementById('lobby-status-msg');
 
+    const count = state.players.length;
     const allReady = state.players.every(p => p.isReady);
-    const canStart = state.isHost && (state.players.length === 1 ? state.isUserReady : allReady);
 
-    if (canStart) {
-      if (startBtn) startBtn.removeAttribute('disabled');
-      if (statusMsg) statusMsg.textContent = 'All players ready! Host can start the match.';
-    } else {
-      if (startBtn) startBtn.setAttribute('disabled', 'true');
+    // Rule: Room quiz cannot start solo (minimum 2 players required)
+    if (count < 2) {
+      if (startBtn) {
+        startBtn.setAttribute('disabled', 'true');
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      if (statusMsg) {
+        statusMsg.innerHTML = '<span class="text-amber-600 font-semibold flex items-center justify-center sm:justify-end gap-1"><span class="material-symbols-outlined text-sm">group_add</span> Waiting for at least 1 more contender to join (1/2 min)...</span>';
+      }
+    } else if (!allReady) {
+      if (startBtn) {
+        startBtn.setAttribute('disabled', 'true');
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
       if (statusMsg) {
         statusMsg.textContent = state.isHost
-          ? 'Waiting for all players to mark ready...'
+          ? 'Waiting for all players to mark Ready...'
           : 'Waiting for host to launch the match...';
+      }
+    } else {
+      if (startBtn) {
+        startBtn.removeAttribute('disabled');
+        startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+      if (statusMsg) {
+        statusMsg.textContent = 'All players ready! Host can start the match.';
       }
     }
   };
