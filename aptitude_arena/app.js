@@ -18,7 +18,9 @@ const ArenaApp = (() => {
   // ==========================================
   const CONFIG = {
     USE_REALTIME_BACKEND: true,
-    BACKEND_URL: 'http://localhost:3000'
+    BACKEND_URL: (window.location.hostname && window.location.hostname !== 'localhost')
+      ? `http://${window.location.hostname}:3000`
+      : 'http://localhost:3000'
   };
 
   const state = {
