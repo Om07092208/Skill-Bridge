@@ -1,6 +1,392 @@
 {
   "matches": [
     {
+      "roundId": "rnd_mtfvbrhk",
+      "roomCode": "GTCZE",
+      "timestamp": "2026-08-30T13:54:32.653Z",
+      "totalQuestions": 10,
+      "winner": {
+        "name": "Jai",
+        "score": 400
+      },
+      "leaderboard": [
+        {
+          "rank": 1,
+          "playerId": "p_16vm5zl",
+          "playerName": "Jai",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 400,
+          "correctCount": 7,
+          "totalTime": 68,
+          "isHost": false,
+          "isReady": true,
+          "isDisconnected": false
+        },
+        {
+          "rank": 2,
+          "playerId": "p_ckou27m",
+          "playerName": "Om",
+          "socketId": "Qw1VlLrfOohLwFHlAAAL",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 260,
+          "correctCount": 5,
+          "totalTime": 97,
+          "isHost": false,
+          "isReady": true,
+          "isDisconnected": false
+        },
+        {
+          "rank": 3,
+          "playerId": "p_17wqsj9",
+          "playerName": "Rahul (Host)",
+          "socketId": "-s3xYp0Xo1_C2WVOAAAJ",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 220,
+          "correctCount": 4,
+          "totalTime": 85,
+          "isHost": true,
+          "isReady": true,
+          "isDisconnected": false
+        },
+        {
+          "rank": 4,
+          "playerId": "p_xkauyif",
+          "playerName": "Vijay",
+          "socketId": "0HaUGjnuDcGx4RU4AAAN",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 180,
+          "correctCount": 4,
+          "totalTime": 99,
+          "isHost": false,
+          "isReady": true,
+          "isDisconnected": false
+        }
+      ],
+      "playerResults": [
+        {
+          "playerId": "p_17wqsj9",
+          "socketId": "-s3xYp0Xo1_C2WVOAAAJ",
+          "name": "Rahul (Host)",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 3,
+          "score": 220,
+          "correctCount": 4,
+          "totalQuestions": 10,
+          "accuracy": 40,
+          "avgTime": 9,
+          "totalTime": 85,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 6,
+              "correct": 2,
+              "percentage": 33
+            },
+            "Logical Reasoning": {
+              "total": 1,
+              "correct": 0,
+              "percentage": 0
+            },
+            "Verbal Ability": {
+              "total": 3,
+              "correct": 2,
+              "percentage": 67
+            }
+          }
+        },
+        {
+          "playerId": "p_ckou27m",
+          "socketId": "Qw1VlLrfOohLwFHlAAAL",
+          "name": "Om",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 2,
+          "score": 260,
+          "correctCount": 5,
+          "totalQuestions": 10,
+          "accuracy": 50,
+          "avgTime": 10,
+          "totalTime": 97,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 6,
+              "correct": 3,
+              "percentage": 50
+            },
+            "Logical Reasoning": {
+              "total": 1,
+              "correct": 0,
+              "percentage": 0
+            },
+            "Verbal Ability": {
+              "total": 3,
+              "correct": 2,
+              "percentage": 67
+            }
+          }
+        },
+        {
+          "playerId": "p_16vm5zl",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "name": "Jai",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 1,
+          "score": 400,
+          "correctCount": 7,
+          "totalQuestions": 10,
+          "accuracy": 70,
+          "avgTime": 7,
+          "totalTime": 68,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 6,
+              "correct": 4,
+              "percentage": 67
+            },
+            "Logical Reasoning": {
+              "total": 1,
+              "correct": 0,
+              "percentage": 0
+            },
+            "Verbal Ability": {
+              "total": 3,
+              "correct": 3,
+              "percentage": 100
+            }
+          }
+        },
+        {
+          "playerId": "p_xkauyif",
+          "socketId": "0HaUGjnuDcGx4RU4AAAN",
+          "name": "Vijay",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 4,
+          "score": 180,
+          "correctCount": 4,
+          "totalQuestions": 10,
+          "accuracy": 40,
+          "avgTime": 10,
+          "totalTime": 99,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 6,
+              "correct": 2,
+              "percentage": 33
+            },
+            "Logical Reasoning": {
+              "total": 1,
+              "correct": 0,
+              "percentage": 0
+            },
+            "Verbal Ability": {
+              "total": 3,
+              "correct": 2,
+              "percentage": 67
+            }
+          }
+        }
+      ]
+    },
+    {
+      "roundId": "rnd_mtfv63vi",
+      "roomCode": "TVRNU",
+      "timestamp": "2026-08-30T13:48:07.158Z",
+      "totalQuestions": 10,
+      "winner": {
+        "name": "Rahul (Host)",
+        "score": 360
+      },
+      "leaderboard": [
+        {
+          "rank": 1,
+          "playerId": "p_64bj4as",
+          "playerName": "Rahul (Host)",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 360,
+          "correctCount": 6,
+          "totalTime": 13,
+          "isHost": true,
+          "isReady": true,
+          "isDisconnected": false
+        },
+        {
+          "rank": 2,
+          "playerId": "p_ildtjuc",
+          "playerName": "Om",
+          "socketId": "jD5iYwxTtsrQDNkQAAAF",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 240,
+          "correctCount": 4,
+          "totalTime": 29,
+          "isHost": false,
+          "isReady": true,
+          "isDisconnected": false
+        }
+      ],
+      "playerResults": [
+        {
+          "playerId": "p_64bj4as",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "name": "Rahul (Host)",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 1,
+          "score": 360,
+          "correctCount": 6,
+          "totalQuestions": 10,
+          "accuracy": 60,
+          "avgTime": 1,
+          "totalTime": 13,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 4,
+              "correct": 2,
+              "percentage": 50
+            },
+            "Logical Reasoning": {
+              "total": 4,
+              "correct": 3,
+              "percentage": 75
+            },
+            "Verbal Ability": {
+              "total": 2,
+              "correct": 1,
+              "percentage": 50
+            }
+          }
+        },
+        {
+          "playerId": "p_ildtjuc",
+          "socketId": "jD5iYwxTtsrQDNkQAAAF",
+          "name": "Om",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 2,
+          "score": 240,
+          "correctCount": 4,
+          "totalQuestions": 10,
+          "accuracy": 40,
+          "avgTime": 3,
+          "totalTime": 29,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 4,
+              "correct": 1,
+              "percentage": 25
+            },
+            "Logical Reasoning": {
+              "total": 4,
+              "correct": 2,
+              "percentage": 50
+            },
+            "Verbal Ability": {
+              "total": 2,
+              "correct": 1,
+              "percentage": 50
+            }
+          }
+        }
+      ]
+    },
+    {
+      "roundId": "rnd_mtfv2a9k",
+      "roomCode": "TVRNU",
+      "timestamp": "2026-08-30T13:45:50.322Z",
+      "totalQuestions": 10,
+      "winner": {
+        "name": "Om",
+        "score": 240
+      },
+      "leaderboard": [
+        {
+          "rank": 1,
+          "playerId": "p_ildtjuc",
+          "playerName": "Om",
+          "socketId": "jD5iYwxTtsrQDNkQAAAF",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 240,
+          "correctCount": 4,
+          "totalTime": 50,
+          "isHost": false,
+          "isReady": true,
+          "isDisconnected": false
+        },
+        {
+          "rank": 2,
+          "playerId": "p_64bj4as",
+          "playerName": "Rahul (Host)",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "score": 240,
+          "correctCount": 4,
+          "totalTime": 122,
+          "isHost": true,
+          "isReady": true,
+          "isDisconnected": false
+        }
+      ],
+      "playerResults": [
+        {
+          "playerId": "p_64bj4as",
+          "socketId": "eg-PgZBBwB0H3oAGAAAH",
+          "name": "Rahul (Host)",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 2,
+          "score": 240,
+          "correctCount": 4,
+          "totalQuestions": 10,
+          "accuracy": 40,
+          "avgTime": 12,
+          "totalTime": 122,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 4,
+              "correct": 1,
+              "percentage": 25
+            },
+            "Logical Reasoning": {
+              "total": 2,
+              "correct": 0,
+              "percentage": 0
+            },
+            "Verbal Ability": {
+              "total": 4,
+              "correct": 3,
+              "percentage": 75
+            }
+          }
+        },
+        {
+          "playerId": "p_ildtjuc",
+          "socketId": "jD5iYwxTtsrQDNkQAAAF",
+          "name": "Om",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+          "rank": 1,
+          "score": 240,
+          "correctCount": 4,
+          "totalQuestions": 10,
+          "accuracy": 40,
+          "avgTime": 5,
+          "totalTime": 50,
+          "categoryStats": {
+            "Quantitative Aptitude": {
+              "total": 4,
+              "correct": 1,
+              "percentage": 25
+            },
+            "Logical Reasoning": {
+              "total": 2,
+              "correct": 2,
+              "percentage": 100
+            },
+            "Verbal Ability": {
+              "total": 4,
+              "correct": 1,
+              "percentage": 25
+            }
+          }
+        }
+      ]
+    },
+    {
       "roundId": "rnd_mtfuie0q",
       "roomCode": "JXKY4",
       "timestamp": "2026-08-30T13:30:13.062Z",
@@ -423,13 +809,13 @@
       "totalQuestions": 30
     },
     "Rahul (Host)": {
-      "matchesPlayed": 2,
-      "wins": 1,
-      "totalScore": 160,
-      "highestScore": 100,
-      "totalCorrect": 3,
-      "totalQuestions": 20,
-      "avgAccuracy": 15
+      "matchesPlayed": 5,
+      "wins": 2,
+      "totalScore": 980,
+      "highestScore": 360,
+      "totalCorrect": 17,
+      "totalQuestions": 50,
+      "avgAccuracy": 34
     },
     "Ananya": {
       "matchesPlayed": 1,
@@ -448,6 +834,33 @@
       "totalCorrect": 1,
       "totalQuestions": 10,
       "avgAccuracy": 10
+    },
+    "Om": {
+      "matchesPlayed": 3,
+      "wins": 1,
+      "totalScore": 740,
+      "highestScore": 260,
+      "totalCorrect": 13,
+      "totalQuestions": 30,
+      "avgAccuracy": 43
+    },
+    "Jai": {
+      "matchesPlayed": 1,
+      "wins": 1,
+      "totalScore": 400,
+      "highestScore": 400,
+      "totalCorrect": 7,
+      "totalQuestions": 10,
+      "avgAccuracy": 70
+    },
+    "Vijay": {
+      "matchesPlayed": 1,
+      "wins": 0,
+      "totalScore": 180,
+      "highestScore": 180,
+      "totalCorrect": 4,
+      "totalQuestions": 10,
+      "avgAccuracy": 40
     }
   }
 }
