@@ -409,6 +409,11 @@ const ArenaApp = (() => {
   // 5. SCREEN 1: ARENA HOME ACTIONS
   // ==========================================
   const createRoom = () => {
+    if (!state.playerId) {
+      state.playerId = 'p_' + Math.random().toString(36).substring(2, 9);
+    }
+    state.userName = 'Rahul (Host)';
+
     if (state.isRealtimeActive && state.socket) {
       state.socket.emit('room:create', {
         playerName: state.userName,
@@ -429,17 +434,26 @@ const ArenaApp = (() => {
   };
 
   const joinRoomFromInput = () => {
-    const input = document.getElementById('home-room-code-input');
-    const code = (input ? input.value : '').trim().toUpperCase();
+    const codeInput = document.getElementById('home-room-code-input');
+    const code = (codeInput ? codeInput.value : '').trim().toUpperCase();
     if (!code || code.length < 4) {
       showToast('Please enter a valid room code (e.g. 7K4P9)');
       return;
     }
 
+    const nameInput = document.getElementById('home-player-name-input');
+    const enteredName = nameInput ? nameInput.value.trim() : '';
+    const defaultGuestNames = ['Ananya Deshmukh', 'Arjun Nair', 'Priya Patel', 'Vikram Singh', 'Rohan Mehra'];
+    const chosenName = enteredName || defaultGuestNames[Math.floor(Math.random() * defaultGuestNames.length)];
+    state.userName = chosenName;
+
+    // Generate distinct player ID for joining player
+    state.playerId = 'p_' + Math.random().toString(36).substring(2, 9);
+
     if (state.isRealtimeActive && state.socket) {
       state.socket.emit('room:join', {
         roomCode: code,
-        playerName: 'Rahul Sharma',
+        playerName: chosenName,
         avatar: state.userAvatar,
         playerId: state.playerId
       });

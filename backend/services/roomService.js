@@ -72,11 +72,10 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar, playerId) {
     return { success: false, error: 'ROOM_NOT_FOUND', message: `Room "${code}" not found.` };
   }
 
-  // 1. Check for Reconnection by playerId or socketId
+  // 1. Check for Reconnection by socketId or explicit matching playerId in THIS specific room
   const existing = room.players.find(p =>
     (playerId && p.id === playerId) ||
-    p.socketId === socketId ||
-    (p.name === playerName && p.isDisconnected)
+    p.socketId === socketId
   );
 
   if (existing) {
@@ -123,12 +122,14 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar, playerId) {
   }
 
   // 3. Add fresh new player
-  const newPlayerId = playerId || generatePlayerId();
-  const avatarUrl = avatar || DEFAULT_AVATARS[room.players.length % DEFAULT_AVATARS.length];
+  const newPlayerId = generatePlayerId();
+  const avatarIndex = room.players.length % DEFAULT_AVATARS.length;
+  const avatarUrl = avatar || DEFAULT_AVATARS[avatarIndex];
+  const finalName = playerName || `Player ${room.players.length + 1}`;
 
   const newPlayer = {
     id: newPlayerId,
-    name: playerName,
+    name: finalName,
     socketId,
     avatar: avatarUrl,
     isHost: false,
@@ -145,7 +146,7 @@ function joinRoom(roomCode, playerName = 'Player', socketId, avatar, playerId) {
   room.players.push(newPlayer);
   socketToRoom.set(socketId, code);
 
-  console.log(`[ROOM] ${playerName} joined ${code} (total players: ${room.players.length})`);
+  console.log(`[ROOM] ${finalName} (${newPlayerId}) joined ${code} (total players: ${room.players.length})`);
   return { success: true, room, player: newPlayer, isReconnect: false };
 }
 
