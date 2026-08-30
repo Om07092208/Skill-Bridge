@@ -145,13 +145,14 @@ function selectQuestionsForRound(count = 10) {
  * Sanitize question for client transmission (NEVER send correctIndex or answers)
  */
 function getPublicQuestion(q) {
+  const timeLimit = getTimeLimit(q.difficulty);
   return {
     id: q.id,
     category: q.category,
     difficulty: q.difficulty,
     prompt: q.prompt,
     options: q.options,
-    timeLimit: q.timeLimit || getTimeLimit(q.difficulty)
+    timeLimit: timeLimit
   };
 }
 

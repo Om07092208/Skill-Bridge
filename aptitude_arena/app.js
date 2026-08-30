@@ -739,17 +739,29 @@ const ArenaApp = (() => {
 
     const q = data.question;
     state.currentQuestionData = q;
-    state.questionTimeLimit = data.timeLimit;
-    state.timeRemaining = data.timeLimit;
 
-    const catBadge   = document.getElementById('live-category-badge');
-    const diffBadge  = document.getElementById('live-difficulty-badge');
-    const indexBadge = document.getElementById('live-question-index-badge');
-    const title      = document.getElementById('live-question-title');
+    // Strict difficulty-to-time mapping: Easy=30s, Medium=60s, Hard=90s
+    let strictTimeLimit = 30;
+    const diff = (q.difficulty || '').toLowerCase();
+    if (diff === 'hard') {
+      strictTimeLimit = 90;
+    } else if (diff === 'medium') {
+      strictTimeLimit = 60;
+    } else {
+      strictTimeLimit = 30;
+    }
+
+    state.questionTimeLimit = data.timeLimit || strictTimeLimit;
+    state.timeRemaining = state.questionTimeLimit;
+
+    const catBadge   = document.getElementById('live-category-badge') || document.getElementById('live-q-cat-badge');
+    const diffBadge  = document.getElementById('live-difficulty-badge') || document.getElementById('live-q-diff-badge');
+    const indexBadge = document.getElementById('live-question-index-badge') || document.getElementById('live-q-num-badge');
+    const title      = document.getElementById('live-question-title') || document.getElementById('live-question-prompt');
     const optsCont   = document.getElementById('live-options-container');
     const timerText  = document.getElementById('live-countdown');
     const timerBox   = document.getElementById('live-timer-container');
-    const timeBar    = document.getElementById('question-time-bar');
+    const timeBar    = document.getElementById('live-time-bar') || document.getElementById('question-time-bar');
     const roomTag    = document.getElementById('live-room-code-tag');
 
     if (roomTag)    roomTag.textContent = state.roomCode;
@@ -758,15 +770,15 @@ const ArenaApp = (() => {
     if (title)      title.textContent = q.prompt;
 
     if (diffBadge) {
-      if (q.difficulty === 'Easy') {
-        diffBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm badge-easy';
-        diffBadge.innerHTML = '<span>🟢</span> Easy • 30s';
-      } else if (q.difficulty === 'Medium') {
-        diffBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm badge-medium';
-        diffBadge.innerHTML = '<span>🟡</span> Medium • 1 min (60s)';
+      if (diff === 'easy') {
+        diffBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1';
+        diffBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Easy (30s)';
+      } else if (diff === 'medium') {
+        diffBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1';
+        diffBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> Medium (60s)';
       } else {
-        diffBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm badge-hard';
-        diffBadge.innerHTML = '<span>🔴</span> Hard • 90s (1.5 min)';
+        diffBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1';
+        diffBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span> Hard (90s)';
       }
     }
 
