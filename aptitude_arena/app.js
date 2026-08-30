@@ -16,11 +16,17 @@ const ArenaApp = (() => {
   // ==========================================
   // 1. CONFIGURATION & STATE
   // ==========================================
+  const getBackendUrl = () => {
+    if (window.location.port === '3000') {
+      return ''; // Connects to exact same origin on port 3000
+    }
+    const host = window.location.hostname || 'localhost';
+    return `http://${host}:3000`;
+  };
+
   const CONFIG = {
     USE_REALTIME_BACKEND: true,
-    BACKEND_URL: (window.location.hostname && window.location.hostname !== 'localhost')
-      ? `http://${window.location.hostname}:3000`
-      : 'http://localhost:3000'
+    BACKEND_URL: getBackendUrl()
   };
 
   const state = {
@@ -30,7 +36,7 @@ const ArenaApp = (() => {
     currentView: 'home',
     soundEnabled: true,
     roomCode: '7K4P9',
-    userName: 'Rahul (YOU)',
+    userName: 'Rahul (Host)',
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
     playerId: null,
     isHost: true,
@@ -78,28 +84,30 @@ const ArenaApp = (() => {
   // ==========================================
   const initSocket = () => {
     if (!CONFIG.USE_REALTIME_BACKEND || typeof io === 'undefined') {
-      console.log('[ARENA] Running in local simulation mode.');
+      console.log('[ARENA] Socket.IO client library not available.');
       state.isRealtimeActive = false;
       return;
     }
 
     try {
-      state.socket = io(CONFIG.BACKEND_URL, {
-        reconnectionAttempts: 5,
-        timeout: 5000,
+      const socketUrl = CONFIG.BACKEND_URL || undefined;
+      state.socket = io(socketUrl, {
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+        timeout: 10000,
         transports: ['websocket', 'polling']
       });
 
       state.socket.on('connect', () => {
         state.isRealtimeActive = true;
-        console.log(`[SOCKET] Connected to backend on ${CONFIG.BACKEND_URL} (${state.socket.id})`);
+        console.log(`[SOCKET] Connected to backend (${state.socket.id})`);
         showToast('Connected to Real-Time Matchmaker');
       });
 
       state.socket.on('disconnect', () => {
         state.isRealtimeActive = false;
         console.log('[SOCKET] Disconnected from backend.');
-        showToast('Disconnected from server (Fallback enabled)');
+        showToast('Disconnected from server');
       });
 
       state.socket.on('connect_error', (err) => {
@@ -113,13 +121,10 @@ const ArenaApp = (() => {
         state.isHost = true;
         state.isUserReady = true;
         state.playerId = data.player?.id || state.playerId;
-        try {
-          sessionStorage.setItem('arena_player_id', state.playerId);
-          sessionStorage.setItem('arena_room_code', data.roomCode);
-        } catch (e) {}
         syncPlayersFromBackend(data.players);
         showToast(`Room created: ${data.roomCode}`);
         switchView('waiting-room');
+        renderWaitingRoom();
       });
 
       state.socket.on('room:joined', (data) => {
@@ -127,10 +132,6 @@ const ArenaApp = (() => {
         state.isHost = data.player?.isHost || false;
         state.isUserReady = data.player?.isReady || false;
         state.playerId = data.player?.id || state.playerId;
-        try {
-          sessionStorage.setItem('arena_player_id', state.playerId);
-          sessionStorage.setItem('arena_room_code', data.roomCode);
-        } catch (e) {}
         syncPlayersFromBackend(data.players);
 
         if (data.isReconnect && data.gameState) {
@@ -157,6 +158,7 @@ const ArenaApp = (() => {
         } else {
           showToast(`Joined room: ${data.roomCode}`);
           switchView('waiting-room');
+          renderWaitingRoom();
         }
       });
 
