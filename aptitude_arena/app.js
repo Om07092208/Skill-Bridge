@@ -432,9 +432,12 @@ const ArenaApp = (() => {
 
   const joinRoomFromInput = () => {
     const codeInput = document.getElementById('home-room-code-input');
-    const code = (codeInput ? codeInput.value : '').trim().toUpperCase();
+    const rawCode = (codeInput ? codeInput.value : '');
+    const code = rawCode.replace(/[^a-zA-Z0-9]/g, '').trim().toUpperCase();
+
     if (!code || code.length < 4) {
-      showToast('Please enter a valid room code (e.g. 7K4P9)');
+      showToast('Please enter a 5-letter room code (e.g. 7K4P9)');
+      if (codeInput) codeInput.focus();
       return;
     }
 
