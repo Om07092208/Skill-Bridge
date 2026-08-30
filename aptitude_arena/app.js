@@ -605,10 +605,29 @@ const ArenaApp = (() => {
 
   const updateLobbyStatus = () => {
     const startBtn = document.getElementById('start-game-btn');
+    const waitingBadge = document.getElementById('participant-waiting-badge');
     const statusMsg = document.getElementById('lobby-status-msg');
 
     const count = state.players.length;
     const allReady = state.players.every(p => p.isReady);
+
+    if (!state.isHost) {
+      // Participant view: hide start button, show waiting badge
+      if (startBtn) startBtn.classList.add('hidden');
+      if (waitingBadge) waitingBadge.classList.remove('hidden');
+      if (statusMsg) {
+        if (!state.isUserReady) {
+          statusMsg.innerHTML = '<span class="text-amber-600 font-semibold">Please click "Ready" so the host can start the battle.</span>';
+        } else {
+          statusMsg.innerHTML = '<span class="text-secondary font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-sm">check_circle</span> You are ready! Waiting for host to launch.</span>';
+        }
+      }
+      return;
+    }
+
+    // Host view: show start button, hide participant badge
+    if (waitingBadge) waitingBadge.classList.add('hidden');
+    if (startBtn) startBtn.classList.remove('hidden');
 
     // Rule: Room quiz cannot start solo (minimum 2 players required)
     if (count < 2) {
@@ -625,9 +644,7 @@ const ArenaApp = (() => {
         startBtn.classList.add('opacity-50', 'cursor-not-allowed');
       }
       if (statusMsg) {
-        statusMsg.textContent = state.isHost
-          ? 'Waiting for all players to mark Ready...'
-          : 'Waiting for host to launch the match...';
+        statusMsg.textContent = 'Waiting for all players to mark Ready...';
       }
     } else {
       if (startBtn) {
@@ -635,7 +652,7 @@ const ArenaApp = (() => {
         startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
       if (statusMsg) {
-        statusMsg.textContent = 'All players ready! Host can start the match.';
+        statusMsg.innerHTML = '<span class="text-secondary font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-sm">verified</span> All contenders ready! You can start the battle.</span>';
       }
     }
   };
@@ -758,6 +775,18 @@ const ArenaApp = (() => {
     }
 
     renderQuestionDots();
+
+    // Reset skip & waiting state for new question
+    const skipBtn = document.getElementById('live-skip-btn');
+    const waitingInd = document.getElementById('question-waiting-indicator');
+    if (skipBtn) {
+      skipBtn.classList.remove('hidden');
+      skipBtn.removeAttribute('disabled');
+    }
+    if (waitingInd) {
+      waitingInd.classList.add('hidden');
+    }
+
     state.timerInterval = setInterval(handleTimerTick, 1000);
   };
 
@@ -771,7 +800,7 @@ const ArenaApp = (() => {
 
     const timerText = document.getElementById('live-countdown');
     const timerBox  = document.getElementById('live-timer-container');
-    const timeBar   = document.getElementById('question-time-bar');
+    const timeBar   = document.getElementById('live-time-bar') || document.getElementById('question-time-bar');
 
     if (timerText) {
       const m = Math.floor(Math.max(0, state.timeRemaining) / 60);
@@ -805,6 +834,12 @@ const ArenaApp = (() => {
     state.timerInterval = null;
 
     document.querySelectorAll('.option-btn').forEach(btn => btn.setAttribute('disabled', 'true'));
+
+    // Hide skip button, show waiting indicator
+    const skipBtn = document.getElementById('live-skip-btn');
+    const waitingInd = document.getElementById('question-waiting-indicator');
+    if (skipBtn) skipBtn.classList.add('hidden');
+    if (waitingInd) waitingInd.classList.remove('hidden');
 
     if (state.isRealtimeActive && state.socket && state.currentQuestionData) {
       state.socket.emit('answer:submit', {
@@ -877,6 +912,12 @@ const ArenaApp = (() => {
 
     document.querySelectorAll('.option-btn').forEach(btn => btn.setAttribute('disabled', 'true'));
     showToast(`Time's up for this question (0 pts)`);
+
+    // Hide skip button, show waiting indicator
+    const skipBtn = document.getElementById('live-skip-btn');
+    const waitingInd = document.getElementById('question-waiting-indicator');
+    if (skipBtn) skipBtn.classList.add('hidden');
+    if (waitingInd) waitingInd.classList.remove('hidden');
 
     if (state.isRealtimeActive && state.socket && state.currentQuestionData) {
       state.socket.emit('question:timeout', {
