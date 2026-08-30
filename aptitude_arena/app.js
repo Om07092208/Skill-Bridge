@@ -53,12 +53,9 @@ const ArenaApp = (() => {
     userAnswers: [],
     finalResults: null,
 
-    // Participants
+    // Participants (starts with only the real user, dynamically updates on join)
     players: [
-      { id: 'user', name: 'Rahul (YOU)',    isUser: true,  isHost: true,  isReady: true,  score: 0, rank: 1, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80', correct: 0, totalTime: 0 },
-      { id: 'p1',   name: 'Ananya Deshmukh', isUser: false, isHost: false, isReady: true,  score: 0, rank: 2, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80', correct: 0, totalTime: 0 },
-      { id: 'p2',   name: 'Arjun Nair',      isUser: false, isHost: false, isReady: true,  score: 0, rank: 3, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80', correct: 0, totalTime: 0 },
-      { id: 'p3',   name: 'Priya Patel',     isUser: false, isHost: false, isReady: false, score: 0, rank: 4, avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=120&auto=format&fit=crop&q=80', correct: 0, totalTime: 0 }
+      { id: 'user', name: 'Rahul (Host)', isUser: true, isHost: true, isReady: true, score: 0, rank: 1, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80', correct: 0, totalTime: 0 }
     ],
 
     // Offline question bank fallback
@@ -501,10 +498,15 @@ const ArenaApp = (() => {
     const codeDisplay = document.getElementById('lobby-room-code-display');
     if (codeDisplay) codeDisplay.textContent = state.roomCode;
 
+    const countDisplay = document.getElementById('lobby-player-count');
+    if (countDisplay) {
+      countDisplay.innerHTML = `<span class="material-symbols-outlined text-base">group</span> ${state.players.length} / 8 Players Connected`;
+    }
+
     // Render dynamic player cards if real players joined
     const grid = document.getElementById('lobby-players-grid');
     if (grid && state.players.length > 0) {
-      grid.innerHTML = state.players.map((p, idx) => {
+      let cardsHtml = state.players.map((p, idx) => {
         const isSelf = p.isUser;
         const isReady = p.isReady;
         const borderColor = isReady ? 'border-secondary' : 'border-outline-variant';
@@ -544,6 +546,28 @@ const ArenaApp = (() => {
           </div>
         `;
       }).join('');
+
+      // When only 1 player is in room, show clean waiting invitation slot
+      if (state.players.length < 2) {
+        cardsHtml += `
+          <div class="border-2 border-dashed border-outline-variant/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 bg-surface-container-low/40">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-dashed border-outline-variant flex items-center justify-center text-primary bg-surface-container-lowest shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-2xl animate-pulse">person_add</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-bold text-sm text-on-surface">Waiting for Contender to Join...</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Share room code <span class="font-mono font-bold text-primary">${state.roomCode}</span> with a friend</p>
+              </div>
+            </div>
+            <button onclick="ArenaApp.copyRoomCode()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-surface-container-lowest border border-outline-variant text-primary hover:bg-primary hover:text-white transition shrink-0 flex items-center gap-1 shadow-sm active:scale-95">
+              <span class="material-symbols-outlined text-xs">content_copy</span> Copy Code
+            </button>
+          </div>
+        `;
+      }
+
+      grid.innerHTML = cardsHtml;
     }
 
     updateLobbyStatus();

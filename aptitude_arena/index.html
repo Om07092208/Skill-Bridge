@@ -418,7 +418,7 @@
           <h2 class="text-2xl sm:text-3xl font-bold text-on-surface" id="lobby-room-title">Elite Aptitude Arena Room</h2>
           <p class="text-sm text-on-surface-variant flex items-center gap-1.5 mt-1" id="lobby-player-count">
             <span class="material-symbols-outlined text-base">group</span>
-            4 / 4 Players Connected
+            1 / 8 Players Connected
           </p>
         </div>
 
@@ -454,7 +454,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                  <h4 class="font-bold text-sm sm:text-base text-on-surface truncate">Rahul Sharma</h4>
+                  <h4 class="font-bold text-sm sm:text-base text-on-surface truncate">Rahul (Host)</h4>
                   <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0">Host (You)</span>
                 </div>
                 <p class="text-xs text-secondary font-semibold flex items-center gap-1">
@@ -467,66 +467,19 @@
             </button>
           </div>
 
-          <!-- Player 2: Ananya -->
-          <div class="player-card bg-surface-container-lowest border border-secondary/40 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
-            <div class="relative shrink-0">
-              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80" alt="Ananya" />
-              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
-                <span class="material-symbols-outlined text-xs">check</span>
+          <!-- Waiting Slot -->
+          <div class="border-2 border-dashed border-outline-variant/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 bg-surface-container-low/40">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-dashed border-outline-variant flex items-center justify-center text-primary bg-surface-container-lowest shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-2xl animate-pulse">person_add</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-bold text-sm text-on-surface">Waiting for Contender to Join...</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Share room code with a friend to battle live</p>
               </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h4 class="font-bold text-base text-on-surface truncate">Ananya Deshmukh</h4>
-                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 3%</span>
-              </div>
-              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">check_circle</span> Ready
-              </p>
-            </div>
-          </div>
-
-          <!-- Player 3: Arjun -->
-          <div class="player-card bg-surface-container-lowest border border-secondary/40 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm">
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
-            <div class="relative shrink-0">
-              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80" alt="Arjun" />
-              <div class="absolute -bottom-1 -right-1 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
-                <span class="material-symbols-outlined text-xs">check</span>
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h4 class="font-bold text-base text-on-surface truncate">Arjun Nair</h4>
-                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 8%</span>
-              </div>
-              <p class="text-xs text-secondary font-semibold flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">check_circle</span> Ready
-              </p>
-            </div>
-          </div>
-
-          <!-- Player 4: Priya -->
-          <div id="player-4-slot" class="player-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-sm opacity-90 transition-all">
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-outline-variant"></div>
-            <div class="relative shrink-0">
-              <img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-lowest shadow grayscale-[40%]" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=120&auto=format&fit=crop&q=80" alt="Priya" />
-              <div id="player-4-badge" class="absolute -bottom-1 -right-1 bg-surface-container-highest text-on-surface-variant rounded-full w-5 h-5 flex items-center justify-center shadow">
-                <span class="material-symbols-outlined text-xs">hourglass_empty</span>
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h4 class="font-bold text-base text-on-surface truncate">Priya Patel</h4>
-                <span class="bg-surface-container-high text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">Top 5%</span>
-              </div>
-              <p id="player-4-status" class="text-xs text-on-surface-variant font-medium flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm animate-spin">sync</span> Setting up audio/device...
-              </p>
-            </div>
-            <button onclick="ArenaApp.simulatePlayer4Ready()" class="text-[11px] text-primary underline font-medium hover:text-primary-container">
-              Auto-Ready
+            <button onclick="ArenaApp.copyRoomCode()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-surface-container-lowest border border-outline-variant text-primary hover:bg-primary hover:text-white transition shrink-0 flex items-center gap-1 shadow-sm active:scale-95">
+              <span class="material-symbols-outlined text-xs">content_copy</span> Copy Code
             </button>
           </div>
         </div>
