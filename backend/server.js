@@ -15,6 +15,8 @@ const registerRoomHandlers = require('./socket/roomHandlers');
 const registerGameHandlers = require('./socket/gameHandlers');
 const registerLeaderboardHandlers = require('./socket/leaderboardHandlers');
 
+const path = require('path');
+
 const PORT = process.env.PORT || 3000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8085';
 
@@ -28,6 +30,14 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Serve static frontend files directly from backend server
+app.use(express.static(path.join(__dirname, '..')));
+
+// Default root redirect to aptitude_arena
+app.get('/', (req, res) => {
+  res.redirect('/aptitude_arena/index.html');
+});
 
 // Initialize Socket.IO
 const io = new Server(server, {
