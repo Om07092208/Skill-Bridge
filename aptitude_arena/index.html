@@ -167,8 +167,8 @@
         <span class="text-xs font-bold text-primary">Daily Arena Streak</span>
       </div>
       <p class="text-[11px] text-on-surface-variant mb-2.5">Play 1 match today to keep your 5-day streak active.</p>
-      <button onclick="ArenaApp.startQuickMatch()" class="w-full bg-primary text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-primary-container transition shadow-sm flex items-center justify-center gap-1.5">
-        <span class="material-symbols-outlined text-sm">bolt</span> Quick Battle
+      <button onclick="ArenaApp.createRoom()" class="w-full bg-primary text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-primary-container transition shadow-sm flex items-center justify-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">rocket_launch</span> Create Room
       </button>
     </div>
 
@@ -226,77 +226,50 @@
         </div>
       </div>
 
-      <!-- Main Matchmaking Hub Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Create / Join Room Split Card (Span 2) -->
-        <div class="lg:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 sm:p-8 shadow-sm flex flex-col justify-between">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            
-            <!-- Left: Host Private Room -->
-            <div class="text-center p-6 bg-surface-container-low rounded-xl border border-outline-variant/60 flex flex-col items-center justify-between h-full group hover:border-primary/40 transition">
-              <div>
-                <div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary mb-4 mx-auto group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-3xl">add_circle</span>
-                </div>
-                <h3 class="text-xl font-bold text-on-surface mb-2">Create Room</h3>
-                <p class="text-xs text-on-surface-variant mb-6">Host a custom private arena and invite friends with a 5-letter room code.</p>
+      <!-- Main Matchmaking Hub: Create & Join Room Full-Width Card -->
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 sm:p-8 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          
+          <!-- Left: Host Private Room -->
+          <div class="text-center p-6 sm:p-8 bg-surface-container-low rounded-2xl border border-outline-variant/60 flex flex-col items-center justify-between group hover:border-primary/40 transition">
+            <div>
+              <div class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary mb-4 mx-auto group-hover:scale-110 transition-transform shadow-sm">
+                <span class="material-symbols-outlined text-3xl">add_circle</span>
               </div>
-              <button onclick="ArenaApp.createRoom()" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-xl hover:bg-primary-container transition shadow-md shadow-primary/20 flex items-center justify-center gap-2 active:scale-98">
-                <span class="material-symbols-outlined text-lg">rocket_launch</span>
-                Create New Room
+              <h3 class="text-2xl font-bold text-on-surface mb-2">Create Room</h3>
+              <p class="text-sm text-on-surface-variant max-w-sm mx-auto mb-6">Host a live real-time aptitude arena and invite friends with your unique 5-letter passcode.</p>
+            </div>
+            <button onclick="ArenaApp.createRoom()" class="w-full sm:w-4/5 bg-primary text-white font-semibold py-3.5 px-6 rounded-xl hover:bg-primary-container transition shadow-md shadow-primary/20 flex items-center justify-center gap-2 active:scale-98">
+              <span class="material-symbols-outlined text-xl">rocket_launch</span>
+              Create New Room
+            </button>
+          </div>
+
+          <!-- Right: Join Room via Code -->
+          <div class="flex flex-col justify-center p-4 sm:p-6 bg-surface-container-low/50 rounded-2xl border border-outline-variant/60">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-primary text-2xl">meeting_room</span>
+              <h3 class="text-2xl font-bold text-on-surface">Join Room</h3>
+            </div>
+            <p class="text-sm text-on-surface-variant mb-5">Enter your name and an active 5-letter room code to join your friends' lobby.</p>
+            
+            <div class="flex flex-col gap-4">
+              <div>
+                <label for="home-player-name-input" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1.5">Your Name</label>
+                <input id="home-player-name-input" type="text" maxlength="20" placeholder="e.g. Ananya, Arjun..." class="w-full bg-surface-container-lowest border border-outline-variant p-3 rounded-xl text-sm font-medium focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition" />
+              </div>
+              <div>
+                <label for="home-room-code-input" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1.5">Room Passcode</label>
+                <input id="home-room-code-input" type="text" maxlength="6" onkeydown="if(event.key==='Enter') ArenaApp.joinRoomFromInput()" placeholder="e.g. 7K4P9" class="w-full bg-surface-container-lowest border border-outline-variant p-3.5 rounded-xl font-mono text-xl text-center font-bold tracking-widest uppercase focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition" />
+              </div>
+              <button onclick="ArenaApp.joinRoomFromInput()" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl transition duration-200 shadow-md shadow-primary/20 flex items-center justify-center gap-2 active:scale-98 hover:bg-primary-container">
+                <span class="material-symbols-outlined text-xl">login</span>
+                Join Match
               </button>
             </div>
-
-            <!-- Right: Join Room via Code -->
-            <div class="flex flex-col justify-center p-2">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-primary text-xl">meeting_room</span>
-                <h3 class="text-xl font-bold text-on-surface">Join Room</h3>
-              </div>
-              <p class="text-xs text-on-surface-variant mb-4">Enter your name and an active 5-digit room code to join your friends' lobby.</p>
-              
-              <div class="flex flex-col gap-3">
-                <div>
-                  <label for="home-player-name-input" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">Your Name</label>
-                  <input id="home-player-name-input" type="text" maxlength="20" placeholder="e.g. Ananya, Arjun..." class="w-full bg-surface-container-low border border-outline-variant p-2.5 rounded-xl text-sm font-medium focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition" />
-                </div>
-                <div>
-                  <label for="home-room-code-input" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">Room Passcode</label>
-                  <input id="home-room-code-input" type="text" maxlength="6" onkeydown="if(event.key==='Enter') ArenaApp.joinRoomFromInput()" placeholder="e.g. 7K4P9" class="w-full bg-surface-container-low border border-outline-variant p-3 rounded-xl font-mono text-lg text-center tracking-widest uppercase focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition" />
-                </div>
-                <button onclick="ArenaApp.joinRoomFromInput()" class="w-full bg-surface-container-high hover:bg-primary hover:text-white text-on-surface font-semibold py-3 rounded-xl transition duration-200 shadow-sm flex items-center justify-center gap-2 active:scale-98">
-                  <span class="material-symbols-outlined text-lg">login</span>
-                  Join Match
-                </button>
-              </div>
-            </div>
-
           </div>
+
         </div>
-
-        <!-- Quick Match Instant CTA (Span 1) -->
-        <div onclick="ArenaApp.startQuickMatch()" class="bg-gradient-to-br from-primary via-[#4338ca] to-[#312e81] text-white rounded-2xl p-8 shadow-xl flex flex-col items-center justify-between text-center relative overflow-hidden group cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all">
-          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
-          <div class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-white/15 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">
-            Instant Match
-          </div>
-
-          <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-secondary-container mb-4 mt-2 shadow-inner border border-white/20 group-hover:scale-110 group-hover:rotate-6 transition-transform">
-            <span class="material-symbols-outlined text-4xl">bolt</span>
-          </div>
-
-          <div>
-            <h3 class="text-2xl font-bold mb-2">Quick Match</h3>
-            <p class="text-xs text-white/80 max-w-xs mb-6">Auto-match instantly with 3 peers at your skill rating for a fast 10-question battle.</p>
-          </div>
-
-          <div class="w-full bg-white text-primary font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 group-hover:bg-secondary-container group-hover:text-on-secondary-container transition shadow-md">
-            <span>Find Match Now</span>
-            <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-          </div>
-        </div>
-
       </div>
 
       <!-- Personal Stats Bento Grid -->
