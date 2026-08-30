@@ -8,6 +8,7 @@ const {
   joinRoom,
   setPlayerReady,
   handleDisconnect,
+  leaveRoom,
   getSortedLeaderboard
 } = require('../services/roomService');
 
@@ -104,6 +105,37 @@ module.exports = function registerRoomHandlers(io, socket) {
   });
 
   /**
+   * Explicit leave room action by player
+   */
+  socket.on('room:leave', () => {
+    try {
+      const result = leaveRoom(socket.id);
+      if (!result || !result.success) return;
+
+      if (result.action === 'room_closed') {
+        io.to(result.roomCode).emit('room:closed', {
+          roomCode: result.roomCode,
+          message: result.player?.isHost
+            ? 'The host has left and closed the room.'
+            : 'The room has been closed.'
+        });
+      } else if (result.action === 'player_left') {
+        io.to(result.roomCode).emit('room:player_left', {
+          roomCode: result.roomCode,
+          playerName: result.player?.name,
+          players: result.room.players
+        });
+        io.to(result.roomCode).emit('room:players', {
+          roomCode: result.roomCode,
+          players: result.room.players
+        });
+      }
+    } catch (err) {
+      console.error('[SOCKET ERROR] room:leave', err);
+    }
+  });
+
+  /**
    * Query match history
    */
   socket.on('history:get', () => {
@@ -122,15 +154,27 @@ module.exports = function registerRoomHandlers(io, socket) {
   socket.on('disconnect', () => {
     try {
       const result = handleDisconnect(socket.id);
-      if (result && result.room) {
-        io.to(result.roomCode).emit('room:players', {
-          roomCode: result.roomCode,
-          players: result.room.players
-        });
+      if (result) {
+        if (result.action === 'removed' && result.player?.isHost && (!result.room || result.room.players.length === 0)) {
+          io.to(result.roomCode).emit('room:closed', {
+            roomCode: result.roomCode,
+            message: 'The host has disconnected and the room is closed.'
+          });
+        } else if (result.room) {
+          io.to(result.roomCode).emit('room:player_left', {
+            roomCode: result.roomCode,
+            playerName: result.player?.name,
+            players: result.room.players
+          });
+          io.to(result.roomCode).emit('room:players', {
+            roomCode: result.roomCode,
+            players: result.room.players
+          });
 
-        // Also update leaderboard if during match
-        const leaderboard = getSortedLeaderboard(result.roomCode);
-        io.to(result.roomCode).emit('leaderboard:update', { players: leaderboard });
+          // Also update leaderboard if during match
+          const leaderboard = getSortedLeaderboard(result.roomCode);
+          io.to(result.roomCode).emit('leaderboard:update', { players: leaderboard });
+        }
       }
     } catch (err) {
       console.error('[SOCKET ERROR] disconnect', err);

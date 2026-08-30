@@ -171,6 +171,26 @@ const ArenaApp = (() => {
         }
       });
 
+      state.socket.on('room:player_left', (data) => {
+        if (data.roomCode === state.roomCode) {
+          showToast(`${data.playerName || 'A contender'} left the room.`);
+          if (data.players) {
+            syncPlayersFromBackend(data.players);
+            if (state.currentView === 'waiting-room') {
+              renderWaitingRoom();
+            }
+          }
+        }
+      });
+
+      state.socket.on('room:closed', (data) => {
+        showToast(data.message || 'The room was closed by the host.');
+        state.roomCode = null;
+        state.matchInProgress = false;
+        state.isHost = false;
+        switchView('home');
+      });
+
       // --- Match Progression Events ---
       state.socket.on('game:starting', (data) => {
         if (data.roomCode === state.roomCode) {
@@ -1238,6 +1258,17 @@ const ArenaApp = (() => {
     }
   };
 
+  const leaveRoom = () => {
+    if (state.socket && state.isRealtimeActive) {
+      state.socket.emit('room:leave');
+    }
+    state.roomCode = null;
+    state.matchInProgress = false;
+    state.isHost = false;
+    showToast('You left the room.');
+    switchView('home');
+  };
+
   // ==========================================
   // 10. INITIALIZATION
   // ==========================================
@@ -1255,6 +1286,7 @@ const ArenaApp = (() => {
     showToast,
     createRoom,
     joinRoomFromInput,
+    leaveRoom,
     startQuickMatch,
     filterCategory,
     showMatchHistoryModal,

@@ -529,6 +529,44 @@ function handleDisconnect(socketId) {
   }
 }
 
+/**
+ * Explicit leave room action by player
+ */
+function leaveRoom(socketId) {
+  const roomCode = socketToRoom.get(socketId);
+  if (!roomCode) return { success: false, error: 'NOT_IN_ROOM' };
+
+  const room = rooms.get(roomCode);
+  if (!room) {
+    socketToRoom.delete(socketId);
+    return { success: false, error: 'ROOM_NOT_FOUND' };
+  }
+
+  const playerIndex = room.players.findIndex(p => p.socketId === socketId);
+  if (playerIndex === -1) return { success: false, error: 'PLAYER_NOT_FOUND' };
+
+  const player = room.players[playerIndex];
+  socketToRoom.delete(socketId);
+
+  // If Host leaves in waiting lobby, close the whole room
+  if (player.isHost) {
+    rooms.delete(roomCode);
+    console.log(`[ROOM] Host ${player.name} left. Room ${roomCode} closed.`);
+    return { success: true, action: 'room_closed', roomCode, player };
+  }
+
+  // Regular participant leaves: remove from player array
+  room.players.splice(playerIndex, 1);
+  console.log(`[ROOM] Contender ${player.name} left room ${roomCode}. Remaining: ${room.players.length}`);
+
+  if (room.players.length === 0) {
+    rooms.delete(roomCode);
+    return { success: true, action: 'room_closed', roomCode, player };
+  }
+
+  return { success: true, action: 'player_left', roomCode, room, player };
+}
+
 function getRoom(roomCode) {
   return rooms.get((roomCode || '').toUpperCase().trim());
 }
@@ -551,6 +589,7 @@ module.exports = {
   calculateFinalResults,
   resetRoomForPlayAgain,
   handleDisconnect,
+  leaveRoom,
   getRoom,
   getRoomBySocketId
 };
