@@ -26,9 +26,13 @@ jobs:
           pip install pydantic matplotlib numpy
 
       - name: Run Layer 1 & Layer 2 Tests (Unit + Integration)
+        env:
+          PYTHONPATH: ai-career-engine
         run: |
           python run_tests.py
 
       - name: Run System Evaluation Benchmark
+        env:
+          PYTHONPATH: ai-career-engine
         run: |
           cd ai-career-engine && python evaluate.py

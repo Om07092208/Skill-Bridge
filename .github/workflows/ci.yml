@@ -28,5 +28,7 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run Deterministic Unit & Mock Integration Tests
+        env:
+          PYTHONPATH: ai-career-engine
         run: |
           python ai-career-engine/run_tests.py

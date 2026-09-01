@@ -246,6 +246,18 @@
         "project_evidence": 3,
         "course_completion": 0.8,
         "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.85,
+        "experience_months": 36,
+        "evidence": [
+          "Data pipelines & model training queries"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
+        "recency_score": 1.0
       }
     ],
     "projects": [
@@ -419,6 +431,18 @@
         ],
         "project_evidence": 1,
         "course_completion": 0.3,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Git",
+        "normalized_name": "git",
+        "proficiency": 0.85,
+        "experience_months": 48,
+        "evidence": [
+          "Version control for backend microservices"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
         "recency_score": 1.0
       }
     ],
