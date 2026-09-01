@@ -281,16 +281,26 @@ class MatchingEngine:
                 compatibility_status = "evaluated"
 
                 # 6. Proportional Critical Skill Veto Check
-                critical_skills = opp.get("critical_skills", [])
-                if critical_skills:
-                    for c_skill in critical_skills:
-                        c_norm = self.skill_engine.normalize_skill_name(str(c_skill))
+                raw_critical = [s for s in opp.get("critical_skills", []) if isinstance(s, str) and s.strip()]
+                if raw_critical:
+                    # Deduplicate normalized critical skills
+                    unique_critical_map = {}
+                    for c_skill in raw_critical:
+                        c_norm = self.skill_engine.normalize_skill_name(c_skill)
+                        if c_norm not in unique_critical_map:
+                            unique_critical_map[c_norm] = c_skill
+
+                    for c_norm, display_skill in unique_critical_map.items():
                         if cand_skill_map.get(c_norm, 0.0) < skill_proficiency_threshold:
-                            missing_critical.append(str(c_skill))
+                            missing_critical.append(display_skill)
 
                     if missing_critical:
-                        missing_ratio = len(missing_critical) / len(critical_skills)
-                        veto_multiplier = max(0.10, round(1.0 - 0.80 * missing_ratio, 2))
+                        missing_ratio = len(missing_critical) / len(unique_critical_map)
+                        penalty_range = 1.0 - self.CRITICAL_SKILL_PENALTY_BASE
+                        veto_multiplier = max(
+                            self.CRITICAL_SKILL_PENALTY_BASE,
+                            round(1.0 - penalty_range * missing_ratio, 2)
+                        )
                         overall_score = round(overall_score * veto_multiplier, 2)
             else:
                 overall_score = None

@@ -339,6 +339,58 @@ class TestMatchingEngineUnit(unittest.TestCase):
         self.assertIn("missing_critical_skills", res)
         self.assertEqual(res["missing_critical_skills"], ["Penetration Testing", "Metasploit"])
 
+    def test_partial_missing_critical_skills_apply_proportional_penalty(self):
+        candidate = {
+            "title": "Software Engineer",
+            "skills": [
+                {"name": "Python", "proficiency": 0.9},
+                {"name": "Docker", "proficiency": 0.9}
+            ],
+            "experience_years": 3.0,
+            "education": ["Bachelor of Computer Science"],
+            "location": "Remote"
+        }
+        opp_base = {
+            "id": "OP-BASE",
+            "title": "Software Engineer",
+            "required_skills": ["Python"],
+            "experience_min": 3.0,
+            "location": "Remote"
+        }
+        opp_half_missing = {
+            "id": "OP-HALF",
+            "title": "Software Engineer",
+            "required_skills": ["Python"],
+            "critical_skills": ["Docker", "Kubernetes"],
+            "experience_min": 3.0,
+            "location": "Remote"
+        }
+        opp_all_missing = {
+            "id": "OP-ALL",
+            "title": "Software Engineer",
+            "required_skills": ["Python"],
+            "critical_skills": ["Terraform", "Kubernetes"],
+            "experience_min": 3.0,
+            "location": "Remote"
+        }
+
+        engine = MatchingEngine()
+        ranked = engine.rank(candidate, [opp_base, opp_half_missing, opp_all_missing])
+
+        score_base = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-BASE")
+        score_half = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-HALF")
+        score_all = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-ALL")
+
+        # Base multiplier for 1 of 2 missing = 1.0 - 0.80 * 0.5 = 0.60
+        expected_half = int(round((score_base / 100.0) * 0.60, 2) * 100)
+        # Base multiplier for 2 of 2 missing = 0.20
+        expected_all = int(round((score_base / 100.0) * 0.20, 2) * 100)
+
+        self.assertEqual(score_half, expected_half)
+        self.assertEqual(score_all, expected_all)
+        self.assertGreater(score_base, score_half)
+        self.assertGreater(score_half, score_all)
+
 
 if __name__ == "__main__":
     unittest.main()
