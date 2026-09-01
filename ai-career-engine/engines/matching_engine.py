@@ -147,6 +147,7 @@ class MatchingEngine:
         "education": 0.10,
         "location": 0.10,
     }
+    CRITICAL_SKILL_PENALTY_BASE = 0.20
 
     def __init__(self, skill_engine: SkillEngine = None):
         self.skill_engine = skill_engine or SkillEngine()
@@ -274,18 +275,23 @@ class MatchingEngine:
             total_weight = sum(self.BASE_WEIGHTS[k] for k in available)
 
             # Finding #3 Fix: Honest score availability contract (None + insufficient_data when 0 weights available)
+            missing_critical = []
             if total_weight > 0:
                 overall_score = round(sum((v * self.BASE_WEIGHTS[k]) / total_weight for k, v in available.items()), 2)
                 compatibility_status = "evaluated"
 
-                # 6. Critical Skill Veto Check
+                # 6. Proportional Critical Skill Veto Check
                 critical_skills = opp.get("critical_skills", [])
                 if critical_skills:
                     for c_skill in critical_skills:
                         c_norm = self.skill_engine.normalize_skill_name(str(c_skill))
                         if cand_skill_map.get(c_norm, 0.0) < skill_proficiency_threshold:
-                            overall_score = round(overall_score * 0.20, 2)
-                            break
+                            missing_critical.append(str(c_skill))
+
+                    if missing_critical:
+                        missing_ratio = len(missing_critical) / len(critical_skills)
+                        veto_multiplier = max(0.10, round(1.0 - 0.80 * missing_ratio, 2))
+                        overall_score = round(overall_score * veto_multiplier, 2)
             else:
                 overall_score = None
                 compatibility_status = "insufficient_data"
@@ -296,6 +302,7 @@ class MatchingEngine:
                 "company": opp_company,
                 "compatibility_score": int(overall_score * 100) if overall_score is not None else None,
                 "compatibility_status": compatibility_status,
+                "missing_critical_skills": missing_critical,
                 "breakdown": {
                     "role_match": int(role_score * 100) if role_score is not None else None,
                     "role_match_status": "evaluated" if role_score is not None else "insufficient_data",

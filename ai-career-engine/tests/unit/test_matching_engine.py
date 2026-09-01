@@ -288,6 +288,57 @@ class TestMatchingEngineUnit(unittest.TestCase):
         self.assertTrue(is_known_country("USA"))
         self.assertFalse(is_known_country("Atlantis"))
 
+    def test_missing_critical_skill_applies_proportional_penalty(self):
+        candidate = {
+            "title": "Software Engineer",
+            "skills": [{"name": "Python", "proficiency": 0.9}],
+            "experience_years": 3.0,
+            "education": ["Bachelor of Computer Science"],
+            "location": "Remote"
+        }
+        opp_without_veto = {
+            "id": "OP-NO-VETO",
+            "title": "Software Engineer",
+            "required_skills": ["Python"],
+            "experience_min": 3.0,
+            "location": "Remote"
+        }
+        opp_with_veto = {
+            "id": "OP-VETO",
+            "title": "Software Engineer",
+            "required_skills": ["Python"],
+            "critical_skills": ["Penetration Testing"],
+            "experience_min": 3.0,
+            "location": "Remote"
+        }
+
+        engine = MatchingEngine()
+        ranked = engine.rank(candidate, [opp_without_veto, opp_with_veto])
+
+        score_without = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-NO-VETO")
+        score_with = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-VETO")
+
+        self.assertGreater(score_without, score_with)
+        self.assertEqual(score_with, int(round((score_without / 100.0) * 0.20, 2) * 100))
+
+    def test_missing_critical_skills_returned_in_explanation(self):
+        candidate = {
+            "skills": [{"name": "React", "proficiency": 0.9}]
+        }
+        opp = {
+            "id": "OP-PENTEST",
+            "title": "Cybersecurity Specialist",
+            "required_skills": ["React"],
+            "critical_skills": ["Penetration Testing", "Metasploit"]
+        }
+
+        engine = MatchingEngine()
+        ranked = engine.rank(candidate, [opp])
+        res = ranked[0]
+
+        self.assertIn("missing_critical_skills", res)
+        self.assertEqual(res["missing_critical_skills"], ["Penetration Testing", "Metasploit"])
+
 
 if __name__ == "__main__":
     unittest.main()
