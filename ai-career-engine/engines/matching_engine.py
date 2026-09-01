@@ -10,6 +10,7 @@ from models.normalizers import (
     normalize_role_title,
     resolve_role_taxonomy,
     get_specialization_similarity,
+    GENERIC_ROLE_TOKENS,
 )
 
 
@@ -109,15 +110,18 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     if t_spec and o_spec:
         return get_specialization_similarity(t_fam, t_spec, o_fam, o_spec)
 
-    # 3. Fallback for unknown roles not present in taxonomy: capped low-confidence token overlap ratio
+    # 3. Fallback for unknown roles not present in taxonomy: domain word overlap (stripping generic occupation tokens)
     t_words = set(t_norm.split()) if t_norm else set(t_raw.split())
     o_words = set(o_norm.split()) if o_norm else set(o_raw.split())
-    overlap = t_words & o_words
 
+    t_domain = {w for w in t_words if w not in GENERIC_ROLE_TOKENS}
+    o_domain = {w for w in o_words if w not in GENERIC_ROLE_TOKENS}
+
+    overlap = t_domain & o_domain
     if not overlap:
         return 0.0
 
-    raw_overlap_score = len(overlap) / max(len(t_words), len(o_words))
+    raw_overlap_score = len(overlap) / max(len(t_domain), len(o_domain))
     return min(0.40, round(raw_overlap_score, 2))
 
 

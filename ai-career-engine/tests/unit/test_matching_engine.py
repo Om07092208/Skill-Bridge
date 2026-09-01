@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import unittest
 from engines import MatchingEngine, SkillEngine
 from engines.matching_engine import calculate_effective_experience, evaluate_education_match, evaluate_role_match
@@ -101,10 +102,16 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score2 = evaluate_role_match("ML Engineer II", "ML Engineer")
         self.assertEqual(score2, 0.95)
 
-    def test_unknown_role_token_overlap_capped(self):
-        # Non-taxonomy roles with partial token overlap must be capped at <= 0.40
+    def test_unknown_role_token_overlap_capped_and_domain_filtered(self):
+        # "Security Engineer" vs "Software Systems Engineer" share generic token "engineer",
+        # but domain tokens ("security" vs "software systems") have 0 overlap => 0.0
         score = evaluate_role_match("Security Engineer", "Software Systems Engineer")
-        self.assertLessEqual(score, 0.40)
+        self.assertEqual(score, 0.0)
+
+        # "Cyber Security Consultant" vs "Security Analyst" share domain token "security" => capped at <= 0.40
+        score_domain = evaluate_role_match("Cyber Security Consultant", "Security Analyst")
+        self.assertGreater(score_domain, 0.0)
+        self.assertLessEqual(score_domain, 0.40)
 
     def test_role_taxonomy_file_missing_raises_error(self):
         # Must fail fast with FileNotFoundError if taxonomy file does not exist
@@ -112,6 +119,71 @@ class TestMatchingEngineUnit(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 load_role_taxonomy(reload=True)
         # Restore valid taxonomy in cache afterwards
+        load_role_taxonomy(reload=True)
+
+    def test_loader_rejects_alias_collision_in_production(self):
+        # Audit Finding 2: Production loader must raise ValueError on alias collisions
+        colliding_taxonomy = {
+            "fam_a": {
+                "specializations": {
+                    "spec_a": {"aliases": ["developer"]}
+                }
+            },
+            "fam_b": {
+                "specializations": {
+                    "spec_b": {"aliases": ["developer"]}
+                }
+            }
+        }
+        with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(colliding_taxonomy))):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(ValueError):
+                    load_role_taxonomy(reload=True)
+
+        load_role_taxonomy(reload=True)
+
+    def test_atomic_cache_preservation_on_failed_reload(self):
+        # Audit Finding 3: Failed reloads must NOT corrupt or empty the existing valid cache
+        initial_cache = load_role_taxonomy(reload=True)
+        self.assertIsNotNone(initial_cache)
+
+        with patch("builtins.open", side_effect=IOError("Disk read failure")):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(IOError):
+                    load_role_taxonomy(reload=True)
+
+        # Cache must remain intact with initial valid data
+        preserved_cache = load_role_taxonomy(reload=False)
+        self.assertEqual(preserved_cache, initial_cache)
+
+    def test_taxonomy_validation_invalid_related_score_or_missing_target(self):
+        # Out of bounds similarity score > 1.0 -> ValueError
+        invalid_score_taxonomy = {
+            "fam_a": {
+                "specializations": {
+                    "spec_a": {"aliases": ["a"], "related": {"spec_b": 1.5}},
+                    "spec_b": {"aliases": ["b"]}
+                }
+            }
+        }
+        with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(invalid_score_taxonomy))):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(ValueError):
+                    load_role_taxonomy(reload=True)
+
+        # Missing related target specialization -> ValueError
+        missing_target_taxonomy = {
+            "fam_a": {
+                "specializations": {
+                    "spec_a": {"aliases": ["a"], "related": {"non_existent_spec": 0.5}}
+                }
+            }
+        }
+        with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(missing_target_taxonomy))):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(ValueError):
+                    load_role_taxonomy(reload=True)
+
         load_role_taxonomy(reload=True)
 
     def test_role_taxonomy_has_no_alias_collisions(self):

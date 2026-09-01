@@ -118,34 +118,77 @@ ROLE_MODIFIERS: Set[str] = {
     "chief",
 }
 
+GENERIC_ROLE_TOKENS: Set[str] = {
+    "engineer",
+    "developer",
+    "manager",
+    "analyst",
+    "specialist",
+    "consultant",
+    "architect",
+    "lead",
+    "officer",
+    "administrator",
+    "designer",
+}
+
 _role_taxonomy_cache: Optional[Dict[str, Any]] = None
 _role_alias_index: Optional[Dict[str, tuple[str, str]]] = None
 
 
 def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
-    """Loads role taxonomy JSON file from data directory. Fails fast if file is missing."""
+    """Loads role taxonomy JSON file from data directory. Fails fast if file is missing, malformed, or has alias collisions."""
     global _role_taxonomy_cache, _role_alias_index
     if _role_taxonomy_cache is None or reload:
         base_dir = os.path.dirname(os.path.dirname(__file__))
         path = os.path.join(base_dir, "data", "role_taxonomy.json")
         if not os.path.exists(path):
             raise FileNotFoundError(f"Required role taxonomy file not found: {path}")
-        with open(path, "r", encoding="utf-8") as f:
-            _role_taxonomy_cache = json.load(f)
 
-        # Build fast O(1) alias index
-        _role_alias_index = {}
-        for fam_key, fam_data in _role_taxonomy_cache.items():
+        with open(path, "r", encoding="utf-8") as f:
+            new_cache = json.load(f)
+
+        # Build and validate alias index and related mappings in local variables first (Atomic update)
+        new_index: Dict[str, tuple[str, str]] = {}
+        all_specs: Set[str] = set()
+
+        for fam_key, fam_data in new_cache.items():
+            specs = fam_data.get("specializations", {})
+            for spec_key in specs.keys():
+                all_specs.add(spec_key)
+
+        for fam_key, fam_data in new_cache.items():
             specs = fam_data.get("specializations", {})
             for spec_key, spec_data in specs.items():
                 aliases = spec_data.get("aliases", [])
                 for alias in aliases:
                     raw_alias = alias.strip().lower()
                     norm_alias = normalize_role_title(alias)
-                    if raw_alias:
-                        _role_alias_index[raw_alias] = (fam_key, spec_key)
-                    if norm_alias:
-                        _role_alias_index[norm_alias] = (fam_key, spec_key)
+
+                    for target_alias in (raw_alias, norm_alias):
+                        if not target_alias:
+                            continue
+                        existing = new_index.get(target_alias)
+                        if existing and existing != (fam_key, spec_key):
+                            raise ValueError(
+                                f"Role taxonomy alias collision: '{target_alias}' maps to both {existing} and {(fam_key, spec_key)}"
+                            )
+                        new_index[target_alias] = (fam_key, spec_key)
+
+                related = spec_data.get("related", {})
+                for rel_spec, sim in related.items():
+                    if rel_spec not in all_specs:
+                        raise ValueError(f"Role taxonomy related specialization '{rel_spec}' in '{spec_key}' does not exist")
+                    try:
+                        sim_val = float(sim)
+                        if not (0.0 <= sim_val <= 1.0):
+                            raise ValueError
+                    except (ValueError, TypeError):
+                        raise ValueError(f"Role taxonomy invalid similarity score '{sim}' for related key '{rel_spec}' in '{spec_key}'")
+
+        # Atomic assignment only after full validation
+        _role_taxonomy_cache = new_cache
+        _role_alias_index = new_index
 
     return _role_taxonomy_cache
 
