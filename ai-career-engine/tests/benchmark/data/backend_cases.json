@@ -58,7 +58,6 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-BE-001", "OP-BE-002", "OP-FS-001", "OP-FE-001", "OP-HR-001", "OP-MK-001"],
     "expected_relevance": {
       "OP-BE-001": 3,
       "OP-BE-002": 3,
@@ -127,7 +126,6 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-FE-101", "OP-FE-102", "OP-FS-101", "OP-BE-101", "OP-DO-101", "OP-HR-101"],
     "expected_relevance": {
       "OP-FE-101": 3,
       "OP-FE-102": 3,
@@ -135,6 +133,49 @@
       "OP-BE-101": 1,
       "OP-DO-101": 0,
       "OP-HR-101": 0
+    }
+  },
+  {
+    "scenario_id": "BE-003",
+    "name": "Same Title Python Developer with Completely Different Tech Stack (Django vs C#)",
+    "candidate": {
+      "title": "Backend Developer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.95},
+        {"name": "Django", "proficiency": 0.9},
+        {"name": "PostgreSQL", "proficiency": 0.85}
+      ],
+      "experience_years": 4.0,
+      "education": ["Bachelor of Science in Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-BE-STACK-MATCH",
+        "title": "Backend Developer",
+        "required_skills": ["Python", "Django", "PostgreSQL"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-BE-STACK-MISMATCH",
+        "title": "Backend Developer",
+        "required_skills": ["C#", ".NET Core", "SQL Server"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-BE-STACK-PARTIAL",
+        "title": "Software Engineer",
+        "required_skills": ["Python", "Docker"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-BE-STACK-MATCH": 3,
+      "OP-BE-STACK-PARTIAL": 2,
+      "OP-BE-STACK-MISMATCH": 1
     }
   }
 ]

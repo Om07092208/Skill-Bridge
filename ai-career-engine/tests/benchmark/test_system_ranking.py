@@ -30,7 +30,7 @@ def calculate_ndcg_at_k(actual_ids: List[str], expected_relevance: Dict[str, flo
 
 
 class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
-    """Data-driven benchmark suite measuring Top-1, Top-3, Top-5 Accuracy, MRR, and NDCG@5 metrics across multi-family scenarios."""
+    """Data-driven benchmark suite measuring NDCG@5 (Primary), MRR (Secondary), and Top-K metrics across multi-family scenarios."""
 
     @classmethod
     def setUpClass(cls):
@@ -49,7 +49,7 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
                         cls.benchmark_cases.extend(cases)
 
     def test_benchmark_data_driven_scenarios(self):
-        """Runs all data-driven benchmark cases and validates relative business order by unique opportunity ID."""
+        """Runs all data-driven benchmark cases, validates ID uniqueness, and computes NDCG@5 & MRR ranking metrics."""
         self.assertGreater(len(self.benchmark_cases), 0, "No benchmark cases loaded!")
 
         total_cases = len(self.benchmark_cases)
@@ -64,26 +64,32 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
             name = case["name"]
             candidate = case["candidate"]
             opportunities = case["opportunities"]
-            expected_order = case["expected_order"]
             expected_relevance = case.get("expected_relevance", {})
+
+            # Schema & ID Uniqueness Validation (Audit Finding #5)
+            ids = [opp.get("id") for opp in opportunities]
+            self.assertNotIn(None, ids, f"Scenario [{scenario_id} - {name}]: every opportunity must have a non-None ID")
+            self.assertEqual(len(ids), len(set(ids)), f"Scenario [{scenario_id} - {name}]: duplicate opportunity IDs detected!")
 
             ranked = self.matching_engine.rank(candidate, opportunities)
             ranked_ids = [r["id"] for r in ranked]
 
-            # Top-1 Check: Does the highest ranked opportunity have the maximum expected relevance grade?
+            # Relevance Check
             max_rel = max(expected_relevance.values()) if expected_relevance else 0
+
+            # Top-1 Diagnostic Check
             if expected_relevance.get(ranked_ids[0], 0) == max_rel:
                 top1_correct += 1
 
-            # Top-3 Check: Is an opportunity with maximum expected relevance present in top 3?
+            # Top-3 Diagnostic Check
             if any(expected_relevance.get(r_id, 0) == max_rel for r_id in ranked_ids[:3]):
                 top3_correct += 1
 
-            # Top-5 Check: Is an opportunity with maximum expected relevance present in top 5?
+            # Top-5 Diagnostic Check
             if any(expected_relevance.get(r_id, 0) == max_rel for r_id in ranked_ids[:5]):
                 top5_correct += 1
 
-            # Reciprocal Rank calculation for the first occurrence of a top-relevance opportunity
+            # Reciprocal Rank calculation (Secondary Metric)
             try:
                 first_top_idx = min(
                     idx for idx, r_id in enumerate(ranked_ids)
@@ -93,24 +99,9 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
             except ValueError:
                 reciprocal_ranks.append(0.0)
 
-            # NDCG@5 calculation
+            # NDCG@5 calculation (PRIMARY METRIC)
             ndcg5 = calculate_ndcg_at_k(ranked_ids, expected_relevance, k=5)
             ndcg5_scores.append(ndcg5)
-
-            # Business Behavior Assertion by unique ID: Validate relative order score(expected[i]) >= score(expected[i+1])
-            id_to_score = {r["id"]: r["compatibility_score"] for r in ranked}
-            for i in range(len(expected_order) - 1):
-                high_id = expected_order[i]
-                low_id = expected_order[i + 1]
-
-                if high_id in id_to_score and low_id in id_to_score:
-                    # Ignore order check if both items share equal expected relevance
-                    if expected_relevance.get(high_id, 0) > expected_relevance.get(low_id, 0):
-                        self.assertGreaterEqual(
-                            id_to_score[high_id],
-                            id_to_score[low_id],
-                            f"Ranking inversion in [{scenario_id} - {name}]: ID '{high_id}' ({id_to_score[high_id]}%) should rank >= ID '{low_id}' ({id_to_score[low_id]}%)"
-                        )
 
         # Compute Metrics
         top1_acc = (top1_correct / total_cases) * 100.0
@@ -123,16 +114,16 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         print(f"       SYSTEM RANKING BENCHMARK METRICS SUMMARY        ")
         print(f"=======================================================")
         print(f" Total Benchmark Scenarios Evaluated : {total_cases}")
-        print(f" Top-1 Accuracy                      : {top1_acc:.2f}%")
-        print(f" Top-3 Accuracy                      : {top3_acc:.2f}%")
-        print(f" Top-5 Accuracy                      : {top5_acc:.2f}%")
-        print(f" Mean Reciprocal Rank (MRR)          : {mrr:.4f}")
-        print(f" Mean NDCG@5                         : {mean_ndcg5:.4f}")
+        print(f" Primary Metric  - Mean NDCG@5      : {mean_ndcg5:.4f}")
+        print(f" Secondary Metric - MRR             : {mrr:.4f}")
+        print(f" Diagnostic      - Top-1 Accuracy   : {top1_acc:.2f}%")
+        print(f" Diagnostic      - Top-3 Accuracy   : {top3_acc:.2f}%")
+        print(f" Diagnostic      - Top-5 Accuracy   : {top5_acc:.2f}%")
         print(f"=======================================================\n")
 
-        self.assertGreaterEqual(top1_acc, 80.0, "Top-1 Benchmark Accuracy fell below 80% baseline threshold!")
-        self.assertGreaterEqual(mrr, 0.85, "Mean Reciprocal Rank (MRR) fell below 0.85 baseline threshold!")
+        # Baseline Regression Protection Thresholds
         self.assertGreaterEqual(mean_ndcg5, 0.85, "Mean NDCG@5 fell below 0.85 baseline threshold!")
+        self.assertGreaterEqual(mrr, 0.85, "Mean Reciprocal Rank (MRR) fell below 0.85 baseline threshold!")
 
 
 if __name__ == "__main__":

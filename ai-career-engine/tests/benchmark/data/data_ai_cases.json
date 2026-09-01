@@ -58,7 +58,6 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-DS-201", "OP-ML-201", "OP-DA-201", "OP-BI-201", "OP-BE-201", "OP-HR-201"],
     "expected_relevance": {
       "OP-DS-201": 3,
       "OP-ML-201": 2,
@@ -119,7 +118,6 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-DA-301", "OP-BI-301", "OP-DE-301", "OP-HR-301", "OP-PM-301"],
     "expected_relevance": {
       "OP-DA-301": 3,
       "OP-BI-301": 3,

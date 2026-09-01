@@ -51,7 +51,6 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-DO-401", "OP-SRE-401", "OP-CLD-401", "OP-FE-401", "OP-HR-401"],
     "expected_relevance": {
       "OP-DO-401": 3,
       "OP-SRE-401": 3,

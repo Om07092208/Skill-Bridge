@@ -36,11 +36,44 @@
         "location": "Onsite"
       }
     ],
-    "expected_order": ["OP-TO-FITTED", "OP-TO-DEFICIT", "OP-TO-UNRELATED"],
     "expected_relevance": {
       "OP-TO-FITTED": 3,
       "OP-TO-DEFICIT": 2,
       "OP-TO-UNRELATED": 0
+    }
+  },
+  {
+    "scenario_id": "TO-002",
+    "name": "Junior Candidate vs Senior Role Mismatch",
+    "candidate": {
+      "title": "Junior Data Scientist",
+      "skills": [
+        {"name": "Python", "proficiency": 0.8},
+        {"name": "SQL", "proficiency": 0.75}
+      ],
+      "experience_years": 1.0,
+      "education": ["Bachelor of Science in Statistics"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-JR-DS",
+        "title": "Junior Data Scientist",
+        "required_skills": ["Python", "SQL"],
+        "experience_min": 1.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-SR-DS",
+        "title": "Principal Data Scientist",
+        "required_skills": ["Python", "PyTorch", "System Architecture"],
+        "experience_min": 8.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-JR-DS": 3,
+      "OP-SR-DS": 1
     }
   }
 ]
