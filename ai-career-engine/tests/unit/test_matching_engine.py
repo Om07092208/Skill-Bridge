@@ -12,9 +12,9 @@ class TestMatchingEngineUnit(unittest.TestCase):
         self.matching_engine = MatchingEngine(self.skill_engine)
 
     def test_calculate_effective_experience_strict_protected_check(self):
-        # Protected = True -> Experience restored
+        # Protected = True -> Actual work experience is preserved without fake inflation
         exp_protected = calculate_effective_experience(2.0, [{"duration_months": 12, "protected": True}])
-        self.assertEqual(exp_protected, 3.0)
+        self.assertEqual(exp_protected, 2.0)
 
         # Protected = False -> Experience NOT restored
         exp_unprotected = calculate_effective_experience(2.0, [{"duration_months": 12, "protected": False}])

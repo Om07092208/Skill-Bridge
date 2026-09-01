@@ -8,7 +8,7 @@ Priority = Literal["high", "medium", "low"]
 
 class Skill(BaseModel):
     name: str
-    normalized_name: str
+    normalized_name: str = ""
     proficiency: float = Field(default=0.0, ge=0.0, le=1.0)
     experience_months: int = Field(default=0, ge=0)
     evidence: List[str] = Field(default_factory=list)
@@ -22,8 +22,8 @@ class CareerGap(BaseModel):
     end_date: Optional[str] = None
     duration_months: int = Field(default=0, ge=0)
     reason: str = "unspecified"
-    # Protected gaps must never reduce readiness or opportunity scores.
-    protected: bool = True
+    # Protected gaps must never reduce readiness or opportunity scores, but do not inflate actual experience years.
+    protected: bool = False
 
 
 class Project(BaseModel):

@@ -18,10 +18,19 @@ class ReadinessEngine:
         """Calculates readiness score based on skill overlap, project coverage, and effective experience."""
         cand_skills = {}
         for s in candidate.get("skills", []):
-            raw_name = s.get("name", "")
-            norm = s.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
-            norm = self.skill_engine.normalize_skill_name(norm)
-            cand_skills[norm] = min(1.0, max(0.0, float(s.get("proficiency", 0.0))))
+            if isinstance(s, str):
+                raw_name = s
+                prof = 1.0
+                norm = self.skill_engine.normalize_skill_name(raw_name)
+            elif isinstance(s, dict):
+                raw_name = s.get("name", "")
+                norm = s.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
+                norm = self.skill_engine.normalize_skill_name(norm)
+                prof = min(1.0, max(0.0, float(s.get("proficiency", 0.0))))
+            else:
+                continue
+
+            cand_skills[norm] = max(cand_skills.get(norm, 0.0), prof)
 
         req_skills = target_role.get("required_skills", [])
         if not req_skills:
@@ -30,11 +39,16 @@ class ReadinessEngine:
             total_req = len(req_skills)
             met_sum = 0.0
             for r in req_skills:
-                raw_name = r.get("name", "")
-                r_norm = r.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
-                r_norm = self.skill_engine.normalize_skill_name(r_norm)
+                if isinstance(r, dict):
+                    raw_name = r.get("name", "")
+                    r_norm = r.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
+                    req_level = min(1.0, max(0.0, float(r.get("proficiency", 0.7))))
+                else:
+                    raw_name = str(r)
+                    r_norm = self.skill_engine.normalize_skill_name(raw_name)
+                    req_level = 0.7
 
-                req_level = min(1.0, max(0.0, float(r.get("proficiency", 0.7))))
+                r_norm = self.skill_engine.normalize_skill_name(r_norm)
                 curr_level = cand_skills.get(r_norm, 0.0)
                 if curr_level >= req_level:
                     met_sum += 1.0
@@ -42,17 +56,20 @@ class ReadinessEngine:
                     met_sum += (curr_level / req_level) if req_level > 0 else 0.0
             skill_score = min(1.0, max(0.0, met_sum / total_req))
 
-
         # Project score (0-1)
         num_projects = len(candidate.get("projects", []))
         project_score = min(1.0, num_projects * 0.40)
 
-        # Experience score using effective experience (restoring protected career gaps)
+        # Experience score
         cand_exp = calculate_effective_experience(
             candidate.get("experience_years", 0.0),
             candidate.get("career_gaps", []),
         )
-        target_exp = target_role.get("experience_min", 1.0)
+        try:
+            target_exp = max(0.0, float(target_role.get("experience_min", 1.0)))
+        except (TypeError, ValueError):
+            target_exp = 1.0
+
         exp_score = 1.0 if cand_exp >= target_exp else (cand_exp / target_exp if target_exp > 0 else 1.0)
 
         # Weighted calculation (Skill 60%, Project 25%, Experience 15%)
@@ -60,10 +77,6 @@ class ReadinessEngine:
             round((skill_score * 0.60 + project_score * 0.25 + exp_score * 0.15) * 100)
         )
 
-        # Readiness Category mapping:
-        # >= 70%: Job Ready
-        # >= 35%: Developing
-        # < 35%: Early Preparation
         if overall_readiness >= 70:
             status = "Job Ready"
         elif overall_readiness >= 35:
