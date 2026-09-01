@@ -318,8 +318,9 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score_without = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-NO-VETO")
         score_with = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-VETO")
 
+        base_penalty = engine.CRITICAL_SKILL_PENALTY_BASE
         self.assertGreater(score_without, score_with)
-        self.assertEqual(score_with, int(round((score_without / 100.0) * 0.20, 2) * 100))
+        self.assertEqual(score_with, int(round((score_without / 100.0) * base_penalty, 2) * 100))
 
     def test_missing_critical_skills_returned_in_explanation(self):
         candidate = {
@@ -338,6 +339,7 @@ class TestMatchingEngineUnit(unittest.TestCase):
 
         self.assertIn("missing_critical_skills", res)
         self.assertEqual(res["missing_critical_skills"], ["Penetration Testing", "Metasploit"])
+        self.assertEqual(res["compatibility_status"], "evaluated_with_critical_gap")
 
     def test_partial_missing_critical_skills_apply_proportional_penalty(self):
         candidate = {
@@ -381,10 +383,14 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score_half = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-HALF")
         score_all = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-ALL")
 
-        # Base multiplier for 1 of 2 missing = 1.0 - 0.80 * 0.5 = 0.60
-        expected_half = int(round((score_base / 100.0) * 0.60, 2) * 100)
-        # Base multiplier for 2 of 2 missing = 0.20
-        expected_all = int(round((score_base / 100.0) * 0.20, 2) * 100)
+        # Dynamically compute expected multipliers from engine constant
+        base_penalty = engine.CRITICAL_SKILL_PENALTY_BASE
+        penalty_range = 1.0 - base_penalty
+        expected_half_mult = max(base_penalty, round(1.0 - penalty_range * 0.5, 2))
+        expected_all_mult = base_penalty
+
+        expected_half = int(round((score_base / 100.0) * expected_half_mult, 2) * 100)
+        expected_all = int(round((score_base / 100.0) * expected_all_mult, 2) * 100)
 
         self.assertEqual(score_half, expected_half)
         self.assertEqual(score_all, expected_all)

@@ -302,6 +302,7 @@ class MatchingEngine:
                             round(1.0 - penalty_range * missing_ratio, 2)
                         )
                         overall_score = round(overall_score * veto_multiplier, 2)
+                        compatibility_status = "evaluated_with_critical_gap"
             else:
                 overall_score = None
                 compatibility_status = "insufficient_data"
