@@ -339,9 +339,15 @@ class TestMatchingEngineUnit(unittest.TestCase):
 
         self.assertIn("missing_critical_skills", res)
         self.assertEqual(res["missing_critical_skills"], ["Penetration Testing", "Metasploit"])
-        self.assertEqual(res["compatibility_status"], "evaluated_with_critical_gap")
+        self.assertEqual(res["compatibility_status"], engine.STATUS_CRITICAL_GAP)
+        self.assertEqual(res["critical_skill_gap_ratio"], 1.0)
+        self.assertEqual(res["critical_skill_penalty_multiplier"], 0.20)
 
     def test_partial_missing_critical_skills_apply_proportional_penalty(self):
+        engine = MatchingEngine()
+        # Assert policy-level constant value
+        self.assertEqual(engine.CRITICAL_SKILL_PENALTY_BASE, 0.20)
+
         candidate = {
             "title": "Software Engineer",
             "skills": [
@@ -376,21 +382,29 @@ class TestMatchingEngineUnit(unittest.TestCase):
             "location": "Remote"
         }
 
-        engine = MatchingEngine()
         ranked = engine.rank(candidate, [opp_base, opp_half_missing, opp_all_missing])
 
-        score_base = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-BASE")
-        score_half = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-HALF")
-        score_all = next(r["compatibility_score"] for r in ranked if r["id"] == "OP-ALL")
+        res_base = next(r for r in ranked if r["id"] == "OP-BASE")
+        res_half = next(r for r in ranked if r["id"] == "OP-HALF")
+        res_all = next(r for r in ranked if r["id"] == "OP-ALL")
 
-        # Dynamically compute expected multipliers from engine constant
-        base_penalty = engine.CRITICAL_SKILL_PENALTY_BASE
-        penalty_range = 1.0 - base_penalty
-        expected_half_mult = max(base_penalty, round(1.0 - penalty_range * 0.5, 2))
-        expected_all_mult = base_penalty
+        score_base = res_base["compatibility_score"]
+        score_half = res_half["compatibility_score"]
+        score_all = res_all["compatibility_score"]
 
-        expected_half = int(round((score_base / 100.0) * expected_half_mult, 2) * 100)
-        expected_all = int(round((score_base / 100.0) * expected_all_mult, 2) * 100)
+        # Assert explainability ratio and multiplier keys
+        self.assertEqual(res_base["critical_skill_gap_ratio"], 0.0)
+        self.assertEqual(res_base["critical_skill_penalty_multiplier"], 1.0)
+
+        self.assertEqual(res_half["critical_skill_gap_ratio"], 0.50)
+        self.assertEqual(res_half["critical_skill_penalty_multiplier"], 0.60)
+
+        self.assertEqual(res_all["critical_skill_gap_ratio"], 1.00)
+        self.assertEqual(res_all["critical_skill_penalty_multiplier"], 0.20)
+
+        # Assert score reductions match policy expectations
+        expected_half = int(round((score_base / 100.0) * 0.60, 2) * 100)
+        expected_all = int(round((score_base / 100.0) * 0.20, 2) * 100)
 
         self.assertEqual(score_half, expected_half)
         self.assertEqual(score_all, expected_all)
