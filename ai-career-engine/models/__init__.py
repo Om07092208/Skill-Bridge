@@ -21,19 +21,6 @@ from .normalizers import (
     get_field_similarity,
 )
 
-from .taxonomy import (
-    RoleTaxonomyError,
-    AliasCollisionError,
-    InvalidSimilarityError,
-    AsymmetricSimilarityError,
-    AmbiguousSpecializationError,
-    load_role_taxonomy,
-    resolve_role_taxonomy,
-    get_specialization_similarity,
-    get_role_token_weight,
-    GENERIC_ROLE_TOKENS,
-)
-
 __all__ = [
     "Skill",
     "CareerGap",
@@ -53,14 +40,4 @@ __all__ = [
     "normalize_education",
     "normalize_education_list",
     "get_field_similarity",
-    "RoleTaxonomyError",
-    "AliasCollisionError",
-    "InvalidSimilarityError",
-    "AsymmetricSimilarityError",
-    "AmbiguousSpecializationError",
-    "load_role_taxonomy",
-    "resolve_role_taxonomy",
-    "get_specialization_similarity",
-    "get_role_token_weight",
-    "GENERIC_ROLE_TOKENS",
 ]

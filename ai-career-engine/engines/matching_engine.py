@@ -113,14 +113,15 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     if t_spec and o_spec:
         return get_specialization_similarity(t_fam, t_spec, o_fam, o_spec)
 
-    # 3. Fallback for unknown roles not present in taxonomy: weighted token overlap ratio
+    # 3. Fallback for unknown roles not present in taxonomy: weighted token overlap ratio (requires domain token overlap)
     t_words = set(t_norm.split()) if t_norm else set(t_raw.split())
     o_words = set(o_norm.split()) if o_norm else set(o_raw.split())
 
-    overlap = t_words & o_words
-    if not overlap:
+    domain_overlap = (t_words - GENERIC_ROLE_TOKENS) & (o_words - GENERIC_ROLE_TOKENS)
+    if not domain_overlap:
         return 0.0
 
+    overlap = t_words & o_words
     overlap_weight_sum = sum(get_role_token_weight(w) for w in overlap)
     t_weight_sum = sum(get_role_token_weight(w) for w in t_words)
     o_weight_sum = sum(get_role_token_weight(w) for w in o_words)
@@ -130,12 +131,6 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
         return 0.0
 
     weighted_ratio = overlap_weight_sum / max_weight_sum
-
-    # Require domain token overlap or a minimum threshold (>= 0.15) for generic role filler overlap
-    domain_overlap = (t_words - GENERIC_ROLE_TOKENS) & (o_words - GENERIC_ROLE_TOKENS)
-    if not domain_overlap and weighted_ratio < 0.15:
-        return 0.0
-
     return min(0.40, round(weighted_ratio, 2))
 
 

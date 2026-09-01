@@ -112,15 +112,13 @@ class TestMatchingEngineUnit(unittest.TestCase):
         self.assertEqual(score2, 0.95)
 
     def test_unknown_role_token_overlap_capped_and_domain_filtered(self):
-        # "Security Engineer" vs "Software Systems Engineer" share generic token "engineer" (weight 0.25),
-        # but have 0 domain token overlap and weighted ratio 0.11 < 0.15 threshold => returns 0.0
+        # Unknown roles with 0 domain token overlap return 0.0
         score = evaluate_role_match("Security Engineer", "Software Systems Engineer")
         self.assertEqual(score, 0.0)
 
-        # "Cloud Architect" vs "Solutions Architect" share generic token "architect" (weight 0.25) => 0.20
+        # "Cloud Architect" vs "Solutions Architect" have 0 domain token overlap => 0.0
         score_architect = evaluate_role_match("Cloud Architect", "Solutions Architect")
-        self.assertEqual(score_architect, 0.20)
-        self.assertLessEqual(score_architect, 0.40)
+        self.assertEqual(score_architect, 0.0)
 
         # "Cyber Security Consultant" vs "Security Analyst" share domain token "security" (weight 1.0) => capped at <= 0.40
         score_domain = evaluate_role_match("Cyber Security Consultant", "Security Analyst")
