@@ -16,30 +16,48 @@
     },
     "opportunities": [
       {
+        "id": "OP-DO-401",
         "title": "DevOps Engineer",
         "required_skills": ["Kubernetes", "Terraform", "AWS"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
+        "id": "OP-SRE-401",
         "title": "Site Reliability Engineer",
         "required_skills": ["Kubernetes", "Docker"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
+        "id": "OP-CLD-401",
         "title": "Cloud Engineer",
         "required_skills": ["AWS", "Terraform"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
+        "id": "OP-FE-401",
         "title": "Frontend Developer",
         "required_skills": ["React", "CSS"],
         "experience_min": 2.0,
         "location": "Remote"
+      },
+      {
+        "id": "OP-HR-401",
+        "title": "HR Manager",
+        "required_skills": ["Employee Relations"],
+        "experience_min": 2.0,
+        "location": "Onsite"
       }
     ],
-    "expected_order": ["DevOps Engineer", "Site Reliability Engineer", "Cloud Engineer", "Frontend Developer"]
+    "expected_order": ["OP-DO-401", "OP-SRE-401", "OP-CLD-401", "OP-FE-401", "OP-HR-401"],
+    "expected_relevance": {
+      "OP-DO-401": 3,
+      "OP-SRE-401": 3,
+      "OP-CLD-401": 2,
+      "OP-FE-401": 0,
+      "OP-HR-401": 0
+    }
   }
 ]

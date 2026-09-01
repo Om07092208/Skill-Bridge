@@ -282,6 +282,7 @@ class MatchingEngine:
                 compatibility_status = "insufficient_data"
 
             ranked.append({
+                "id": opp.get("id", opp_title),
                 "title": opp_title,
                 "company": opp_company,
                 "compatibility_score": int(overall_score * 100) if overall_score is not None else None,

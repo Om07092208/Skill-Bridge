@@ -1,7 +1,7 @@
 [
   {
     "scenario_id": "DA-001",
-    "name": "Data Scientist targeting DS vs ML Engineer vs Data Analyst",
+    "name": "Data Scientist targeting DS vs ML Engineer vs Data Analyst vs HR",
     "candidate": {
       "title": "Data Scientist",
       "skills": [
@@ -16,25 +16,57 @@
     },
     "opportunities": [
       {
+        "id": "OP-DS-201",
         "title": "Data Scientist",
         "required_skills": ["Python", "PyTorch", "Machine Learning"],
         "experience_min": 4.0,
         "location": "Remote"
       },
       {
+        "id": "OP-ML-201",
         "title": "Machine Learning Engineer",
-        "required_skills": ["Python", "PyTorch", "Docker"],
+        "required_skills": ["Python", "PyTorch", "SQL"],
         "experience_min": 4.0,
         "location": "Remote"
       },
       {
+        "id": "OP-DA-201",
         "title": "Data Analyst",
-        "required_skills": ["SQL", "Excel"],
+        "required_skills": ["SQL", "Python"],
         "experience_min": 2.0,
         "location": "Remote"
+      },
+      {
+        "id": "OP-BI-201",
+        "title": "BI Analyst",
+        "required_skills": ["SQL", "Power BI"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-BE-201",
+        "title": "Backend Engineer",
+        "required_skills": ["Java", "Spring Boot"],
+        "experience_min": 5.0,
+        "location": "Onsite"
+      },
+      {
+        "id": "OP-HR-201",
+        "title": "HR Manager",
+        "required_skills": ["Employee Relations"],
+        "experience_min": 3.0,
+        "location": "Onsite"
       }
     ],
-    "expected_order": ["Data Scientist", "Machine Learning Engineer", "Data Analyst"]
+    "expected_order": ["OP-DS-201", "OP-ML-201", "OP-DA-201", "OP-BI-201", "OP-BE-201", "OP-HR-201"],
+    "expected_relevance": {
+      "OP-DS-201": 3,
+      "OP-ML-201": 2,
+      "OP-DA-201": 1,
+      "OP-BI-201": 1,
+      "OP-BE-201": 0,
+      "OP-HR-201": 0
+    }
   },
   {
     "scenario_id": "DA-002",
@@ -52,24 +84,48 @@
     },
     "opportunities": [
       {
+        "id": "OP-DA-301",
         "title": "Data Analyst",
         "required_skills": ["SQL", "Tableau"],
         "experience_min": 2.0,
         "location": "Remote"
       },
       {
+        "id": "OP-BI-301",
         "title": "BI Analyst",
         "required_skills": ["Power BI", "SQL"],
         "experience_min": 2.0,
         "location": "Remote"
       },
       {
+        "id": "OP-DE-301",
         "title": "Data Engineer",
         "required_skills": ["Apache Spark", "Scala", "Kubernetes"],
         "experience_min": 5.0,
         "location": "Remote"
+      },
+      {
+        "id": "OP-HR-301",
+        "title": "Recruiter",
+        "required_skills": ["Talent Acquisition"],
+        "experience_min": 1.0,
+        "location": "Onsite"
+      },
+      {
+        "id": "OP-PM-301",
+        "title": "Product Manager",
+        "required_skills": ["Product Strategy"],
+        "experience_min": 4.0,
+        "location": "Onsite"
       }
     ],
-    "expected_order": ["Data Analyst", "BI Analyst", "Data Engineer"]
+    "expected_order": ["OP-DA-301", "OP-BI-301", "OP-DE-301", "OP-HR-301", "OP-PM-301"],
+    "expected_relevance": {
+      "OP-DA-301": 3,
+      "OP-BI-301": 3,
+      "OP-DE-301": 1,
+      "OP-HR-301": 0,
+      "OP-PM-301": 0
+    }
   }
 ]

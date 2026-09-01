@@ -1,7 +1,7 @@
 [
   {
     "scenario_id": "TO-001",
-    "name": "Skill coverage vs experience trade-off",
+    "name": "Experience Requirement Deficit vs Experience Met Trade-off",
     "candidate": {
       "title": "Backend Developer",
       "skills": [
@@ -15,18 +15,32 @@
     },
     "opportunities": [
       {
+        "id": "OP-TO-FITTED",
         "title": "Backend Engineer",
         "required_skills": ["Python", "FastAPI", "PostgreSQL"],
         "experience_min": 2.0,
         "location": "Remote"
       },
       {
+        "id": "OP-TO-DEFICIT",
         "title": "Backend Engineer",
         "required_skills": ["Python", "FastAPI", "PostgreSQL"],
         "experience_min": 10.0,
         "location": "Remote"
+      },
+      {
+        "id": "OP-TO-UNRELATED",
+        "title": "HR Manager",
+        "required_skills": ["Recruiting"],
+        "experience_min": 2.0,
+        "location": "Onsite"
       }
     ],
-    "expected_order": ["Backend Engineer", "Backend Engineer"]
+    "expected_order": ["OP-TO-FITTED", "OP-TO-DEFICIT", "OP-TO-UNRELATED"],
+    "expected_relevance": {
+      "OP-TO-FITTED": 3,
+      "OP-TO-DEFICIT": 2,
+      "OP-TO-UNRELATED": 0
+    }
   }
 ]

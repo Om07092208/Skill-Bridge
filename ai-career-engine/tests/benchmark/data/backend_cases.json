@@ -1,13 +1,14 @@
 [
   {
     "scenario_id": "BE-001",
-    "name": "Backend Developer targeting Backend vs Full Stack vs HR",
+    "name": "Backend Developer targeting Backend vs Full Stack vs Frontend vs HR",
     "candidate": {
       "title": "Backend Developer",
       "skills": [
         {"name": "Python", "proficiency": 0.9},
         {"name": "FastAPI", "proficiency": 0.85},
-        {"name": "PostgreSQL", "proficiency": 0.8}
+        {"name": "PostgreSQL", "proficiency": 0.8},
+        {"name": "Docker", "proficiency": 0.75}
       ],
       "experience_years": 4.0,
       "education": ["Bachelor of Computer Science"],
@@ -15,35 +16,68 @@
     },
     "opportunities": [
       {
+        "id": "OP-BE-001",
         "title": "Backend Engineer",
-        "required_skills": ["Python", "FastAPI"],
+        "required_skills": ["Python", "FastAPI", "PostgreSQL"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
+        "id": "OP-BE-002",
+        "title": "Python Developer",
+        "required_skills": ["Python", "Docker"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-FS-001",
         "title": "Full Stack Developer",
-        "required_skills": ["Python", "React"],
+        "required_skills": ["Python", "React", "PostgreSQL"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
-        "title": "HR Manager",
-        "required_skills": ["Recruiting"],
+        "id": "OP-FE-001",
+        "title": "Frontend Developer",
+        "required_skills": ["React", "TypeScript", "CSS"],
         "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-HR-001",
+        "title": "HR Specialist",
+        "required_skills": ["Recruiting", "Talent Acquisition"],
+        "experience_min": 2.0,
+        "location": "Onsite"
+      },
+      {
+        "id": "OP-MK-001",
+        "title": "Marketing Manager",
+        "required_skills": ["SEO", "Content Strategy"],
+        "experience_min": 4.0,
         "location": "Onsite"
       }
     ],
-    "expected_order": ["Backend Engineer", "Full Stack Developer", "HR Manager"]
+    "expected_order": ["OP-BE-001", "OP-BE-002", "OP-FS-001", "OP-FE-001", "OP-HR-001", "OP-MK-001"],
+    "expected_relevance": {
+      "OP-BE-001": 3,
+      "OP-BE-002": 3,
+      "OP-FS-001": 2,
+      "OP-FE-001": 1,
+      "OP-HR-001": 0,
+      "OP-MK-001": 0
+    }
   },
   {
-    "scenario_id": "BE-002",
-    "name": "Frontend Engineer targeting UI vs Fullstack vs Backend",
+    "scenario_id": "FE-001",
+    "name": "Frontend Developer targeting UI vs Fullstack vs Backend vs DevOps",
     "candidate": {
       "title": "Frontend Developer",
       "skills": [
         {"name": "React", "proficiency": 0.95},
         {"name": "TypeScript", "proficiency": 0.9},
-        {"name": "CSS", "proficiency": 0.85}
+        {"name": "CSS", "proficiency": 0.85},
+        {"name": "HTML", "proficiency": 0.9}
       ],
       "experience_years": 3.0,
       "education": ["B.Tech in Computer Science"],
@@ -51,24 +85,56 @@
     },
     "opportunities": [
       {
+        "id": "OP-FE-101",
         "title": "Frontend Engineer",
         "required_skills": ["React", "TypeScript"],
         "experience_min": 2.0,
         "location": "Remote"
       },
       {
+        "id": "OP-FE-102",
+        "title": "UI Developer",
+        "required_skills": ["React", "CSS", "HTML"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-FS-101",
         "title": "Full Stack Developer",
         "required_skills": ["React", "Node.js"],
         "experience_min": 3.0,
         "location": "Remote"
       },
       {
+        "id": "OP-BE-101",
         "title": "Backend Engineer",
         "required_skills": ["Python", "Django"],
         "experience_min": 3.0,
         "location": "Remote"
+      },
+      {
+        "id": "OP-DO-101",
+        "title": "DevOps Engineer",
+        "required_skills": ["Kubernetes", "AWS"],
+        "experience_min": 4.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-HR-101",
+        "title": "Recruiter",
+        "required_skills": ["Sourcing"],
+        "experience_min": 1.0,
+        "location": "Onsite"
       }
     ],
-    "expected_order": ["Frontend Engineer", "Full Stack Developer", "Backend Engineer"]
+    "expected_order": ["OP-FE-101", "OP-FE-102", "OP-FS-101", "OP-BE-101", "OP-DO-101", "OP-HR-101"],
+    "expected_relevance": {
+      "OP-FE-101": 3,
+      "OP-FE-102": 3,
+      "OP-FS-101": 2,
+      "OP-BE-101": 1,
+      "OP-DO-101": 0,
+      "OP-HR-101": 0
+    }
   }
 ]
