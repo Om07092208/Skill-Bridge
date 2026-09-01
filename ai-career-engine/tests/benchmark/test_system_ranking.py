@@ -32,7 +32,7 @@ def calculate_ndcg_at_k(actual_ids: List[str], expected_relevance: Dict[str, flo
 
 
 class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
-    """Data-driven benchmark suite enforcing mandatory baseline validation, baseline schema verification, versioned tolerances, and contract completeness."""
+    """Data-driven benchmark suite enforcing mandatory baseline validation, baseline schema & numeric bounds verification, versioned tolerances, and contract completeness."""
 
     @classmethod
     def setUpClass(cls):
@@ -65,20 +65,37 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         with open(self.baseline_file, "r", encoding="utf-8") as f:
             baseline_data = json.load(f)
 
-        # Baseline Schema & Bounds Validation (Audit Finding #3 & #5)
+        # Baseline Commit SHA Traceability Validation (Audit Finding #3)
         self.assertIn("baseline_commit", baseline_data, "Baseline file missing 'baseline_commit' key!")
+        b_commit = baseline_data["baseline_commit"]
+        self.assertIsInstance(b_commit, str, "baseline_commit must be a string!")
+        self.assertGreaterEqual(len(b_commit), 7, "baseline_commit must be a valid commit SHA (>= 7 characters)!")
+
+        # Baseline Schema & Metric Bounds Validation (Audit Finding #1)
         self.assertIn("metrics", baseline_data, "Baseline file missing 'metrics' key!")
-
         b_metrics = baseline_data["metrics"]
-        for metric_key in ("ndcg5", "mrr", "top1", "top3", "top5"):
-            self.assertIn(metric_key, b_metrics, f"Baseline metrics missing '{metric_key}' key!")
-            self.assertIsInstance(b_metrics[metric_key], (int, float), f"Baseline metric '{metric_key}' must be numeric!")
 
+        for metric_key in ("ndcg5", "mrr"):
+            self.assertIn(metric_key, b_metrics, f"Baseline metrics missing '{metric_key}' key!")
+            val = float(b_metrics[metric_key])
+            self.assertGreaterEqual(val, 0.0, f"Baseline metric '{metric_key}' must be >= 0.0!")
+            self.assertLessEqual(val, 1.0, f"Baseline metric '{metric_key}' must be <= 1.0!")
+
+        for pct_key in ("top1", "top3", "top5"):
+            self.assertIn(pct_key, b_metrics, f"Baseline metrics missing '{pct_key}' key!")
+            val = float(b_metrics[pct_key])
+            self.assertGreaterEqual(val, 0.0, f"Baseline metric '{pct_key}' must be >= 0.0!")
+            self.assertLessEqual(val, 100.0, f"Baseline metric '{pct_key}' must be <= 100.0!")
+
+        # Tolerance Schema & Bounds Validation (0.0 <= tolerance <= 0.10) (Audit Finding #2)
         self.assertIn("tolerance", baseline_data, "Baseline file missing 'tolerance' key!")
         b_tolerance = baseline_data["tolerance"]
+
         for tol_key in ("ndcg5", "mrr"):
             self.assertIn(tol_key, b_tolerance, f"Baseline tolerance missing '{tol_key}' key!")
-            self.assertIsInstance(b_tolerance[tol_key], (int, float), f"Baseline tolerance '{tol_key}' must be numeric!")
+            tol_val = float(b_tolerance[tol_key])
+            self.assertGreaterEqual(tol_val, 0.0, f"Baseline tolerance '{tol_key}' cannot be negative!")
+            self.assertLessEqual(tol_val, 0.10, f"Baseline tolerance '{tol_key}' cannot exceed 0.10 threshold!")
 
         # 2. Scenario Dataset Validation
         self.assertGreater(len(self.benchmark_cases), 0, "No benchmark cases loaded!")
@@ -180,7 +197,6 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         print(f"=======================================================\n")
 
         # 3. Mandatory Baseline Regression Protection with Versioned Tolerances
-        b_commit = baseline_data["baseline_commit"]
         b_ndcg5 = float(b_metrics["ndcg5"])
         b_mrr = float(b_metrics["mrr"])
 

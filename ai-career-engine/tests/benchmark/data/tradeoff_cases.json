@@ -146,5 +146,74 @@
       "OP-LOC-REMOTE": 3,
       "OP-LOC-ONSITE-CONFLICT": 2
     }
+  },
+  {
+    "scenario_id": "TO-005",
+    "name": "Overqualified Candidate Applying for Mid vs Senior Roles",
+    "candidate": {
+      "title": "Principal Software Engineer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.95},
+        {"name": "System Design", "proficiency": 0.95},
+        {"name": "Distributed Systems", "proficiency": 0.9}
+      ],
+      "experience_years": 15.0,
+      "education": ["Master of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-LEAD-FIT",
+        "title": "Software Engineer",
+        "required_skills": ["Python", "System Design", "Distributed Systems"],
+        "experience_min": 8.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-JR-OVERQUALIFIED",
+        "title": "Software Engineer",
+        "required_skills": ["Python"],
+        "experience_min": 1.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-LEAD-FIT": 3,
+      "OP-JR-OVERQUALIFIED": 2
+    }
+  },
+  {
+    "scenario_id": "TO-006",
+    "name": "Unknown Role Title Partial Semantic Domain Token Match",
+    "candidate": {
+      "title": "Cyber Security Consultant",
+      "skills": [
+        {"name": "Penetration Testing", "proficiency": 0.9},
+        {"name": "Network Security", "proficiency": 0.85}
+      ],
+      "experience_years": 4.0,
+      "education": ["Bachelor of Information Security"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-SEC-ANALYST",
+        "title": "Security Analyst",
+        "required_skills": ["Network Security", "Penetration Testing"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-SYS-ENG",
+        "title": "Software Systems Engineer",
+        "required_skills": ["C++", "Linux Kernel"],
+        "experience_min": 5.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-SEC-ANALYST": 3,
+      "OP-SYS-ENG": 0
+    }
   }
 ]
