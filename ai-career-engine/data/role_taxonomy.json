@@ -10,7 +10,12 @@
           "back end developer",
           "back end engineer",
           "server side developer"
-        ]
+        ],
+        "related": {
+          "fullstack_developer": 0.75,
+          "software_engineer": 0.65,
+          "frontend_developer": 0.40
+        }
       },
       "frontend_developer": {
         "title": "Frontend Developer",
@@ -21,7 +26,12 @@
           "front end engineer",
           "ui developer",
           "web developer"
-        ]
+        ],
+        "related": {
+          "fullstack_developer": 0.75,
+          "software_engineer": 0.65,
+          "backend_developer": 0.40
+        }
       },
       "fullstack_developer": {
         "title": "Full Stack Developer",
@@ -30,7 +40,12 @@
           "fullstack developer",
           "full stack engineer",
           "fullstack engineer"
-        ]
+        ],
+        "related": {
+          "backend_developer": 0.75,
+          "frontend_developer": 0.75,
+          "software_engineer": 0.70
+        }
       },
       "software_engineer": {
         "title": "Software Engineer",
@@ -38,7 +53,12 @@
           "software engineer",
           "software developer",
           "systems engineer"
-        ]
+        ],
+        "related": {
+          "backend_developer": 0.65,
+          "frontend_developer": 0.65,
+          "fullstack_developer": 0.70
+        }
       }
     }
   },
@@ -51,7 +71,12 @@
           "data scientist",
           "machine learning scientist",
           "ai scientist"
-        ]
+        ],
+        "related": {
+          "machine_learning_engineer": 0.75,
+          "data_engineer": 0.50,
+          "data_analyst": 0.50
+        }
       },
       "machine_learning_engineer": {
         "title": "Machine Learning Engineer",
@@ -61,7 +86,11 @@
           "ai engineer",
           "artificial intelligence engineer",
           "deep learning engineer"
-        ]
+        ],
+        "related": {
+          "data_scientist": 0.75,
+          "data_engineer": 0.50
+        }
       },
       "data_engineer": {
         "title": "Data Engineer",
@@ -70,14 +99,23 @@
           "big data engineer",
           "etl developer",
           "data pipeline engineer"
-        ]
+        ],
+        "related": {
+          "data_scientist": 0.50,
+          "machine_learning_engineer": 0.50,
+          "data_analyst": 0.50
+        }
       },
       "data_analyst": {
         "title": "Data Analyst",
         "aliases": [
           "data analyst",
           "data analytics specialist"
-        ]
+        ],
+        "related": {
+          "bi_analyst": 0.55,
+          "data_scientist": 0.50
+        }
       },
       "bi_analyst": {
         "title": "BI Analyst",
@@ -86,7 +124,10 @@
           "business intelligence analyst",
           "bi developer",
           "power bi developer"
-        ]
+        ],
+        "related": {
+          "data_analyst": 0.55
+        }
       }
     }
   },
@@ -113,21 +154,33 @@
         "aliases": [
           "product manager",
           "technical product manager"
-        ]
+        ],
+        "related": {
+          "program_manager": 0.60,
+          "project_manager": 0.45
+        }
       },
       "project_manager": {
         "title": "Project Manager",
         "aliases": [
           "project manager",
           "technical project manager"
-        ]
+        ],
+        "related": {
+          "program_manager": 0.70,
+          "product_manager": 0.45
+        }
       },
       "program_manager": {
         "title": "Program Manager",
         "aliases": [
           "program manager",
           "technical program manager"
-        ]
+        ],
+        "related": {
+          "project_manager": 0.70,
+          "product_manager": 0.60
+        }
       }
     }
   },

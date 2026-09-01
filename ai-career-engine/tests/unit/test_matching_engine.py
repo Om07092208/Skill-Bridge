@@ -2,7 +2,8 @@ from __future__ import annotations
 import unittest
 from engines import MatchingEngine, SkillEngine
 from engines.matching_engine import calculate_effective_experience, evaluate_education_match, evaluate_role_match
-from models.normalizers import normalize_single_education, is_known_country
+from models.normalizers import normalize_single_education, is_known_country, load_role_taxonomy, normalize_role_title
+from unittest.mock import patch
 
 
 class TestMatchingEngineUnit(unittest.TestCase):
@@ -75,16 +76,20 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score = evaluate_role_match("Backend Developer", "Backend Engineer")
         self.assertEqual(score, 0.90)
 
-    def test_frontend_vs_backend_differentiation(self):
-        # Frontend Developer vs Backend Developer are in same family but different specializations -> 0.50 (< 0.85)
-        score = evaluate_role_match("Frontend Developer", "Backend Developer")
-        self.assertEqual(score, 0.50)
-        self.assertLess(score, 0.85)
+    def test_explicit_specialization_similarity_matrix(self):
+        # Backend Developer vs Full Stack Developer -> explicit related score 0.75
+        self.assertEqual(evaluate_role_match("Backend Developer", "Full Stack Developer"), 0.75)
+
+        # Backend Developer vs Frontend Developer -> explicit related score 0.40
+        self.assertEqual(evaluate_role_match("Backend Developer", "Frontend Developer"), 0.40)
+
+        # Data Analyst vs BI Analyst -> explicit related score 0.55
+        self.assertEqual(evaluate_role_match("Data Analyst", "BI Analyst"), 0.55)
 
     def test_product_vs_project_manager_differentiation(self):
-        # Project Manager vs Product Manager are different specializations -> 0.50 (< 0.85)
+        # Project Manager vs Product Manager are different specializations -> explicit related score 0.45 (< 0.85)
         score = evaluate_role_match("Project Manager", "Product Manager")
-        self.assertEqual(score, 0.50)
+        self.assertEqual(score, 0.45)
         self.assertLess(score, 0.85)
 
     def test_role_title_normalization_punctuation_and_roman_numerals(self):
@@ -95,6 +100,35 @@ class TestMatchingEngineUnit(unittest.TestCase):
         # "ML Engineer II" vs "ML Engineer" -> core match 0.95
         score2 = evaluate_role_match("ML Engineer II", "ML Engineer")
         self.assertEqual(score2, 0.95)
+
+    def test_unknown_role_token_overlap_capped(self):
+        # Non-taxonomy roles with partial token overlap must be capped at <= 0.40
+        score = evaluate_role_match("Security Engineer", "Software Systems Engineer")
+        self.assertLessEqual(score, 0.40)
+
+    def test_role_taxonomy_file_missing_raises_error(self):
+        # Must fail fast with FileNotFoundError if taxonomy file does not exist
+        with patch("os.path.exists", return_value=False):
+            with self.assertRaises(FileNotFoundError):
+                load_role_taxonomy(reload=True)
+        # Restore valid taxonomy in cache afterwards
+        load_role_taxonomy(reload=True)
+
+    def test_role_taxonomy_has_no_alias_collisions(self):
+        # Audit Finding 6: Ensure no duplicate alias collisions exist across different specializations
+        taxonomy = load_role_taxonomy()
+        seen = {}
+        for family, family_data in taxonomy.items():
+            for spec, spec_data in family_data.get("specializations", {}).items():
+                for alias in spec_data.get("aliases", []):
+                    normalized = normalize_role_title(alias)
+                    if normalized:
+                        self.assertNotIn(
+                            normalized,
+                            seen,
+                            f"Alias collision detected for '{normalized}' in ({family}, {spec}) vs existing {seen.get(normalized)}"
+                        )
+                        seen[normalized] = (family, spec)
 
     def test_known_country_lookup(self):
         self.assertTrue(is_known_country("Germany"))

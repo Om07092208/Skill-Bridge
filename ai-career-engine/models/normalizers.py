@@ -119,19 +119,34 @@ ROLE_MODIFIERS: Set[str] = {
 }
 
 _role_taxonomy_cache: Optional[Dict[str, Any]] = None
+_role_alias_index: Optional[Dict[str, tuple[str, str]]] = None
 
 
 def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
-    """Loads role taxonomy JSON file from data directory."""
-    global _role_taxonomy_cache
+    """Loads role taxonomy JSON file from data directory. Fails fast if file is missing."""
+    global _role_taxonomy_cache, _role_alias_index
     if _role_taxonomy_cache is None or reload:
         base_dir = os.path.dirname(os.path.dirname(__file__))
         path = os.path.join(base_dir, "data", "role_taxonomy.json")
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                _role_taxonomy_cache = json.load(f)
-        else:
-            _role_taxonomy_cache = {}
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Required role taxonomy file not found: {path}")
+        with open(path, "r", encoding="utf-8") as f:
+            _role_taxonomy_cache = json.load(f)
+
+        # Build fast O(1) alias index
+        _role_alias_index = {}
+        for fam_key, fam_data in _role_taxonomy_cache.items():
+            specs = fam_data.get("specializations", {})
+            for spec_key, spec_data in specs.items():
+                aliases = spec_data.get("aliases", [])
+                for alias in aliases:
+                    raw_alias = alias.strip().lower()
+                    norm_alias = normalize_role_title(alias)
+                    if raw_alias:
+                        _role_alias_index[raw_alias] = (fam_key, spec_key)
+                    if norm_alias:
+                        _role_alias_index[norm_alias] = (fam_key, spec_key)
+
     return _role_taxonomy_cache
 
 
@@ -150,22 +165,43 @@ def normalize_role_title(title: str) -> str:
 
 
 def resolve_role_taxonomy(title: str) -> tuple[Optional[str], Optional[str]]:
-    """Resolves a given role title to (family_key, specialization_key) using taxonomy aliases."""
-    norm = normalize_role_title(title)
+    """Resolves a given role title to (family_key, specialization_key) using fast O(1) index lookup."""
+    load_role_taxonomy()
     raw_norm = title.strip().lower()
-    if not norm and not raw_norm:
-        return None, None
+    norm = normalize_role_title(title)
+
+    if norm and norm in _role_alias_index:
+        return _role_alias_index[norm]
+    if raw_norm and raw_norm in _role_alias_index:
+        return _role_alias_index[raw_norm]
+
+    return None, None
+
+
+def get_specialization_similarity(fam_a: str, spec_a: str, fam_b: str, spec_b: str) -> float:
+    """Calculates granular similarity score between two taxonomy specializations."""
+    if spec_a == spec_b:
+        return 0.90  # Same specialization alias (e.g. Backend Developer ↔ Backend Engineer)
 
     taxonomy = load_role_taxonomy()
-    for fam_key, fam_data in taxonomy.items():
-        specs = fam_data.get("specializations", {})
-        for spec_key, spec_data in specs.items():
-            aliases = [a.lower() for a in spec_data.get("aliases", [])]
-            for alias in aliases:
-                norm_alias = normalize_role_title(alias)
-                if norm == norm_alias or raw_norm == alias or norm == alias:
-                    return fam_key, spec_key
-    return None, None
+    spec_a_data = taxonomy.get(fam_a, {}).get("specializations", {}).get(spec_a, {})
+    spec_b_data = taxonomy.get(fam_b, {}).get("specializations", {}).get(spec_b, {})
+
+    # Check explicit related score in spec_a
+    related_a = spec_a_data.get("related", {})
+    if spec_b in related_a:
+        return float(related_a[spec_b])
+
+    # Check symmetric explicit related score in spec_b
+    related_b = spec_b_data.get("related", {})
+    if spec_a in related_b:
+        return float(related_b[spec_a])
+
+    # Default intra-family vs cross-family
+    if fam_a == fam_b:
+        return 0.50
+
+    return 0.00
 
 
 def is_known_country(term: str) -> bool:

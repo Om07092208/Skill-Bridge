@@ -9,6 +9,7 @@ from models.normalizers import (
     get_field_similarity,
     normalize_role_title,
     resolve_role_taxonomy,
+    get_specialization_similarity,
 )
 
 
@@ -86,7 +87,7 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
 
 
 def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float]:
-    """Evaluates role match using hierarchical role taxonomy (exact=1.0, core=0.95, same spec=0.90, same fam=0.65, unrelated=0.0)."""
+    """Evaluates role match using hierarchical role taxonomy (exact=1.0, core=0.95, same spec=0.90, related/family matrix, unrelated=0.0)."""
     if not target_role_name or not opp_title:
         return None
     t_raw = target_role_name.strip().lower()
@@ -106,13 +107,9 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     o_fam, o_spec = resolve_role_taxonomy(opp_title)
 
     if t_spec and o_spec:
-        if t_spec == o_spec:
-            return 0.90  # Same specialization alias (e.g. Backend Developer ↔ Backend Engineer)
-        if t_fam == o_fam:
-            return 0.50  # Same family, different specialization (e.g. Frontend Developer ↔ Backend Developer, Data Analyst ↔ BI Analyst)
-        return 0.0  # Known different taxonomy families (e.g. Software Engineer ↔ HR Manager)
+        return get_specialization_similarity(t_fam, t_spec, o_fam, o_spec)
 
-    # 3. Fallback for unknown roles not present in taxonomy: token overlap ratio on normalized core words
+    # 3. Fallback for unknown roles not present in taxonomy: capped low-confidence token overlap ratio
     t_words = set(t_norm.split()) if t_norm else set(t_raw.split())
     o_words = set(o_norm.split()) if o_norm else set(o_raw.split())
     overlap = t_words & o_words
@@ -120,7 +117,8 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     if not overlap:
         return 0.0
 
-    return round(len(overlap) / max(len(t_words), len(o_words)), 2)
+    raw_overlap_score = len(overlap) / max(len(t_words), len(o_words))
+    return min(0.40, round(raw_overlap_score, 2))
 
 
 class MatchingEngine:
