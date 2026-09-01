@@ -96,20 +96,8 @@ class MatchingEngine:
         skill_proficiency_threshold: float = 0.30,
         target_role_name: str = "",
     ) -> List[Dict[str, Any]]:
-        """Ranks list of opportunity dicts against candidate profile using continuous proficiency-weighted matching."""
-        cand_skill_map: Dict[str, float] = {}
-        raw_skills = candidate.get("skills", [])
-
-        for s in raw_skills:
-            if isinstance(s, dict):
-                norm = s.get("normalized_name") or self.skill_engine.normalize_skill_name(s.get("name", ""))
-                norm = self.skill_engine.normalize_skill_name(norm)
-                prof = min(1.0, max(0.0, float(s.get("proficiency", 0.0))))
-                cand_skill_map[norm] = max(cand_skill_map.get(norm, 0.0), prof)
-            elif isinstance(s, str):
-                # Problem 5 Fix: String skills receive neutral declared baseline (0.50) instead of expert 1.0
-                norm = self.skill_engine.normalize_skill_name(s)
-                cand_skill_map[norm] = max(cand_skill_map.get(norm, 0.0), 0.50)
+        from models.normalizers import normalize_candidate_skills
+        cand_skill_map = normalize_candidate_skills(candidate.get("skills", []), self.skill_engine)
 
         cand_exp = calculate_effective_experience(
             candidate.get("experience_years", 0.0),

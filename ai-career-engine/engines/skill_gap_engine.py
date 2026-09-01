@@ -20,22 +20,8 @@ class SkillGapEngine:
         """Calculates exact numerical gap for each required/preferred skill and prioritizes them."""
         preferred_skills = preferred_skills or []
 
-        # Build map of candidate skills using maximum proficiency for duplicates (Finding #24)
-        cand_map: Dict[str, float] = {}
-        for s in candidate_skills:
-            if isinstance(s, dict):
-                raw_name = s.get("name", "")
-                norm_name = s.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
-                prof = min(1.0, max(0.0, float(s.get("proficiency", 0.0))))
-            elif isinstance(s, str):
-                raw_name = s
-                norm_name = self.skill_engine.normalize_skill_name(raw_name)
-                prof = 1.0
-            else:
-                continue
-
-            norm_name = self.skill_engine.normalize_skill_name(norm_name)
-            cand_map[norm_name] = max(cand_map.get(norm_name, 0.0), prof)
+        from models.normalizers import normalize_candidate_skills
+        cand_map = normalize_candidate_skills(candidate_skills, self.skill_engine)
 
         gaps: List[SkillGap] = []
 

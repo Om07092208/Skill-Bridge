@@ -8,6 +8,15 @@ from .schemas import (
     AgentResult,
     Priority,
 )
+from .normalizers import (
+    DEFAULT_DECLARED_SKILL_PROFICIENCY,
+    CanonicalSkill,
+    CanonicalLocation,
+    CanonicalEducation,
+    normalize_candidate_skills,
+    normalize_location,
+    normalize_education,
+)
 
 __all__ = [
     "Skill",
@@ -18,4 +27,11 @@ __all__ = [
     "SkillGap",
     "AgentResult",
     "Priority",
+    "DEFAULT_DECLARED_SKILL_PROFICIENCY",
+    "CanonicalSkill",
+    "CanonicalLocation",
+    "CanonicalEducation",
+    "normalize_candidate_skills",
+    "normalize_location",
+    "normalize_education",
 ]

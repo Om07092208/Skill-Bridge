@@ -15,21 +15,8 @@ class ReadinessEngine:
         candidate: Dict[str, Any],
         target_role: Dict[str, Any],
     ) -> Dict[str, Any]:
-        cand_skills = {}
-        for s in candidate.get("skills", []):
-            if isinstance(s, str):
-                raw_name = s
-                prof = 0.50  # Problem 5 Fix: Declared string skill baseline uncertainty model (0.50)
-                norm = self.skill_engine.normalize_skill_name(raw_name)
-            elif isinstance(s, dict):
-                raw_name = s.get("name", "")
-                norm = s.get("normalized_name") or self.skill_engine.normalize_skill_name(raw_name)
-                norm = self.skill_engine.normalize_skill_name(norm)
-                prof = min(1.0, max(0.0, float(s.get("proficiency", 0.0))))
-            else:
-                continue
-
-            cand_skills[norm] = max(cand_skills.get(norm, 0.0), prof)
+        from models.normalizers import normalize_candidate_skills
+        cand_skills = normalize_candidate_skills(candidate.get("skills", []), self.skill_engine)
 
         req_skills = target_role.get("required_skills", [])
         if not req_skills:
