@@ -277,6 +277,15 @@ class MatchingEngine:
             if total_weight > 0:
                 overall_score = round(sum((v * self.BASE_WEIGHTS[k]) / total_weight for k, v in available.items()), 2)
                 compatibility_status = "evaluated"
+
+                # 6. Critical Skill Veto Check
+                critical_skills = opp.get("critical_skills", [])
+                if critical_skills:
+                    for c_skill in critical_skills:
+                        c_norm = self.skill_engine.normalize_skill_name(str(c_skill))
+                        if cand_skill_map.get(c_norm, 0.0) < skill_proficiency_threshold:
+                            overall_score = round(overall_score * 0.20, 2)
+                            break
             else:
                 overall_score = None
                 compatibility_status = "insufficient_data"

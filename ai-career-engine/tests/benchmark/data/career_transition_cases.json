@@ -41,6 +41,11 @@
       "OP-JR-DS-TRANSITION": 3,
       "OP-MECH-ENG-ORIGINAL": 2,
       "OP-SR-ML-LEAD": 1
+    },
+    "labeling_rationale": {
+      "OP-JR-DS-TRANSITION": "Strong transferable skill overlap (Python, ML, SQL) supports an entry-level transition.",
+      "OP-MECH-ENG-ORIGINAL": "Strong existing-domain fit (CAD) but lower future-transition alignment.",
+      "OP-SR-ML-LEAD": "Overly senior role requiring deep MLOps/C++ engineering beyond candidate background."
     }
   },
   {
@@ -69,6 +74,7 @@
         "id": "OP-CYBER-PENTEST",
         "title": "Cybersecurity Penetration Tester",
         "required_skills": ["Penetration Testing", "Metasploit", "Reverse Engineering"],
+        "critical_skills": ["Penetration Testing"],
         "experience_min": 3.0,
         "location": "Remote"
       }
@@ -76,6 +82,10 @@
     "expected_relevance": {
       "OP-WEB-DEV-FIT": 3,
       "OP-CYBER-PENTEST": 0
+    },
+    "labeling_rationale": {
+      "OP-WEB-DEV-FIT": "Direct technical skill match (React, Python).",
+      "OP-CYBER-PENTEST": "Domain mismatch lacking critical required skill Penetration Testing."
     }
   },
   {
@@ -113,6 +123,10 @@
     "expected_relevance": {
       "OP-FIT-REMOTE": 3,
       "OP-ONSITE-SENIOR-CONFLICT": 1
+    },
+    "labeling_rationale": {
+      "OP-FIT-REMOTE": "Perfect technical fit, location alignment, and experience level match.",
+      "OP-ONSITE-SENIOR-CONFLICT": "9-year experience deficit, location mismatch (London UK vs Remote), and onsite work mode conflict."
     }
   }
 ]

@@ -82,7 +82,10 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         for metric_key in ("ndcg5", "mrr"):
             self.assertIn(metric_key, b_metrics, f"Baseline metrics missing '{metric_key}' key!")
             raw_val = b_metrics[metric_key]
-            self.assertIsInstance(raw_val, (int, float), f"Baseline metric '{metric_key}' must be numeric (not string or boolean)!")
+            self.assertTrue(
+                isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool),
+                f"Baseline metric '{metric_key}' must be numeric and not boolean!"
+            )
             val = float(raw_val)
             self.assertGreaterEqual(val, 0.0, f"Baseline metric '{metric_key}' must be >= 0.0!")
             self.assertLessEqual(val, 1.0, f"Baseline metric '{metric_key}' must be <= 1.0!")
@@ -90,19 +93,25 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         for pct_key in ("top1", "top3", "top5"):
             self.assertIn(pct_key, b_metrics, f"Baseline metrics missing '{pct_key}' key!")
             raw_val = b_metrics[pct_key]
-            self.assertIsInstance(raw_val, (int, float), f"Baseline metric '{pct_key}' must be numeric (not string or boolean)!")
+            self.assertTrue(
+                isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool),
+                f"Baseline metric '{pct_key}' must be numeric and not boolean!"
+            )
             val = float(raw_val)
             self.assertGreaterEqual(val, 0.0, f"Baseline metric '{pct_key}' must be >= 0.0!")
             self.assertLessEqual(val, 100.0, f"Baseline metric '{pct_key}' must be <= 100.0!")
 
-        # Strict Type & Tolerance Bounds Validation (0.0 <= tolerance <= 0.10) (Audit Finding #2)
+        # Strict Non-Boolean Type & Tolerance Bounds Validation (0.0 <= tolerance <= 0.10) (Audit Finding #1 & #2)
         self.assertIn("tolerance", baseline_data, "Baseline file missing 'tolerance' key!")
         b_tolerance = baseline_data["tolerance"]
 
         for tol_key in ("ndcg5", "mrr"):
             self.assertIn(tol_key, b_tolerance, f"Baseline tolerance missing '{tol_key}' key!")
             raw_tol = b_tolerance[tol_key]
-            self.assertIsInstance(raw_tol, (int, float), f"Baseline tolerance '{tol_key}' must be numeric (not string or boolean)!")
+            self.assertTrue(
+                isinstance(raw_tol, (int, float)) and not isinstance(raw_tol, bool),
+                f"Baseline tolerance '{tol_key}' must be numeric and not boolean!"
+            )
             tol_val = float(raw_tol)
             self.assertGreaterEqual(tol_val, 0.0, f"Baseline tolerance '{tol_key}' cannot be negative!")
             self.assertLessEqual(tol_val, 0.10, f"Baseline tolerance '{tol_key}' cannot exceed 0.10 threshold!")
