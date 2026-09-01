@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skill-bridge"
+version = "1.0.0"
+description = "AI Career & Skill Intelligence Platform with 6-Agent Orchestrated Pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Goldypahal"},
+    {name = "Om Tiwari"}
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "pytest>=7.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["ai-career-engine/tests"]
+markers = [
+    "unit: Pure deterministic engine tests",
+    "integration: Multi-agent pipeline integration tests with mocks",
+    "live: Real external LLM API tests"
+]
