@@ -1,5 +1,7 @@
 from __future__ import annotations
 import re
+import json
+import os
 from typing import Dict, List, Any, Optional, Set
 from pydantic import BaseModel, Field
 
@@ -99,56 +101,6 @@ FIELD_PARENT: Dict[str, str] = {
     "data_science": "engineering",
 }
 
-ROLE_ALIASES: Dict[str, Set[str]] = {
-    "software_engineer": {
-        "software engineer",
-        "software developer",
-        "backend developer",
-        "backend engineer",
-        "frontend developer",
-        "frontend engineer",
-        "full stack developer",
-        "fullstack developer",
-        "full stack engineer",
-        "systems engineer",
-    },
-    "data_scientist": {
-        "data scientist",
-        "machine learning scientist",
-        "ai scientist",
-    },
-    "machine_learning_engineer": {
-        "machine learning engineer",
-        "ml engineer",
-        "ai engineer",
-        "artificial intelligence engineer",
-        "deep learning engineer",
-    },
-    "data_engineer": {
-        "data engineer",
-        "big data engineer",
-        "etl developer",
-    },
-    "devops_engineer": {
-        "devops engineer",
-        "site reliability engineer",
-        "sre",
-        "infrastructure engineer",
-        "cloud engineer",
-    },
-    "product_manager": {
-        "product manager",
-        "technical product manager",
-        "pm",
-    },
-    "hr_manager": {
-        "hr manager",
-        "human resources manager",
-        "talent acquisition specialist",
-        "recruiter",
-    },
-}
-
 ROLE_MODIFIERS: Set[str] = {
     "senior",
     "sr",
@@ -165,6 +117,55 @@ ROLE_MODIFIERS: Set[str] = {
     "vp",
     "chief",
 }
+
+_role_taxonomy_cache: Optional[Dict[str, Any]] = None
+
+
+def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
+    """Loads role taxonomy JSON file from data directory."""
+    global _role_taxonomy_cache
+    if _role_taxonomy_cache is None or reload:
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        path = os.path.join(base_dir, "data", "role_taxonomy.json")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                _role_taxonomy_cache = json.load(f)
+        else:
+            _role_taxonomy_cache = {}
+    return _role_taxonomy_cache
+
+
+def normalize_role_title(title: str) -> str:
+    """Normalizes role title by lowercasing, stripping punctuation, level indicators (I, II, III), and seniority modifiers."""
+    if not title:
+        return ""
+    val = title.strip().lower()
+    # Strip punctuation (replace non-alphanumeric with spaces)
+    val = re.sub(r"[^a-z0-9\s]", " ", val)
+    # Strip Roman numeral level indicators (I, II, III, IV, V) as standalone tokens
+    val = re.sub(r"\b(i|ii|iii|iv|v)\b", "", val)
+    # Strip seniority modifiers
+    words = [w for w in val.split() if w not in ROLE_MODIFIERS]
+    return " ".join(words)
+
+
+def resolve_role_taxonomy(title: str) -> tuple[Optional[str], Optional[str]]:
+    """Resolves a given role title to (family_key, specialization_key) using taxonomy aliases."""
+    norm = normalize_role_title(title)
+    raw_norm = title.strip().lower()
+    if not norm and not raw_norm:
+        return None, None
+
+    taxonomy = load_role_taxonomy()
+    for fam_key, fam_data in taxonomy.items():
+        specs = fam_data.get("specializations", {})
+        for spec_key, spec_data in specs.items():
+            aliases = [a.lower() for a in spec_data.get("aliases", [])]
+            for alias in aliases:
+                norm_alias = normalize_role_title(alias)
+                if norm == norm_alias or raw_norm == alias or norm == alias:
+                    return fam_key, spec_key
+    return None, None
 
 
 def is_known_country(term: str) -> bool:

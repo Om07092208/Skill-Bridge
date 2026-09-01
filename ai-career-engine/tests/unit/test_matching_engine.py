@@ -70,10 +70,31 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score = evaluate_role_match("Data Scientist", "Senior Data Scientist")
         self.assertEqual(score, 0.95)
 
-    def test_evaluate_role_match_aliases(self):
-        # Software Engineer vs Backend Developer match via role alias group
-        score = evaluate_role_match("Software Engineer", "Backend Developer")
-        self.assertEqual(score, 0.85)
+    def test_evaluate_role_match_aliases_same_specialization(self):
+        # Backend Developer vs Backend Engineer in same specialization -> 0.90
+        score = evaluate_role_match("Backend Developer", "Backend Engineer")
+        self.assertEqual(score, 0.90)
+
+    def test_frontend_vs_backend_differentiation(self):
+        # Frontend Developer vs Backend Developer are in same family but different specializations -> 0.50 (< 0.85)
+        score = evaluate_role_match("Frontend Developer", "Backend Developer")
+        self.assertEqual(score, 0.50)
+        self.assertLess(score, 0.85)
+
+    def test_product_vs_project_manager_differentiation(self):
+        # Project Manager vs Product Manager are different specializations -> 0.50 (< 0.85)
+        score = evaluate_role_match("Project Manager", "Product Manager")
+        self.assertEqual(score, 0.50)
+        self.assertLess(score, 0.85)
+
+    def test_role_title_normalization_punctuation_and_roman_numerals(self):
+        # "Software-Engineer" vs "Sr. Software Engineer" -> core match 0.95
+        score1 = evaluate_role_match("Software-Engineer", "Sr. Software Engineer")
+        self.assertEqual(score1, 0.95)
+
+        # "ML Engineer II" vs "ML Engineer" -> core match 0.95
+        score2 = evaluate_role_match("ML Engineer II", "ML Engineer")
+        self.assertEqual(score2, 0.95)
 
     def test_known_country_lookup(self):
         self.assertTrue(is_known_country("Germany"))

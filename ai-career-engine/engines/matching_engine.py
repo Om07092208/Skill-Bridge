@@ -7,8 +7,8 @@ from models.normalizers import (
     normalize_location,
     normalize_education,
     get_field_similarity,
-    ROLE_ALIASES,
-    ROLE_MODIFIERS,
+    normalize_role_title,
+    resolve_role_taxonomy,
 )
 
 
@@ -86,9 +86,7 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
 
 
 def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float]:
-    """Evaluates role title match using alias grouping, seniority modifier removal, and token overlap.
-    Returns 0.0 if there is no role compatibility.
-    """
+    """Evaluates role match using hierarchical role taxonomy (exact=1.0, core=0.95, same spec=0.90, same fam=0.65, unrelated=0.0)."""
     if not target_role_name or not opp_title:
         return None
     t_raw = target_role_name.strip().lower()
@@ -96,34 +94,33 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     if t_raw == o_raw:
         return 1.0
 
-    # Clean words and extract core title without seniority modifiers
-    t_words = [w for w in re.findall(r"\b\w+\b", t_raw)]
-    o_words = [w for w in re.findall(r"\b\w+\b", o_raw)]
+    t_norm = normalize_role_title(target_role_name)
+    o_norm = normalize_role_title(opp_title)
 
-    t_core_words = [w for w in t_words if w not in ROLE_MODIFIERS]
-    o_core_words = [w for w in o_words if w not in ROLE_MODIFIERS]
-
-    t_core = " ".join(t_core_words)
-    o_core = " ".join(o_core_words)
-
-    # 1. Exact core title match (e.g., "Senior Data Scientist" vs "Data Scientist")
-    if t_core and t_core == o_core:
+    # 1. Exact normalized core title match (e.g. "Senior Data Scientist" vs "Data Scientist", "Software-Engineer" vs "Software Engineer")
+    if t_norm and t_norm == o_norm:
         return 0.95
 
-    # 2. Alias group match (e.g., "Software Engineer" vs "Backend Developer")
-    for alias_group in ROLE_ALIASES.values():
-        if (t_raw in alias_group or t_core in alias_group) and (o_raw in alias_group or o_core in alias_group):
-            return 0.85
+    # 2. Taxonomy Resolution
+    t_fam, t_spec = resolve_role_taxonomy(target_role_name)
+    o_fam, o_spec = resolve_role_taxonomy(opp_title)
 
-    # 3. Core token overlap
-    t_set = set(t_core_words) if t_core_words else set(t_words)
-    o_set = set(o_core_words) if o_core_words else set(o_words)
-    overlap = t_set & o_set
+    if t_spec and o_spec:
+        if t_spec == o_spec:
+            return 0.90  # Same specialization alias (e.g. Backend Developer ↔ Backend Engineer)
+        if t_fam == o_fam:
+            return 0.50  # Same family, different specialization (e.g. Frontend Developer ↔ Backend Developer, Data Analyst ↔ BI Analyst)
+        return 0.0  # Known different taxonomy families (e.g. Software Engineer ↔ HR Manager)
+
+    # 3. Fallback for unknown roles not present in taxonomy: token overlap ratio on normalized core words
+    t_words = set(t_norm.split()) if t_norm else set(t_raw.split())
+    o_words = set(o_norm.split()) if o_norm else set(o_raw.split())
+    overlap = t_words & o_words
 
     if not overlap:
         return 0.0
 
-    return round(len(overlap) / max(len(t_set), len(o_set)), 2)
+    return round(len(overlap) / max(len(t_words), len(o_words)), 2)
 
 
 class MatchingEngine:

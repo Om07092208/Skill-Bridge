@@ -1,0 +1,148 @@
+{
+  "software_engineering": {
+    "family_name": "Software Engineering",
+    "specializations": {
+      "backend_developer": {
+        "title": "Backend Developer",
+        "aliases": [
+          "backend developer",
+          "backend engineer",
+          "back end developer",
+          "back end engineer",
+          "server side developer"
+        ]
+      },
+      "frontend_developer": {
+        "title": "Frontend Developer",
+        "aliases": [
+          "frontend developer",
+          "frontend engineer",
+          "front end developer",
+          "front end engineer",
+          "ui developer",
+          "web developer"
+        ]
+      },
+      "fullstack_developer": {
+        "title": "Full Stack Developer",
+        "aliases": [
+          "full stack developer",
+          "fullstack developer",
+          "full stack engineer",
+          "fullstack engineer"
+        ]
+      },
+      "software_engineer": {
+        "title": "Software Engineer",
+        "aliases": [
+          "software engineer",
+          "software developer",
+          "systems engineer"
+        ]
+      }
+    }
+  },
+  "data_ai": {
+    "family_name": "Data & AI",
+    "specializations": {
+      "data_scientist": {
+        "title": "Data Scientist",
+        "aliases": [
+          "data scientist",
+          "machine learning scientist",
+          "ai scientist"
+        ]
+      },
+      "machine_learning_engineer": {
+        "title": "Machine Learning Engineer",
+        "aliases": [
+          "machine learning engineer",
+          "ml engineer",
+          "ai engineer",
+          "artificial intelligence engineer",
+          "deep learning engineer"
+        ]
+      },
+      "data_engineer": {
+        "title": "Data Engineer",
+        "aliases": [
+          "data engineer",
+          "big data engineer",
+          "etl developer",
+          "data pipeline engineer"
+        ]
+      },
+      "data_analyst": {
+        "title": "Data Analyst",
+        "aliases": [
+          "data analyst",
+          "data analytics specialist"
+        ]
+      },
+      "bi_analyst": {
+        "title": "BI Analyst",
+        "aliases": [
+          "bi analyst",
+          "business intelligence analyst",
+          "bi developer",
+          "power bi developer"
+        ]
+      }
+    }
+  },
+  "devops_infrastructure": {
+    "family_name": "DevOps & Infrastructure",
+    "specializations": {
+      "devops_engineer": {
+        "title": "DevOps Engineer",
+        "aliases": [
+          "devops engineer",
+          "site reliability engineer",
+          "sre",
+          "infrastructure engineer",
+          "cloud engineer"
+        ]
+      }
+    }
+  },
+  "product_management": {
+    "family_name": "Product & Project Management",
+    "specializations": {
+      "product_manager": {
+        "title": "Product Manager",
+        "aliases": [
+          "product manager",
+          "technical product manager"
+        ]
+      },
+      "project_manager": {
+        "title": "Project Manager",
+        "aliases": [
+          "project manager",
+          "technical project manager"
+        ]
+      },
+      "program_manager": {
+        "title": "Program Manager",
+        "aliases": [
+          "program manager",
+          "technical program manager"
+        ]
+      }
+    }
+  },
+  "human_resources": {
+    "family_name": "Human Resources",
+    "specializations": {
+      "hr_manager": {
+        "title": "HR Manager",
+        "aliases": [
+          "hr manager",
+          "human resources manager",
+          "talent acquisition specialist",
+          "recruiter"
+        ]
+      }
+    }
+  }
+}
