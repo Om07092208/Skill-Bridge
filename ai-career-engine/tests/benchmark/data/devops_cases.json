@@ -1,0 +1,45 @@
+[
+  {
+    "scenario_id": "DO-001",
+    "name": "DevOps Engineer targeting SRE vs Cloud Engineer vs Frontend",
+    "candidate": {
+      "title": "DevOps Engineer",
+      "skills": [
+        {"name": "Kubernetes", "proficiency": 0.9},
+        {"name": "Terraform", "proficiency": 0.85},
+        {"name": "AWS", "proficiency": 0.9},
+        {"name": "Docker", "proficiency": 0.95}
+      ],
+      "experience_years": 4.0,
+      "education": ["Bachelor of Science in Information Technology"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "DevOps Engineer",
+        "required_skills": ["Kubernetes", "Terraform", "AWS"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Site Reliability Engineer",
+        "required_skills": ["Kubernetes", "Docker"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Cloud Engineer",
+        "required_skills": ["AWS", "Terraform"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Frontend Developer",
+        "required_skills": ["React", "CSS"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_order": ["DevOps Engineer", "Site Reliability Engineer", "Cloud Engineer", "Frontend Developer"]
+  }
+]

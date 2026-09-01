@@ -1,0 +1,32 @@
+[
+  {
+    "scenario_id": "TO-001",
+    "name": "Skill coverage vs experience trade-off",
+    "candidate": {
+      "title": "Backend Developer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.95},
+        {"name": "FastAPI", "proficiency": 0.9},
+        {"name": "PostgreSQL", "proficiency": 0.85}
+      ],
+      "experience_years": 2.0,
+      "education": ["Bachelor of Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "FastAPI", "PostgreSQL"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "FastAPI", "PostgreSQL"],
+        "experience_min": 10.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_order": ["Backend Engineer", "Backend Engineer"]
+  }
+]

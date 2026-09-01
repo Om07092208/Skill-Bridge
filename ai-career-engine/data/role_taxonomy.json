@@ -139,11 +139,37 @@
         "title": "DevOps Engineer",
         "aliases": [
           "devops engineer",
+          "infrastructure engineer"
+        ],
+        "related": {
+          "site_reliability_engineer": 0.75,
+          "cloud_engineer": 0.70
+        }
+      },
+      "site_reliability_engineer": {
+        "title": "Site Reliability Engineer",
+        "aliases": [
           "site reliability engineer",
           "sre",
-          "infrastructure engineer",
-          "cloud engineer"
-        ]
+          "reliability engineer"
+        ],
+        "related": {
+          "devops_engineer": 0.75,
+          "cloud_engineer": 0.70
+        }
+      },
+      "cloud_engineer": {
+        "title": "Cloud Engineer",
+        "aliases": [
+          "cloud engineer",
+          "cloud infrastructure engineer",
+          "cloud architect",
+          "solutions architect"
+        ],
+        "related": {
+          "devops_engineer": 0.70,
+          "site_reliability_engineer": 0.70
+        }
       }
     }
   },

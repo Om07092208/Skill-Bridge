@@ -116,9 +116,9 @@ class TestMatchingEngineUnit(unittest.TestCase):
         score = evaluate_role_match("Security Engineer", "Software Systems Engineer")
         self.assertEqual(score, 0.0)
 
-        # "Cloud Architect" vs "Solutions Architect" have 0 domain token overlap => 0.0
+        # "Cloud Architect" vs "Solutions Architect" match same cloud_engineer specialization in taxonomy => 0.90
         score_architect = evaluate_role_match("Cloud Architect", "Solutions Architect")
-        self.assertEqual(score_architect, 0.0)
+        self.assertEqual(score_architect, 0.90)
 
         # "Cyber Security Consultant" vs "Security Analyst" share domain token "security" (weight 1.0) => capped at <= 0.40
         score_domain = evaluate_role_match("Cyber Security Consultant", "Security Analyst")

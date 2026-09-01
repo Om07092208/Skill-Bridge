@@ -1,0 +1,74 @@
+[
+  {
+    "scenario_id": "BE-001",
+    "name": "Backend Developer targeting Backend vs Full Stack vs HR",
+    "candidate": {
+      "title": "Backend Developer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.9},
+        {"name": "FastAPI", "proficiency": 0.85},
+        {"name": "PostgreSQL", "proficiency": 0.8}
+      ],
+      "experience_years": 4.0,
+      "education": ["Bachelor of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "FastAPI"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Full Stack Developer",
+        "required_skills": ["Python", "React"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "HR Manager",
+        "required_skills": ["Recruiting"],
+        "experience_min": 2.0,
+        "location": "Onsite"
+      }
+    ],
+    "expected_order": ["Backend Engineer", "Full Stack Developer", "HR Manager"]
+  },
+  {
+    "scenario_id": "BE-002",
+    "name": "Frontend Engineer targeting UI vs Fullstack vs Backend",
+    "candidate": {
+      "title": "Frontend Developer",
+      "skills": [
+        {"name": "React", "proficiency": 0.95},
+        {"name": "TypeScript", "proficiency": 0.9},
+        {"name": "CSS", "proficiency": 0.85}
+      ],
+      "experience_years": 3.0,
+      "education": ["B.Tech in Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "Frontend Engineer",
+        "required_skills": ["React", "TypeScript"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Full Stack Developer",
+        "required_skills": ["React", "Node.js"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "Django"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_order": ["Frontend Engineer", "Full Stack Developer", "Backend Engineer"]
+  }
+]

@@ -1,0 +1,75 @@
+[
+  {
+    "scenario_id": "DA-001",
+    "name": "Data Scientist targeting DS vs ML Engineer vs Data Analyst",
+    "candidate": {
+      "title": "Data Scientist",
+      "skills": [
+        {"name": "Python", "proficiency": 0.95},
+        {"name": "PyTorch", "proficiency": 0.9},
+        {"name": "SQL", "proficiency": 0.85},
+        {"name": "Machine Learning", "proficiency": 0.9}
+      ],
+      "experience_years": 5.0,
+      "education": ["Master of Science in Machine Learning"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "Data Scientist",
+        "required_skills": ["Python", "PyTorch", "Machine Learning"],
+        "experience_min": 4.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Machine Learning Engineer",
+        "required_skills": ["Python", "PyTorch", "Docker"],
+        "experience_min": 4.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Data Analyst",
+        "required_skills": ["SQL", "Excel"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_order": ["Data Scientist", "Machine Learning Engineer", "Data Analyst"]
+  },
+  {
+    "scenario_id": "DA-002",
+    "name": "Data Analyst targeting Data Analyst vs BI Analyst vs Data Engineer",
+    "candidate": {
+      "title": "Data Analyst",
+      "skills": [
+        {"name": "SQL", "proficiency": 0.9},
+        {"name": "Power BI", "proficiency": 0.85},
+        {"name": "Tableau", "proficiency": 0.8}
+      ],
+      "experience_years": 3.0,
+      "education": ["Bachelor of Science in Statistics"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "title": "Data Analyst",
+        "required_skills": ["SQL", "Tableau"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "title": "BI Analyst",
+        "required_skills": ["Power BI", "SQL"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "title": "Data Engineer",
+        "required_skills": ["Apache Spark", "Scala", "Kubernetes"],
+        "experience_min": 5.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_order": ["Data Analyst", "BI Analyst", "Data Engineer"]
+  }
+]
