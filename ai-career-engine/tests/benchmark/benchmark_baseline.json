@@ -1,10 +1,14 @@
 {
-  "baseline_commit": "e60cb3e",
+  "baseline_commit": "b692d99",
   "metrics": {
     "ndcg5": 1.0000,
     "mrr": 1.0000,
     "top1": 100.0,
     "top3": 100.0,
     "top5": 100.0
+  },
+  "tolerance": {
+    "ndcg5": 0.02,
+    "mrr": 0.02
   }
 }

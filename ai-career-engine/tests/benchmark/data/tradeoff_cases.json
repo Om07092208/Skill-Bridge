@@ -75,5 +75,76 @@
       "OP-JR-DS": 3,
       "OP-SR-DS": 1
     }
+  },
+  {
+    "scenario_id": "TO-003",
+    "name": "Skill Match Superiority vs Experience Surplus Trade-off",
+    "candidate": {
+      "title": "Software Engineer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.9},
+        {"name": "FastAPI", "proficiency": 0.85},
+        {"name": "Docker", "proficiency": 0.8}
+      ],
+      "experience_years": 3.0,
+      "education": ["Bachelor of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-PERFECT-SKILLS",
+        "title": "Software Engineer",
+        "required_skills": ["Python", "FastAPI", "Docker"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-SKILL-GAP-SR",
+        "title": "Software Engineer",
+        "required_skills": ["Java", "Spring Boot", "Kubernetes", "AWS"],
+        "experience_min": 10.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-PERFECT-SKILLS": 3,
+      "OP-SKILL-GAP-SR": 1
+    }
+  },
+  {
+    "scenario_id": "TO-004",
+    "name": "Location & Work Mode Penalty Trade-off",
+    "candidate": {
+      "title": "Frontend Developer",
+      "skills": [
+        {"name": "React", "proficiency": 0.9},
+        {"name": "TypeScript", "proficiency": 0.85}
+      ],
+      "experience_years": 3.0,
+      "education": ["Bachelor of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-LOC-REMOTE",
+        "title": "Frontend Developer",
+        "required_skills": ["React", "TypeScript"],
+        "experience_min": 3.0,
+        "location": "Remote",
+        "work_mode": "remote"
+      },
+      {
+        "id": "OP-LOC-ONSITE-CONFLICT",
+        "title": "Frontend Developer",
+        "required_skills": ["React", "TypeScript"],
+        "experience_min": 3.0,
+        "location": "New York, NY",
+        "work_mode": "onsite"
+      }
+    ],
+    "expected_relevance": {
+      "OP-LOC-REMOTE": 3,
+      "OP-LOC-ONSITE-CONFLICT": 2
+    }
   }
 ]

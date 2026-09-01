@@ -32,7 +32,7 @@ def calculate_ndcg_at_k(actual_ids: List[str], expected_relevance: Dict[str, flo
 
 
 class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
-    """Data-driven benchmark suite enforcing strict schema validation, relevance contract completeness, and persisted baseline regression protection."""
+    """Data-driven benchmark suite enforcing mandatory baseline validation, baseline schema verification, versioned tolerances, and contract completeness."""
 
     @classmethod
     def setUpClass(cls):
@@ -44,7 +44,6 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         cls.baseline_file = os.path.join(cls.benchmark_dir, "benchmark_baseline.json")
 
         cls.benchmark_cases: List[Dict[str, Any]] = []
-        cls.seen_scenario_ids: Set[str] = set()
 
         if os.path.exists(cls.data_dir):
             for fname in sorted(os.listdir(cls.data_dir)):
@@ -56,7 +55,32 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
                             cls.benchmark_cases.append(case)
 
     def test_benchmark_data_driven_scenarios(self):
-        """Runs all benchmark cases with formal schema validation, contract completeness, and persisted baseline regression checks."""
+        """Runs all benchmark cases with formal schema validation, contract completeness, and mandatory baseline regression checks."""
+        # 1. Mandatory Baseline File Validation (Audit Finding #2)
+        self.assertTrue(
+            os.path.exists(self.baseline_file),
+            f"Mandatory benchmark baseline file missing: {self.baseline_file}"
+        )
+
+        with open(self.baseline_file, "r", encoding="utf-8") as f:
+            baseline_data = json.load(f)
+
+        # Baseline Schema & Bounds Validation (Audit Finding #3 & #5)
+        self.assertIn("baseline_commit", baseline_data, "Baseline file missing 'baseline_commit' key!")
+        self.assertIn("metrics", baseline_data, "Baseline file missing 'metrics' key!")
+
+        b_metrics = baseline_data["metrics"]
+        for metric_key in ("ndcg5", "mrr", "top1", "top3", "top5"):
+            self.assertIn(metric_key, b_metrics, f"Baseline metrics missing '{metric_key}' key!")
+            self.assertIsInstance(b_metrics[metric_key], (int, float), f"Baseline metric '{metric_key}' must be numeric!")
+
+        self.assertIn("tolerance", baseline_data, "Baseline file missing 'tolerance' key!")
+        b_tolerance = baseline_data["tolerance"]
+        for tol_key in ("ndcg5", "mrr"):
+            self.assertIn(tol_key, b_tolerance, f"Baseline tolerance missing '{tol_key}' key!")
+            self.assertIsInstance(b_tolerance[tol_key], (int, float), f"Baseline tolerance '{tol_key}' must be numeric!")
+
+        # 2. Scenario Dataset Validation
         self.assertGreater(len(self.benchmark_cases), 0, "No benchmark cases loaded!")
 
         total_cases = len(self.benchmark_cases)
@@ -75,7 +99,7 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
             opportunities = case.get("opportunities")
             expected_relevance = case.get("expected_relevance", {})
 
-            # 1. Global Scenario ID Uniqueness & Non-Empty Validation
+            # Global Scenario ID Uniqueness & Non-Empty Validation
             self.assertIsNotNone(scenario_id, f"Scenario [{name}] missing scenario_id!")
             self.assertNotIn(
                 scenario_id,
@@ -87,12 +111,12 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
             self.assertIsNotNone(candidate, f"Scenario [{scenario_id} - {name}] candidate profile is missing!")
             self.assertTrue(opportunities, f"Scenario [{scenario_id} - {name}] opportunities list is empty!")
 
-            # 2. Opportunity ID Uniqueness & Non-None Validation
+            # Opportunity ID Uniqueness & Non-None Validation
             ids = [opp.get("id") for opp in opportunities]
             self.assertNotIn(None, ids, f"Scenario [{scenario_id} - {name}]: every opportunity must have a non-None ID!")
             self.assertEqual(len(ids), len(set(ids)), f"Scenario [{scenario_id} - {name}]: duplicate opportunity IDs detected!")
 
-            # 3. Contract Completeness Validation: set(opportunity_ids) == set(expected_relevance.keys())
+            # Contract Completeness Validation: set(opportunity_ids) == set(expected_relevance.keys())
             opportunity_ids = set(ids)
             relevance_ids = set(expected_relevance.keys())
             self.assertEqual(
@@ -101,7 +125,7 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
                 f"Scenario [{scenario_id} - {name}]: expected_relevance IDs {relevance_ids} must exactly match opportunity IDs {opportunity_ids}"
             )
 
-            # 4. Relevance Value Range Validation (grades in {0, 1, 2, 3})
+            # Relevance Value Range Validation (grades in {0, 1, 2, 3})
             for opp_id, rel_grade in expected_relevance.items():
                 self.assertIn(
                     rel_grade,
@@ -155,27 +179,24 @@ class TestDataDrivenSystemRankingBenchmark(unittest.TestCase):
         print(f" Diagnostic      - Top-5 Accuracy   : {top5_acc:.2f}%")
         print(f"=======================================================\n")
 
-        # 5. Persisted Baseline Regression Testing
-        if os.path.exists(self.baseline_file):
-            with open(self.baseline_file, "r", encoding="utf-8") as f:
-                baseline_data = json.load(f)
-                b_commit = baseline_data.get("baseline_commit", "unknown")
-                b_metrics = baseline_data.get("metrics", {})
+        # 3. Mandatory Baseline Regression Protection with Versioned Tolerances
+        b_commit = baseline_data["baseline_commit"]
+        b_ndcg5 = float(b_metrics["ndcg5"])
+        b_mrr = float(b_metrics["mrr"])
 
-                b_ndcg5 = float(b_metrics.get("ndcg5", 0.90))
-                b_mrr = float(b_metrics.get("mrr", 0.90))
+        ndcg5_tolerance = float(b_tolerance["ndcg5"])
+        mrr_tolerance = float(b_tolerance["mrr"])
 
-                TOLERANCE = 0.05
-                self.assertGreaterEqual(
-                    mean_ndcg5,
-                    b_ndcg5 - TOLERANCE,
-                    f"NDCG@5 regression detected against baseline commit '{b_commit}'! Current {mean_ndcg5:.4f} vs Baseline {b_ndcg5:.4f}"
-                )
-                self.assertGreaterEqual(
-                    mrr,
-                    b_mrr - TOLERANCE,
-                    f"MRR regression detected against baseline commit '{b_commit}'! Current {mrr:.4f} vs Baseline {b_mrr:.4f}"
-                )
+        self.assertGreaterEqual(
+            mean_ndcg5,
+            b_ndcg5 - ndcg5_tolerance,
+            f"NDCG@5 regression detected against baseline commit '{b_commit}'! Current {mean_ndcg5:.4f} vs Baseline {b_ndcg5:.4f} (tolerance {ndcg5_tolerance})"
+        )
+        self.assertGreaterEqual(
+            mrr,
+            b_mrr - mrr_tolerance,
+            f"MRR regression detected against baseline commit '{b_commit}'! Current {mrr:.4f} vs Baseline {b_mrr:.4f} (tolerance {mrr_tolerance})"
+        )
 
 
 if __name__ == "__main__":
