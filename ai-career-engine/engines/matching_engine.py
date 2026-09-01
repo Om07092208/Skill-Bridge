@@ -1,4 +1,5 @@
 from __future__ import annotations
+import re
 from typing import Dict, List, Any, Optional
 from engines.skill_engine import SkillEngine
 from models.normalizers import (
@@ -6,6 +7,8 @@ from models.normalizers import (
     normalize_location,
     normalize_education,
     get_field_similarity,
+    ROLE_ALIASES,
+    ROLE_MODIFIERS,
 )
 
 
@@ -40,7 +43,7 @@ def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: 
 
 
 def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
-    """Evaluates degree level & domain similarity matrix between academic fields."""
+    """Evaluates degree level & multi-domain similarity matrix across all academic fields."""
     if not req_edu_raw:
         return 1.0
 
@@ -61,11 +64,17 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
     else:
         base = 0.40
 
-    cand_field = getattr(cand_edu, "primary_field", cand_edu.field)
-    req_field = getattr(req_edu, "primary_field", req_edu.field)
+    cand_fields = getattr(cand_edu, "fields", []) or ([cand_edu.primary_field] if cand_edu.primary_field else [])
+    req_fields = getattr(req_edu, "fields", []) or ([req_edu.primary_field] if req_edu.primary_field else [])
 
-    if req_field and cand_field:
-        sim = get_field_similarity(cand_field, req_field)
+    if cand_fields and req_fields:
+        similarities = [
+            get_field_similarity(c_field, r_field)
+            for c_field in cand_fields
+            for r_field in req_fields
+            if c_field and r_field
+        ]
+        sim = max(similarities, default=0.0)
         if sim == 1.0:
             base = min(1.0, base + 0.10)
         elif sim >= 0.70:
@@ -77,19 +86,44 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
 
 
 def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float]:
-    """Finding #4 Fix: Evaluates normalized role title token overlap as a weighted component rather than flat +10% bonus."""
+    """Evaluates role title match using alias grouping, seniority modifier removal, and token overlap.
+    Returns 0.0 if there is no role compatibility.
+    """
     if not target_role_name or not opp_title:
         return None
-    t_norm = target_role_name.strip().lower()
-    o_norm = opp_title.strip().lower()
-    if t_norm == o_norm:
+    t_raw = target_role_name.strip().lower()
+    o_raw = opp_title.strip().lower()
+    if t_raw == o_raw:
         return 1.0
-    t_words = set(t_norm.split())
-    o_words = set(o_norm.split())
-    overlap = t_words & o_words
+
+    # Clean words and extract core title without seniority modifiers
+    t_words = [w for w in re.findall(r"\b\w+\b", t_raw)]
+    o_words = [w for w in re.findall(r"\b\w+\b", o_raw)]
+
+    t_core_words = [w for w in t_words if w not in ROLE_MODIFIERS]
+    o_core_words = [w for w in o_words if w not in ROLE_MODIFIERS]
+
+    t_core = " ".join(t_core_words)
+    o_core = " ".join(o_core_words)
+
+    # 1. Exact core title match (e.g., "Senior Data Scientist" vs "Data Scientist")
+    if t_core and t_core == o_core:
+        return 0.95
+
+    # 2. Alias group match (e.g., "Software Engineer" vs "Backend Developer")
+    for alias_group in ROLE_ALIASES.values():
+        if (t_raw in alias_group or t_core in alias_group) and (o_raw in alias_group or o_core in alias_group):
+            return 0.85
+
+    # 3. Core token overlap
+    t_set = set(t_core_words) if t_core_words else set(t_words)
+    o_set = set(o_core_words) if o_core_words else set(o_words)
+    overlap = t_set & o_set
+
     if not overlap:
-        return 0.30
-    return round(len(overlap) / max(len(t_words), len(o_words)), 2)
+        return 0.0
+
+    return round(len(overlap) / max(len(t_set), len(o_set)), 2)
 
 
 class MatchingEngine:

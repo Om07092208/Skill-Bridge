@@ -6,11 +6,8 @@ from pydantic import BaseModel, Field
 DEFAULT_DECLARED_SKILL_PROFICIENCY = 0.50
 _default_skill_engine = None
 
-# Finding #1 & #2 Fix: Top-level pycountry import with narrow exception handling
-try:
-    import pycountry
-except ImportError:
-    pycountry = None
+# Strict pycountry import required by dependency contract
+import pycountry
 
 
 def get_skill_engine():
@@ -93,18 +90,93 @@ KNOWN_COUNTRIES: Set[str] = {
 }
 
 
+FIELD_PARENT: Dict[str, str] = {
+    "computer_science": "engineering",
+    "software_engineering": "engineering",
+    "information_technology": "engineering",
+    "artificial_intelligence": "engineering",
+    "machine_learning": "engineering",
+    "data_science": "engineering",
+}
+
+ROLE_ALIASES: Dict[str, Set[str]] = {
+    "software_engineer": {
+        "software engineer",
+        "software developer",
+        "backend developer",
+        "backend engineer",
+        "frontend developer",
+        "frontend engineer",
+        "full stack developer",
+        "fullstack developer",
+        "full stack engineer",
+        "systems engineer",
+    },
+    "data_scientist": {
+        "data scientist",
+        "machine learning scientist",
+        "ai scientist",
+    },
+    "machine_learning_engineer": {
+        "machine learning engineer",
+        "ml engineer",
+        "ai engineer",
+        "artificial intelligence engineer",
+        "deep learning engineer",
+    },
+    "data_engineer": {
+        "data engineer",
+        "big data engineer",
+        "etl developer",
+    },
+    "devops_engineer": {
+        "devops engineer",
+        "site reliability engineer",
+        "sre",
+        "infrastructure engineer",
+        "cloud engineer",
+    },
+    "product_manager": {
+        "product manager",
+        "technical product manager",
+        "pm",
+    },
+    "hr_manager": {
+        "hr manager",
+        "human resources manager",
+        "talent acquisition specialist",
+        "recruiter",
+    },
+}
+
+ROLE_MODIFIERS: Set[str] = {
+    "senior",
+    "sr",
+    "junior",
+    "jr",
+    "lead",
+    "principal",
+    "staff",
+    "intern",
+    "internship",
+    "associate",
+    "head",
+    "director",
+    "vp",
+    "chief",
+}
+
+
 def is_known_country(term: str) -> bool:
-    """Finding #1 & #2 Fix: Efficient pycountry lookup with narrow LookupError exception handling."""
+    """Efficient pycountry lookup with narrow LookupError exception handling."""
     val = term.strip().lower()
     if not val:
         return False
-    if pycountry is not None:
-        try:
-            pycountry.countries.lookup(val)
-            return True
-        except LookupError:
-            pass
-    return val in KNOWN_COUNTRIES
+    try:
+        pycountry.countries.lookup(val)
+        return True
+    except LookupError:
+        return val in KNOWN_COUNTRIES
 
 
 def normalize_candidate_skills(raw_skills: List[Any], skill_engine: Any = None) -> List[CanonicalSkill]:
@@ -240,14 +312,24 @@ def normalize_single_education(edu_str: str) -> CanonicalEducation:
                 matches.append((len(alias), field_key))
 
     all_fields = list(dict.fromkeys([m[1] for m in matches]))
-    primary_field = max(matches, key=lambda x: x[0])[1] if matches else ""
+    
+    # Remove generic parent fields if a more specific child field is present
+    parents_to_remove = set()
+    for f in all_fields:
+        if f in FIELD_PARENT:
+            parents_to_remove.add(FIELD_PARENT[f])
+
+    filtered_fields = [f for f in all_fields if f not in parents_to_remove]
+    filtered_matches = [m for m in matches if m[1] in filtered_fields]
+
+    final_fields = filtered_fields if filtered_fields else all_fields
+    primary_field = max(filtered_matches, key=lambda x: x[0])[1] if filtered_matches else (max(matches, key=lambda x: x[0])[1] if matches else "")
 
     return CanonicalEducation(
         raw=edu_str,
         degree_level=detected_level,
         primary_field=primary_field,
-        field=primary_field,
-        fields=all_fields,
+        fields=final_fields,
     )
 
 
