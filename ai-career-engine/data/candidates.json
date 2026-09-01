@@ -1,0 +1,449 @@
+[
+  {
+    "candidate_id": "C001",
+    "name": "Ananya Sharma",
+    "education": [
+      "B.Tech Computer Science"
+    ],
+    "location": "Bengaluru, India",
+    "experience_years": 2.5,
+    "skills": [
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.85,
+        "experience_months": 30,
+        "evidence": [
+          "Junior Data Analyst role",
+          "Forecasting project"
+        ],
+        "project_evidence": 2,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.72,
+        "experience_months": 24,
+        "evidence": [
+          "Analytics role"
+        ],
+        "project_evidence": 2,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Machine Learning",
+        "normalized_name": "machine_learning",
+        "proficiency": 0.65,
+        "experience_months": 18,
+        "evidence": [
+          "Customer churn project"
+        ],
+        "project_evidence": 2,
+        "course_completion": 0.8,
+        "recency_score": 0.95
+      },
+      {
+        "name": "Pandas",
+        "normalized_name": "pandas",
+        "proficiency": 0.82,
+        "experience_months": 24,
+        "evidence": [
+          "Data analysis projects"
+        ],
+        "project_evidence": 3,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Docker",
+        "normalized_name": "docker",
+        "proficiency": 0.25,
+        "experience_months": 3,
+        "evidence": [
+          "Personal deployment project"
+        ],
+        "project_evidence": 1,
+        "course_completion": 0.3,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "Customer Churn Prediction",
+        "description": "Built a classification pipeline for customer churn.",
+        "skills": [
+          "Python",
+          "Pandas",
+          "Machine Learning"
+        ]
+      },
+      {
+        "name": "Sales Forecasting Dashboard",
+        "description": "Created SQL-based analytics and forecasting dashboard.",
+        "skills": [
+          "Python",
+          "SQL",
+          "Pandas"
+        ]
+      }
+    ],
+    "certifications": [
+      "Google Data Analytics Professional Certificate"
+    ],
+    "courses_completed": [
+      "Applied Machine Learning",
+      "Advanced SQL"
+    ],
+    "career_gaps": [
+      {
+        "start_date": "2024-01",
+        "end_date": "2025-02",
+        "duration_months": 13,
+        "reason": "parental_leave",
+        "protected": true
+      }
+    ]
+  },
+  {
+    "candidate_id": "C002",
+    "name": "Rohan Mehta",
+    "education": [
+      "B.Tech Information Technology"
+    ],
+    "location": "Pune, India",
+    "experience_years": 0.8,
+    "skills": [
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.55,
+        "experience_months": 10,
+        "evidence": [
+          "Academic projects"
+        ],
+        "project_evidence": 2,
+        "course_completion": 0.8,
+        "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.45,
+        "experience_months": 6,
+        "evidence": [
+          "University database project"
+        ],
+        "project_evidence": 1,
+        "course_completion": 0.7,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Git",
+        "normalized_name": "git",
+        "proficiency": 0.6,
+        "experience_months": 12,
+        "evidence": [
+          "Coursework and projects"
+        ],
+        "project_evidence": 3,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "Student Performance Predictor",
+        "description": "Built a basic ML model using Python.",
+        "skills": [
+          "Python",
+          "Machine Learning"
+        ]
+      },
+      {
+        "name": "College Management DB",
+        "description": "Designed relational database queries.",
+        "skills": [
+          "SQL",
+          "Git"
+        ]
+      }
+    ],
+    "certifications": [],
+    "courses_completed": [
+      "Python for Everybody"
+    ],
+    "career_gaps": []
+  },
+  {
+    "candidate_id": "C003",
+    "name": "Vikram Singh",
+    "education": [
+      "B.Tech Computer Science",
+      "M.Tech Data Science"
+    ],
+    "location": "Hyderabad, India",
+    "experience_years": 5.0,
+    "skills": [
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.92,
+        "experience_months": 60,
+        "evidence": [
+          "ML Engineer role"
+        ],
+        "project_evidence": 5,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Machine Learning",
+        "normalized_name": "machine_learning",
+        "proficiency": 0.9,
+        "experience_months": 48,
+        "evidence": [
+          "Production ML systems"
+        ],
+        "project_evidence": 5,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "TensorFlow",
+        "normalized_name": "tensorflow",
+        "proficiency": 0.88,
+        "experience_months": 42,
+        "evidence": [
+          "Deep learning production systems"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Docker",
+        "normalized_name": "docker",
+        "proficiency": 0.85,
+        "experience_months": 36,
+        "evidence": [
+          "Model deployment"
+        ],
+        "project_evidence": 4,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Kubernetes",
+        "normalized_name": "kubernetes",
+        "proficiency": 0.78,
+        "experience_months": 24,
+        "evidence": [
+          "ML platform deployment"
+        ],
+        "project_evidence": 3,
+        "course_completion": 0.8,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "Real-Time Fraud Detection",
+        "description": "Production ML pipeline for fraud detection.",
+        "skills": [
+          "Python",
+          "Machine Learning",
+          "TensorFlow",
+          "Docker"
+        ]
+      },
+      {
+        "name": "Kubernetes ML Platform",
+        "description": "Deployed model-serving workloads.",
+        "skills": [
+          "Kubernetes",
+          "Docker",
+          "Python"
+        ]
+      }
+    ],
+    "certifications": [
+      "AWS Certified Machine Learning – Specialty"
+    ],
+    "courses_completed": [
+      "MLOps Engineering",
+      "Deep Learning"
+    ],
+    "career_gaps": []
+  },
+  {
+    "candidate_id": "C004",
+    "name": "Priya Kapoor",
+    "education": [
+      "B.Com",
+      "PG Diploma Business Analytics"
+    ],
+    "location": "Delhi, India",
+    "experience_years": 3.0,
+    "skills": [
+      {
+        "name": "Excel",
+        "normalized_name": "excel",
+        "proficiency": 0.9,
+        "experience_months": 36,
+        "evidence": [
+          "Business analyst role"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.75,
+        "experience_months": 20,
+        "evidence": [
+          "Reporting and analytics"
+        ],
+        "project_evidence": 3,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Power BI",
+        "normalized_name": "power_bi",
+        "proficiency": 0.82,
+        "experience_months": 24,
+        "evidence": [
+          "Executive dashboards"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.42,
+        "experience_months": 8,
+        "evidence": [
+          "Analytics automation"
+        ],
+        "project_evidence": 1,
+        "course_completion": 0.5,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "Executive KPI Dashboard",
+        "description": "Built business intelligence dashboards.",
+        "skills": [
+          "Power BI",
+          "SQL",
+          "Excel"
+        ]
+      },
+      {
+        "name": "Sales Analytics Automation",
+        "description": "Automated recurring reports with Python.",
+        "skills": [
+          "Python",
+          "SQL"
+        ]
+      }
+    ],
+    "certifications": [
+      "Microsoft Power BI Data Analyst"
+    ],
+    "courses_completed": [
+      "Business Analytics Fundamentals"
+    ],
+    "career_gaps": []
+  },
+  {
+    "candidate_id": "C005",
+    "name": "Arjun Verma",
+    "education": [
+      "B.Tech Computer Science"
+    ],
+    "location": "Chandigarh, India",
+    "experience_years": 4.0,
+    "skills": [
+      {
+        "name": "Java",
+        "normalized_name": "java",
+        "proficiency": 0.88,
+        "experience_months": 48,
+        "evidence": [
+          "Backend Developer role"
+        ],
+        "project_evidence": 4,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Spring Boot",
+        "normalized_name": "spring_boot",
+        "proficiency": 0.84,
+        "experience_months": 36,
+        "evidence": [
+          "Microservices"
+        ],
+        "project_evidence": 4,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.78,
+        "experience_months": 42,
+        "evidence": [
+          "Production databases"
+        ],
+        "project_evidence": 3,
+        "course_completion": 0.9,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.35,
+        "experience_months": 4,
+        "evidence": [
+          "Personal automation"
+        ],
+        "project_evidence": 1,
+        "course_completion": 0.3,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "Microservices Order Platform",
+        "description": "Built Java Spring Boot microservices.",
+        "skills": [
+          "Java",
+          "Spring Boot",
+          "SQL"
+        ]
+      },
+      {
+        "name": "Python Automation Toolkit",
+        "description": "Small automation utilities.",
+        "skills": [
+          "Python"
+        ]
+      }
+    ],
+    "certifications": [],
+    "courses_completed": [
+      "Spring Boot Microservices"
+    ],
+    "career_gaps": []
+  }
+]

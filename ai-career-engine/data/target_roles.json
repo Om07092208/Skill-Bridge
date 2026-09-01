@@ -1,0 +1,130 @@
+[
+  {
+    "role_id": "R001",
+    "name": "ML Engineer",
+    "required_skills": [
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.8
+      },
+      {
+        "name": "Machine Learning",
+        "normalized_name": "machine_learning",
+        "proficiency": 0.8
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.7
+      },
+      {
+        "name": "Docker",
+        "normalized_name": "docker",
+        "proficiency": 0.7
+      },
+      {
+        "name": "Kubernetes",
+        "normalized_name": "kubernetes",
+        "proficiency": 0.6
+      }
+    ],
+    "preferred_skills": [
+      {
+        "name": "TensorFlow",
+        "normalized_name": "tensorflow",
+        "proficiency": 0.65
+      },
+      {
+        "name": "Git",
+        "normalized_name": "git",
+        "proficiency": 0.6
+      }
+    ],
+    "experience_min": 2.0,
+    "education_requirements": [
+      "Computer Science",
+      "Data Science",
+      "Artificial Intelligence"
+    ]
+  },
+  {
+    "role_id": "R002",
+    "name": "Data Analyst",
+    "required_skills": [
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.7
+      },
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.6
+      },
+      {
+        "name": "Excel",
+        "normalized_name": "excel",
+        "proficiency": 0.7
+      },
+      {
+        "name": "Power BI",
+        "normalized_name": "power_bi",
+        "proficiency": 0.65
+      }
+    ],
+    "preferred_skills": [
+      {
+        "name": "Statistics",
+        "normalized_name": "statistics",
+        "proficiency": 0.6
+      }
+    ],
+    "experience_min": 1.0,
+    "education_requirements": [
+      "Computer Science",
+      "Business",
+      "Statistics",
+      "Data Science",
+      "Information Technology"
+    ]
+  },
+  {
+    "role_id": "R003",
+    "name": "Backend Developer",
+    "required_skills": [
+      {
+        "name": "Java",
+        "normalized_name": "java",
+        "proficiency": 0.75
+      },
+      {
+        "name": "Spring Boot",
+        "normalized_name": "spring_boot",
+        "proficiency": 0.7
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.65
+      },
+      {
+        "name": "Git",
+        "normalized_name": "git",
+        "proficiency": 0.6
+      }
+    ],
+    "preferred_skills": [
+      {
+        "name": "Docker",
+        "normalized_name": "docker",
+        "proficiency": 0.6
+      }
+    ],
+    "experience_min": 2.0,
+    "education_requirements": [
+      "Computer Science",
+      "Information Technology"
+    ]
+  }
+]

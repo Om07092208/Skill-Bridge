@@ -1,0 +1,132 @@
+[
+  {
+    "course_id": "CR001",
+    "title": "Python for Data Science",
+    "provider": "OpenLearn",
+    "level": "beginner",
+    "duration_hours": 25,
+    "skills": [
+      "Python",
+      "Pandas"
+    ],
+    "certification": true,
+    "rating": 4.5
+  },
+  {
+    "course_id": "CR002",
+    "title": "Applied Machine Learning",
+    "provider": "Tech Academy",
+    "level": "intermediate",
+    "duration_hours": 40,
+    "skills": [
+      "Machine Learning",
+      "Python"
+    ],
+    "certification": true,
+    "rating": 4.7
+  },
+  {
+    "course_id": "CR003",
+    "title": "Docker for Developers",
+    "provider": "Cloud Skills",
+    "level": "intermediate",
+    "duration_hours": 18,
+    "skills": [
+      "Docker"
+    ],
+    "certification": true,
+    "rating": 4.6
+  },
+  {
+    "course_id": "CR004",
+    "title": "Kubernetes Fundamentals",
+    "provider": "Cloud Skills",
+    "level": "intermediate",
+    "duration_hours": 28,
+    "skills": [
+      "Kubernetes",
+      "Docker"
+    ],
+    "certification": true,
+    "rating": 4.5
+  },
+  {
+    "course_id": "CR005",
+    "title": "Advanced SQL Analytics",
+    "provider": "Data Academy",
+    "level": "intermediate",
+    "duration_hours": 30,
+    "skills": [
+      "SQL"
+    ],
+    "certification": true,
+    "rating": 4.6
+  },
+  {
+    "course_id": "CR006",
+    "title": "Power BI Data Analyst",
+    "provider": "Analytics Institute",
+    "level": "beginner",
+    "duration_hours": 24,
+    "skills": [
+      "Power BI",
+      "Excel"
+    ],
+    "certification": true,
+    "rating": 4.8
+  },
+  {
+    "course_id": "CR007",
+    "title": "Spring Boot Microservices",
+    "provider": "Backend Academy",
+    "level": "advanced",
+    "duration_hours": 35,
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "Docker"
+    ],
+    "certification": true,
+    "rating": 4.7
+  },
+  {
+    "course_id": "CR008",
+    "title": "MLOps Engineering",
+    "provider": "AI Engineering School",
+    "level": "advanced",
+    "duration_hours": 45,
+    "skills": [
+      "Docker",
+      "Kubernetes",
+      "Machine Learning"
+    ],
+    "certification": true,
+    "rating": 4.8
+  },
+  {
+    "course_id": "CR009",
+    "title": "Git and Collaborative Development",
+    "provider": "Developer Academy",
+    "level": "beginner",
+    "duration_hours": 10,
+    "skills": [
+      "Git"
+    ],
+    "certification": true,
+    "rating": 4.4
+  },
+  {
+    "course_id": "CR010",
+    "title": "Business Analytics Fundamentals",
+    "provider": "Analytics Institute",
+    "level": "beginner",
+    "duration_hours": 20,
+    "skills": [
+      "Excel",
+      "SQL",
+      "Power BI"
+    ],
+    "certification": true,
+    "rating": 4.6
+  }
+]

@@ -1,0 +1,190 @@
+[
+  {
+    "job_id": "J001",
+    "title": "ML Engineer",
+    "company": "Nova AI Labs",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "Docker",
+      "SQL",
+      "Kubernetes"
+    ],
+    "location": "Bengaluru",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J002",
+    "title": "ML Engineer",
+    "company": "VisionForge",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "TensorFlow",
+      "Docker"
+    ],
+    "location": "Hyderabad",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J003",
+    "title": "Data Analyst",
+    "company": "InsightWorks",
+    "skills": [
+      "SQL",
+      "Python",
+      "Excel",
+      "Power BI"
+    ],
+    "location": "Bengaluru",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J004",
+    "title": "Data Analyst",
+    "company": "MarketPulse",
+    "skills": [
+      "SQL",
+      "Excel",
+      "Power BI"
+    ],
+    "location": "Delhi",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J005",
+    "title": "Backend Developer",
+    "company": "CloudScale Systems",
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "SQL",
+      "Git",
+      "Docker"
+    ],
+    "location": "Chandigarh",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J006",
+    "title": "ML Engineer",
+    "company": "DataWorks",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "Docker"
+    ],
+    "location": "Pune",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J007",
+    "title": "Data Analyst",
+    "company": "AnalyticsHub",
+    "skills": [
+      "SQL",
+      "Python",
+      "Power BI"
+    ],
+    "location": "Pune",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J008",
+    "title": "Backend Developer",
+    "company": "TechGrid",
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "Git"
+    ],
+    "location": "Bengaluru",
+    "posted_month": "2026-08"
+  },
+  {
+    "job_id": "J009",
+    "title": "ML Engineer",
+    "company": "AI Systems",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "Kubernetes",
+      "TensorFlow"
+    ],
+    "location": "Hyderabad",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J010",
+    "title": "Data Analyst",
+    "company": "DataVista",
+    "skills": [
+      "SQL",
+      "Excel",
+      "Power BI"
+    ],
+    "location": "Delhi",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J011",
+    "title": "Backend Developer",
+    "company": "AppCore",
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "SQL"
+    ],
+    "location": "Pune",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J012",
+    "title": "ML Engineer",
+    "company": "MLWorks",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "Docker"
+    ],
+    "location": "Bengaluru",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J013",
+    "title": "Data Analyst",
+    "company": "InsightPro",
+    "skills": [
+      "SQL",
+      "Python",
+      "Excel"
+    ],
+    "location": "Chandigarh",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J014",
+    "title": "Backend Developer",
+    "company": "ServiceStack",
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "Git",
+      "Docker"
+    ],
+    "location": "Delhi",
+    "posted_month": "2026-07"
+  },
+  {
+    "job_id": "J015",
+    "title": "ML Engineer",
+    "company": "DeepCore",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "TensorFlow"
+    ],
+    "location": "Pune",
+    "posted_month": "2026-07"
+  }
+]

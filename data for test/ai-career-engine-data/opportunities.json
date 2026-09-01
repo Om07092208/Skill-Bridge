@@ -1,0 +1,114 @@
+[
+  {
+    "opportunity_id": "O001",
+    "title": "Junior ML Engineer",
+    "company": "Nova AI Labs",
+    "location": "Bengaluru, India",
+    "work_mode": "hybrid",
+    "employment_type": "full-time",
+    "experience_min": 1,
+    "required_skills": [
+      "Python",
+      "Machine Learning",
+      "SQL",
+      "Docker"
+    ],
+    "preferred_skills": [
+      "Kubernetes",
+      "TensorFlow"
+    ],
+    "education": [
+      "Computer Science",
+      "Data Science"
+    ]
+  },
+  {
+    "opportunity_id": "O002",
+    "title": "Data Analyst",
+    "company": "InsightWorks",
+    "location": "Bengaluru, India",
+    "work_mode": "remote",
+    "employment_type": "full-time",
+    "experience_min": 1,
+    "required_skills": [
+      "SQL",
+      "Python",
+      "Excel",
+      "Power BI"
+    ],
+    "preferred_skills": [
+      "Statistics"
+    ],
+    "education": [
+      "Business",
+      "Computer Science",
+      "Data Science"
+    ]
+  },
+  {
+    "opportunity_id": "O003",
+    "title": "Backend Developer",
+    "company": "CloudScale Systems",
+    "location": "Chandigarh, India",
+    "work_mode": "hybrid",
+    "employment_type": "full-time",
+    "experience_min": 2,
+    "required_skills": [
+      "Java",
+      "Spring Boot",
+      "SQL",
+      "Git"
+    ],
+    "preferred_skills": [
+      "Docker"
+    ],
+    "education": [
+      "Computer Science",
+      "Information Technology"
+    ]
+  },
+  {
+    "opportunity_id": "O004",
+    "title": "ML Intern",
+    "company": "VisionForge",
+    "location": "Hyderabad, India",
+    "work_mode": "onsite",
+    "employment_type": "internship",
+    "experience_min": 0,
+    "required_skills": [
+      "Python",
+      "Machine Learning",
+      "Pandas"
+    ],
+    "preferred_skills": [
+      "TensorFlow"
+    ],
+    "education": [
+      "Computer Science",
+      "Data Science",
+      "Artificial Intelligence"
+    ]
+  },
+  {
+    "opportunity_id": "O005",
+    "title": "BI Analyst",
+    "company": "MarketPulse",
+    "location": "Delhi, India",
+    "work_mode": "hybrid",
+    "employment_type": "full-time",
+    "experience_min": 2,
+    "required_skills": [
+      "Excel",
+      "SQL",
+      "Power BI"
+    ],
+    "preferred_skills": [
+      "Python"
+    ],
+    "education": [
+      "Business",
+      "Statistics",
+      "Computer Science"
+    ]
+  }
+]

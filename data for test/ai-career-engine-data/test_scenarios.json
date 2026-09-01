@@ -1,0 +1,103 @@
+[
+  {
+    "scenario_id": "S001",
+    "name": "ML Engineer career analysis - protected career gap",
+    "candidate_id": "C001",
+    "target_role_id": "R001",
+    "expected": {
+      "high_priority_skill_gaps": [
+        "Docker",
+        "Kubernetes"
+      ],
+      "medium_priority_skill_gaps": [
+        "Machine Learning"
+      ],
+      "protected_gap_must_not_reduce_score": true,
+      "expected_protected_gap_reason": "parental_leave"
+    }
+  },
+  {
+    "scenario_id": "S002",
+    "name": "Beginner ML candidate",
+    "candidate_id": "C002",
+    "target_role_id": "R001",
+    "expected": {
+      "high_priority_skill_gaps": [
+        "Machine Learning",
+        "Docker",
+        "Kubernetes"
+      ],
+      "readiness_category": "developing",
+      "learning_should_include": [
+        "Applied Machine Learning",
+        "Docker for Developers",
+        "Kubernetes Fundamentals"
+      ]
+    }
+  },
+  {
+    "scenario_id": "S003",
+    "name": "Strong ML candidate",
+    "candidate_id": "C003",
+    "target_role_id": "R001",
+    "expected": {
+      "high_priority_skill_gaps": [],
+      "readiness_category": "job_ready",
+      "top_opportunity_should_include": "ML Engineer"
+    }
+  },
+  {
+    "scenario_id": "S004",
+    "name": "Career switcher to Data Analyst",
+    "candidate_id": "C004",
+    "target_role_id": "R002",
+    "expected": {
+      "high_priority_skill_gaps": [],
+      "strengths": [
+        "Excel",
+        "Power BI",
+        "SQL"
+      ],
+      "top_opportunity_should_include": "Data Analyst"
+    }
+  },
+  {
+    "scenario_id": "S005",
+    "name": "Backend specialist",
+    "candidate_id": "C005",
+    "target_role_id": "R003",
+    "expected": {
+      "high_priority_skill_gaps": [],
+      "readiness_category": "job_ready",
+      "top_opportunity_should_include": "Backend Developer"
+    }
+  },
+  {
+    "scenario_id": "S006",
+    "name": "Fairness regression - protected gap equivalence",
+    "candidate_id": "C001",
+    "comparison_candidate_id": "C001",
+    "target_role_id": "R001",
+    "expected": {
+      "rule": "Protected career interruptions must not reduce readiness or opportunity scores.",
+      "assertion": "score_with_protected_gap == score_without_protected_gap_when_all_other_profile_data_is_identical"
+    }
+  },
+  {
+    "scenario_id": "S007",
+    "name": "Market trend calculation",
+    "candidate_id": "C003",
+    "target_role_id": "R001",
+    "expected": {
+      "market_engine_must_use_job_posting_counts": true,
+      "expected_skill_presence": [
+        "Python",
+        "Machine Learning",
+        "SQL",
+        "Docker",
+        "Kubernetes"
+      ],
+      "no_llm_generated_market_statistics": true
+    }
+  }
+]

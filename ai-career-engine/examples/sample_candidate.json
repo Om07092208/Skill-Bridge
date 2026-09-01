@@ -1,0 +1,114 @@
+{
+  "candidate": {
+    "candidate_id": "cand_98765",
+    "name": "Alex Mercer",
+    "current_role": "Data Analyst",
+    "education": [
+      "Bachelor of Science in Computer Science"
+    ],
+    "experience_years": 2.5,
+    "location": "Remote",
+    "skills": [
+      {
+        "name": "Python",
+        "normalized_name": "python",
+        "proficiency": 0.85,
+        "experience_months": 30,
+        "evidence": ["Built ETL pipelines", "Data processing scripts"],
+        "project_evidence": 3,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "SQL",
+        "normalized_name": "sql",
+        "proficiency": 0.75,
+        "experience_months": 24,
+        "evidence": ["Complex joins and analytical queries"],
+        "project_evidence": 2,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Pandas",
+        "normalized_name": "pandas",
+        "proficiency": 0.80,
+        "experience_months": 24,
+        "evidence": ["Data wrangling and feature engineering"],
+        "project_evidence": 2,
+        "course_completion": 1.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Docker",
+        "normalized_name": "docker",
+        "proficiency": 0.20,
+        "experience_months": 3,
+        "evidence": ["Basic Dockerfile creation"],
+        "project_evidence": 1,
+        "course_completion": 0.3,
+        "recency_score": 1.0
+      },
+      {
+        "name": "Kubernetes",
+        "normalized_name": "kubernetes",
+        "proficiency": 0.0,
+        "experience_months": 0,
+        "evidence": [],
+        "project_evidence": 0,
+        "course_completion": 0.0,
+        "recency_score": 1.0
+      },
+      {
+        "name": "MLOps",
+        "normalized_name": "mlops",
+        "proficiency": 0.0,
+        "experience_months": 0,
+        "evidence": [],
+        "project_evidence": 0,
+        "course_completion": 0.0,
+        "recency_score": 1.0
+      }
+    ],
+    "projects": [
+      {
+        "name": "E-Commerce Churn Prediction Pipeline",
+        "description": "End-to-end data cleaning, model training with Scikit-learn, and evaluation.",
+        "skills": ["Python", "SQL", "Pandas"],
+        "outcomes": ["Achieved 89% ROC-AUC score"]
+      }
+    ],
+    "certifications": [
+      "Google Data Analytics Professional Certificate"
+    ],
+    "courses_completed": [
+      "Python for Data Science",
+      "SQL Deep Dive"
+    ],
+    "career_gaps": [
+      {
+        "start_date": "2023-01-01",
+        "end_date": "2023-06-01",
+        "duration_months": 5,
+        "reason": "Family Care Leave",
+        "protected": true
+      }
+    ]
+  },
+  "target_role": {
+    "name": "ML Engineer",
+    "required_skills": [
+      { "name": "Python", "normalized_name": "python", "proficiency": 0.85 },
+      { "name": "SQL", "normalized_name": "sql", "proficiency": 0.75 },
+      { "name": "Pandas", "normalized_name": "pandas", "proficiency": 0.80 },
+      { "name": "Docker", "normalized_name": "docker", "proficiency": 0.70 },
+      { "name": "Kubernetes", "normalized_name": "kubernetes", "proficiency": 0.60 },
+      { "name": "MLOps", "normalized_name": "mlops", "proficiency": 0.70 }
+    ],
+    "preferred_skills": [
+      { "name": "AWS", "normalized_name": "aws", "proficiency": 0.50 }
+    ],
+    "experience_min": 2.0,
+    "education_requirements": ["Bachelor"]
+  }
+}

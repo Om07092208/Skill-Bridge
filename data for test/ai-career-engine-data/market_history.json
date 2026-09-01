@@ -1,0 +1,28 @@
+[
+  {
+    "period": "2026-07",
+    "skill_demand": {
+      "Python": 7,
+      "Machine Learning": 5,
+      "SQL": 8,
+      "Docker": 4,
+      "Kubernetes": 2,
+      "Power BI": 3,
+      "Java": 3,
+      "Spring Boot": 3
+    }
+  },
+  {
+    "period": "2026-08",
+    "skill_demand": {
+      "Python": 7,
+      "Machine Learning": 5,
+      "SQL": 7,
+      "Docker": 4,
+      "Kubernetes": 2,
+      "Power BI": 3,
+      "Java": 2,
+      "Spring Boot": 2
+    }
+  }
+]
