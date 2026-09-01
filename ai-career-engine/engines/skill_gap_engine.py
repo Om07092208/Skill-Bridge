@@ -20,8 +20,8 @@ class SkillGapEngine:
         """Calculates exact numerical gap for each required/preferred skill and prioritizes them."""
         preferred_skills = preferred_skills or []
 
-        from models.normalizers import normalize_candidate_skills
-        cand_map = normalize_candidate_skills(candidate_skills, self.skill_engine)
+        from models.normalizers import normalize_candidate_skill_map
+        cand_map = normalize_candidate_skill_map(candidate_skills, self.skill_engine)
 
         gaps: List[SkillGap] = []
 

@@ -15,8 +15,8 @@ class ReadinessEngine:
         candidate: Dict[str, Any],
         target_role: Dict[str, Any],
     ) -> Dict[str, Any]:
-        from models.normalizers import normalize_candidate_skills
-        cand_skills = normalize_candidate_skills(candidate.get("skills", []), self.skill_engine)
+        from models.normalizers import normalize_candidate_skill_map
+        cand_skills = normalize_candidate_skill_map(candidate.get("skills", []), self.skill_engine)
 
         req_skills = target_role.get("required_skills", [])
         if not req_skills:

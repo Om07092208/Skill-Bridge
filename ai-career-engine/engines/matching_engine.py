@@ -1,6 +1,11 @@
 from __future__ import annotations
 from typing import Dict, List, Any, Optional
 from engines.skill_engine import SkillEngine
+from models.normalizers import (
+    normalize_candidate_skill_map,
+    normalize_location,
+    normalize_education,
+)
 
 
 def calculate_effective_experience(experience_years: float, career_gaps: List[Dict[str, Any]] = None) -> float:
@@ -11,73 +16,55 @@ def calculate_effective_experience(experience_years: float, career_gaps: List[Di
         return 0.0
 
 
-def parse_location_components(loc_str: str) -> Dict[str, str]:
-    """Parses location string into structured city/state/country components."""
-    parts = [p.strip().lower() for p in loc_str.split(",") if p.strip()]
-    if not parts:
-        return {"city": "", "state": "", "country": ""}
-    if len(parts) == 1:
-        return {"city": parts[0], "state": parts[0], "country": parts[0]}
-    return {
-        "city": parts[0],
-        "state": parts[1] if len(parts) > 2 else parts[0],
-        "country": parts[-1],
-    }
+def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: Any) -> float:
+    """Evaluates structured location compatibility using canonical location normalizer."""
+    cand_loc = normalize_location(cand_loc_raw)
+    opp_loc = normalize_location(opp_loc_raw, work_mode_raw)
 
-
-def evaluate_location_match(cand_loc: str, opp_loc: str, work_mode: str) -> float:
-    """Problem 2 Fix: Evaluates structured location compatibility instead of naive substring matching."""
-    cand_loc_clean = cand_loc.strip().lower()
-    opp_loc_clean = opp_loc.strip().lower()
-    work_mode_clean = work_mode.strip().lower()
-
-    if not opp_loc_clean or "remote" in opp_loc_clean or "remote" in work_mode_clean:
+    if opp_loc.is_remote or not opp_loc.is_known:
         return 1.0
 
-    c_struct = parse_location_components(cand_loc_clean)
-    o_struct = parse_location_components(opp_loc_clean)
-
-    if c_struct["city"] and c_struct["city"] == o_struct["city"]:
+    if cand_loc.city and opp_loc.city and cand_loc.city.lower() == opp_loc.city.lower():
         return 1.0
-    if c_struct["country"] and c_struct["country"] == o_struct["country"]:
-        if "hybrid" in opp_loc_clean or "hybrid" in work_mode_clean:
-            return 0.85
-        return 0.60
-    if "hybrid" in opp_loc_clean or "hybrid" in work_mode_clean:
+    if cand_loc.state and opp_loc.state and cand_loc.state.lower() == opp_loc.state.lower():
+        return 0.85 if opp_loc.is_hybrid else 0.75
+    if cand_loc.country and opp_loc.country and cand_loc.country.lower() == opp_loc.country.lower():
+        return 0.70 if opp_loc.is_hybrid else 0.60
+    if opp_loc.is_hybrid:
         return 0.75
 
     return 0.20
 
 
-def evaluate_education_match(cand_edu: List[str], req_edu: Any) -> float:
-    """Problem 3 Fix: Evaluates semantic education match based on degree level and field alignment."""
-    if not req_edu:
+def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
+    """Evaluates semantic education match using canonical education normalizer."""
+    if not req_edu_raw:
         return 1.0
 
-    req_list = [str(r).lower() for r in (req_edu if isinstance(req_edu, list) else [req_edu])]
-    cand_list = [str(e).lower() for e in cand_edu]
+    cand_edu = normalize_education(cand_edu_raw)
+    req_edu = normalize_education(req_edu_raw)
 
-    if not cand_list:
-        return 0.40
+    if req_edu.degree_level == "unknown":
+        return 1.0
 
-    # Exact term match
-    for r in req_list:
-        for c in cand_list:
-            if r in c or c in r:
-                return 1.0
+    level_scores = {"phd": 4, "master": 3, "bachelor": 2, "high_school": 1, "unknown": 0}
+    c_lvl = level_scores.get(cand_edu.degree_level, 0)
+    r_lvl = level_scores.get(req_edu.degree_level, 2)
 
-    # Degree level hierarchy check
-    req_has_master = any("master" in r or "m.tech" in r or "ms" in r for r in req_list)
-    cand_has_master = any("master" in c or "m.tech" in c or "ms" in c for c in cand_list)
-    cand_has_bachelor = any("bachelor" in c or "b.tech" in c or "bs" in c or "degree" in c for c in cand_list)
+    if c_lvl >= r_lvl:
+        base = 1.0
+    elif c_lvl == r_lvl - 1:
+        base = 0.75
+    else:
+        base = 0.40
 
-    if req_has_master:
-        return 1.0 if cand_has_master else (0.75 if cand_has_bachelor else 0.40)
-    
-    if cand_has_bachelor or cand_has_master:
-        return 0.85
+    if req_edu.field and cand_edu.field:
+        if req_edu.field == cand_edu.field:
+            base = min(1.0, base + 0.10)
+        else:
+            base = max(0.30, base - 0.10)
 
-    return 0.45
+    return round(base, 2)
 
 
 class MatchingEngine:
@@ -96,15 +83,15 @@ class MatchingEngine:
         skill_proficiency_threshold: float = 0.30,
         target_role_name: str = "",
     ) -> List[Dict[str, Any]]:
-        from models.normalizers import normalize_candidate_skills
-        cand_skill_map = normalize_candidate_skills(candidate.get("skills", []), self.skill_engine)
+        """Ranks list of opportunity dicts against candidate profile using continuous proficiency-weighted matching."""
+        cand_skill_map = normalize_candidate_skill_map(candidate.get("skills", []), self.skill_engine)
 
         cand_exp = calculate_effective_experience(
             candidate.get("experience_years", 0.0),
             candidate.get("career_gaps", []),
         )
-        cand_edu = [str(e) for e in candidate.get("education", [])]
-        cand_loc = str(candidate.get("location", ""))
+        cand_edu_raw = candidate.get("education", [])
+        cand_loc_raw = candidate.get("location", "")
 
         ranked = []
         for opp in opportunities:
@@ -119,13 +106,12 @@ class MatchingEngine:
             except (TypeError, ValueError):
                 req_exp = 0.0
 
-            req_edu = opp.get("education_required", opp.get("education", []))
-            opp_loc = str(opp.get("location", ""))
-            work_mode = str(opp.get("work_mode", ""))
+            req_edu_raw = opp.get("education_required", opp.get("education", []))
+            opp_loc_raw = opp.get("location", "")
+            work_mode_raw = opp.get("work_mode", "")
 
             # 1. Skill Match Calculation
             if not req_skills:
-                # Problem 4 Fix: Mark skill_score as None for dynamic weight redistribution
                 skill_score = None
                 matched_skills = []
                 missing_skills = []
@@ -138,7 +124,6 @@ class MatchingEngine:
                     if isinstance(r_skill, dict):
                         r_name = r_skill.get("name", "")
                         r_norm = r_skill.get("normalized_name") or self.skill_engine.normalize_skill_name(r_name)
-                        # Problem 6 Fix: Data-driven required level parsing
                         r_req_level = min(1.0, max(0.0, float(r_skill.get("required_level", r_skill.get("proficiency", 0.60)))))
                     else:
                         r_name = str(r_skill)
@@ -192,15 +177,14 @@ class MatchingEngine:
             else:
                 exp_score = round(cand_exp / req_exp, 2)
 
-            # 3. Education Match Calculation
-            edu_score = evaluate_education_match(cand_edu, req_edu)
+            # 3. Education Match Calculation using canonical normalizer
+            edu_score = evaluate_education_match(cand_edu_raw, req_edu_raw)
 
-            # 4. Location Match Calculation
-            loc_score = evaluate_location_match(cand_loc, opp_loc, work_mode)
+            # 4. Location Match Calculation using canonical normalizer
+            loc_score = evaluate_location_match(cand_loc_raw, opp_loc_raw, work_mode_raw)
 
-            # Problem 4 Fix: Dynamic Component Weighting
+            # Dynamic Component Weighting
             if skill_score is None:
-                # Skill data missing: Redistribute weights (Experience 50%, Education 30%, Location 20%)
                 overall_score = round(
                     (exp_score * 0.50) +
                     (edu_score * 0.30) +

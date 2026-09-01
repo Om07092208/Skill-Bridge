@@ -14,6 +14,7 @@ from .normalizers import (
     CanonicalLocation,
     CanonicalEducation,
     normalize_candidate_skills,
+    normalize_candidate_skill_map,
     normalize_location,
     normalize_education,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "CanonicalLocation",
     "CanonicalEducation",
     "normalize_candidate_skills",
+    "normalize_candidate_skill_map",
     "normalize_location",
     "normalize_education",
 ]
