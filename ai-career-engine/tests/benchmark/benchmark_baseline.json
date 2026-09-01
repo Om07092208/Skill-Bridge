@@ -1,0 +1,10 @@
+{
+  "baseline_commit": "e60cb3e",
+  "metrics": {
+    "ndcg5": 1.0000,
+    "mrr": 1.0000,
+    "top1": 100.0,
+    "top3": 100.0,
+    "top5": 100.0
+  }
+}
