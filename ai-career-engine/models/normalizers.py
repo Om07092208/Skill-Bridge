@@ -20,7 +20,7 @@ class CanonicalSkill(BaseModel):
     name: str
     normalized_name: str
     proficiency: float = Field(default=DEFAULT_DECLARED_SKILL_PROFICIENCY, ge=0.0, le=1.0)
-    evidence_types: List[str] = Field(default_factory=lambda: ["declared"])  # Finding #6: Multi-value evidence list
+    evidence_types: List[str] = Field(default_factory=lambda: ["declared"])
 
 
 class CanonicalLocation(BaseModel):
@@ -40,7 +40,7 @@ class CanonicalEducation(BaseModel):
 
 
 DEGREE_PATTERNS = {
-    "phd": [r"\bph\.?d\b", r"\bdoctorate\b", r"\bdoctoral\b"],  # Finding #2 Fix: Removed broad r"\bdoctor\b"
+    "phd": [r"\bph\.?d\b", r"\bdoctorate\b", r"\bdoctoral\b"],
     "master": [r"\bmaster'?s\b", r"\bm\.?tech\b", r"\bm\.?s\b", r"\bmba\b"],
     "bachelor": [r"\bbachelor'?s\b", r"\bb\.?tech\b", r"\bb\.?e\.?\b", r"\bb\.?sc\b", r"\bbs\b"],
     "high_school": [r"\bhigh school\b", r"\bdiploma\b", r"\bsecondary\b"],
@@ -48,7 +48,6 @@ DEGREE_PATTERNS = {
 
 DEGREE_LEVEL_SCORES = {"phd": 4, "master": 3, "bachelor": 2, "high_school": 1, "unknown": 0}
 
-# Finding #1 Fix: Disambiguated taxonomy for distinct computer science & AI fields
 FIELD_ALIASES = {
     "computer_science": ["computer science", "cse", "cs"],
     "software_engineering": ["software engineering", "computer engineering"],
@@ -59,7 +58,6 @@ FIELD_ALIASES = {
     "engineering": ["engineering"],
 }
 
-# Finding #1 Fix: Explicit domain similarity matrix between related disciplines
 FIELD_SIMILARITY: Dict[tuple[str, str], float] = {
     ("artificial_intelligence", "machine_learning"): 0.90,
     ("artificial_intelligence", "data_science"): 0.75,
@@ -78,16 +76,32 @@ def get_field_similarity(field_a: str, field_b: str) -> float:
     return FIELD_SIMILARITY.get((field_a, field_b), FIELD_SIMILARITY.get((field_b, field_a), 0.0))
 
 
-# Finding #3 Fix: Country dictionary for 2-part location disambiguation (e.g. "Ludhiana, India")
+# Finding #3 Fix: Comprehensive country resolution dataset with pycountry lookup fallback
 KNOWN_COUNTRIES: Set[str] = {
-    "india", "usa", "united states", "uk", "united kingdom", "canada",
+    "india", "usa", "united states", "us", "uk", "united kingdom", "canada",
     "germany", "france", "australia", "japan", "singapore", "brazil",
-    "netherlands", "sweden", "spain", "italy"
+    "netherlands", "sweden", "spain", "italy", "uae", "united arab emirates",
+    "switzerland", "south korea", "korea", "china", "russia", "mexico",
+    "south africa", "new zealand", "ireland", "belgium", "austria"
 }
 
 
+def is_known_country(term: str) -> bool:
+    """Finding #3 Fix: Dynamic country lookup using pycountry if available, fallback to KNOWN_COUNTRIES set."""
+    val = term.strip().lower()
+    if not val:
+        return False
+    if val in KNOWN_COUNTRIES:
+        return True
+    try:
+        import pycountry
+        return bool(pycountry.countries.lookup(val))
+    except Exception:
+        return False
+
+
 def normalize_candidate_skills(raw_skills: List[Any], skill_engine: Any = None) -> List[CanonicalSkill]:
-    """Finding #6 & #8 Fix: Preserves structured skills with multi-value evidence type tracking."""
+    """Preserves structured skills with multi-value evidence type tracking."""
     engine = skill_engine or get_skill_engine()
     seen_map: Dict[str, CanonicalSkill] = {}
 
@@ -135,7 +149,6 @@ def normalize_candidate_skills(raw_skills: List[Any], skill_engine: Any = None) 
         if norm not in seen_map:
             seen_map[norm] = item
         else:
-            # Combine evidence types and keep highest proficiency
             existing = seen_map[norm]
             merged_ev = sorted(list(set(existing.evidence_types) | ev_types))
             new_prof = max(existing.proficiency, prof)
@@ -156,7 +169,7 @@ def normalize_candidate_skill_map(raw_skills: List[Any], skill_engine: Any = Non
 
 
 def normalize_location(loc_input: Any, work_mode_input: Any = "") -> CanonicalLocation:
-    """Finding #3 Fix: Accurately parses City/State vs City/Country in 2-part inputs using country dictionary."""
+    """Finding #3 Fix: Accurately parses City/State vs City/Country using dynamic country resolver."""
     loc_str = str(loc_input or "").strip()
     loc_lower = loc_str.lower()
     work_mode_str = str(work_mode_input or "").strip().lower()
@@ -169,10 +182,13 @@ def normalize_location(loc_input: Any, work_mode_input: Any = "") -> CanonicalLo
     if len(parts) == 0:
         city, state, country = "", "", ""
     elif len(parts) == 1:
-        city, state, country = parts[0], "", ""
+        if is_known_country(parts[0]):
+            city, state, country = "", "", parts[0]
+        else:
+            city, state, country = parts[0], "", ""
     elif len(parts) == 2:
         city = parts[0]
-        if parts[1].lower() in KNOWN_COUNTRIES:
+        if is_known_country(parts[1]):
             state = ""
             country = parts[1]
         else:
@@ -195,12 +211,12 @@ def normalize_location(loc_input: Any, work_mode_input: Any = "") -> CanonicalLo
 
 
 def normalize_single_education(edu_str: str) -> CanonicalEducation:
-    """Parses a single education entry into CanonicalEducation."""
+    """Finding #4 & #5 Fix: Longest-match regex boundary alias extraction."""
     edu_lower = edu_str.strip().lower()
     if not edu_lower:
         return CanonicalEducation(raw="", degree_level="unknown", field="")
 
-    # Finding #2 Fix: Precise regex degree boundary detection
+    # Degree level extraction using word boundaries
     detected_level = "unknown"
     for level, patterns in DEGREE_PATTERNS.items():
         for pat in patterns:
@@ -210,22 +226,21 @@ def normalize_single_education(edu_str: str) -> CanonicalEducation:
         if detected_level != "unknown":
             break
 
-    # Finding #1 Fix: Disambiguated field alias detection
-    detected_field = ""
+    # Finding #4 & #5 Fix: Collect all regex boundary matches and pick the longest matching alias
+    matches = []
     for field_key, aliases in FIELD_ALIASES.items():
         for alias in aliases:
             pattern = r"\b" + re.escape(alias) + r"\b"
             if re.search(pattern, edu_lower):
-                detected_field = field_key
-                break
-        if detected_field:
-            break
+                matches.append((len(alias), field_key))
+
+    detected_field = max(matches, key=lambda x: x[0])[1] if matches else ""
 
     return CanonicalEducation(raw=edu_str, degree_level=detected_level, field=detected_field)
 
 
 def normalize_education_list(edu_input: Any) -> List[CanonicalEducation]:
-    """Finding #5 Fix: Structurally preserves multiple degree entries in candidate education history."""
+    """Structurally preserves multiple degree entries in candidate education history."""
     if isinstance(edu_input, list):
         items = [str(e) for e in edu_input if e]
     elif isinstance(edu_input, str) and edu_input.strip():

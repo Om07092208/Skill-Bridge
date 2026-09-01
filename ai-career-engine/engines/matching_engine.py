@@ -18,7 +18,7 @@ def calculate_effective_experience(experience_years: float, career_gaps: List[Di
 
 
 def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: Any) -> Optional[float]:
-    """Finding #4 Fix: Returns None if job location is unknown to signal missing location data rather than assuming 1.0."""
+    """Returns None if job location is unknown to signal missing location data rather than assuming 1.0."""
     cand_loc = normalize_location(cand_loc_raw)
     opp_loc = normalize_location(opp_loc_raw, work_mode_raw)
 
@@ -40,7 +40,7 @@ def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: 
 
 
 def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
-    """Finding #1 Fix: Evaluates degree level & domain similarity matrix between academic fields."""
+    """Evaluates degree level & domain similarity matrix between academic fields."""
     if not req_edu_raw:
         return 1.0
 
@@ -78,6 +78,13 @@ class MatchingEngine:
     Includes sub-scores (Skill, Experience, Education, Location), overall compatibility score,
     and transparent explainability (WHY MATCHED vs GAPS).
     """
+
+    BASE_WEIGHTS = {
+        "skill": 0.50,
+        "experience": 0.25,
+        "education": 0.15,
+        "location": 0.10,
+    }
 
     def __init__(self, skill_engine: SkillEngine = None):
         self.skill_engine = skill_engine or SkillEngine()
@@ -188,52 +195,38 @@ class MatchingEngine:
 
             # 4. Location Match Calculation using canonical normalizer
             loc_score = evaluate_location_match(cand_loc_raw, opp_loc_raw, work_mode_raw)
-            loc_score_val = loc_score if loc_score is not None else 0.50
 
-            # Dynamic Component Weighting
-            if skill_score is None:
-                if loc_score is None:
-                    # Missing both skill and location data
-                    overall_score = round((exp_score * 0.65) + (edu_score * 0.35), 2)
-                else:
-                    overall_score = round(
-                        (exp_score * 0.50) +
-                        (edu_score * 0.30) +
-                        (loc_score_val * 0.20),
-                        2,
-                    )
-                skill_score_display = 50
+            # Finding #6 Fix: Scalable Dynamic Weight Normalization
+            components = {
+                "skill": skill_score,
+                "experience": exp_score,
+                "education": edu_score,
+                "location": loc_score,
+            }
+
+            available = {k: v for k, v in components.items() if v is not None}
+            total_weight = sum(self.BASE_WEIGHTS[k] for k in available)
+
+            if total_weight > 0:
+                overall_score = round(sum((v * self.BASE_WEIGHTS[k]) / total_weight for k, v in available.items()), 2)
             else:
-                if loc_score is None:
-                    # Missing location data: redistribute weight (Skill 55%, Experience 30%, Education 15%)
-                    overall_score = round(
-                        (skill_score * 0.55) +
-                        (exp_score * 0.30) +
-                        (edu_score * 0.15),
-                        2,
-                    )
-                else:
-                    overall_score = round(
-                        (skill_score * 0.50) +
-                        (exp_score * 0.25) +
-                        (edu_score * 0.15) +
-                        (loc_score_val * 0.10),
-                        2,
-                    )
-                skill_score_display = int(skill_score * 100)
+                overall_score = 0.50
 
             if target_role_name and (target_role_name.lower() in opp_title.lower() or opp_title.lower() in target_role_name.lower()):
                 overall_score = min(1.0, overall_score + 0.10)
 
+            # Finding #1 & #2 Fix: Honest API Contract for Missing Data
             ranked.append({
                 "title": opp_title,
                 "company": opp_company,
                 "compatibility_score": int(overall_score * 100),
                 "breakdown": {
-                    "skill_match": skill_score_display,
+                    "skill_match": int(skill_score * 100) if skill_score is not None else None,
+                    "skill_match_status": "evaluated" if skill_score is not None else "insufficient_data",
                     "experience_match": int(exp_score * 100),
                     "education_match": int(edu_score * 100),
-                    "location_match": int(loc_score_val * 100),
+                    "location_match": int(loc_score * 100) if loc_score is not None else None,
+                    "location_match_status": "evaluated" if loc_score is not None else "insufficient_data",
                 },
                 "why_matched": matched_skills,
                 "gaps": missing_skills,
