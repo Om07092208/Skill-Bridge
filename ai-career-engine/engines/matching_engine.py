@@ -61,8 +61,11 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
     else:
         base = 0.40
 
-    if req_edu.field and cand_edu.field:
-        sim = get_field_similarity(cand_edu.field, req_edu.field)
+    cand_field = getattr(cand_edu, "primary_field", cand_edu.field)
+    req_field = getattr(req_edu, "primary_field", req_edu.field)
+
+    if req_field and cand_field:
+        sim = get_field_similarity(cand_field, req_field)
         if sim == 1.0:
             base = min(1.0, base + 0.10)
         elif sim >= 0.70:
@@ -73,16 +76,33 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
     return round(base, 2)
 
 
+def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float]:
+    """Finding #4 Fix: Evaluates normalized role title token overlap as a weighted component rather than flat +10% bonus."""
+    if not target_role_name or not opp_title:
+        return None
+    t_norm = target_role_name.strip().lower()
+    o_norm = opp_title.strip().lower()
+    if t_norm == o_norm:
+        return 1.0
+    t_words = set(t_norm.split())
+    o_words = set(o_norm.split())
+    overlap = t_words & o_words
+    if not overlap:
+        return 0.30
+    return round(len(overlap) / max(len(t_words), len(o_words)), 2)
+
+
 class MatchingEngine:
     """Deterministic engine to match candidate profile against job opportunities.
-    Includes sub-scores (Skill, Experience, Education, Location), overall compatibility score,
+    Includes sub-scores (Role, Skill, Experience, Education, Location), overall compatibility score,
     and transparent explainability (WHY MATCHED vs GAPS).
     """
 
     BASE_WEIGHTS = {
-        "skill": 0.50,
-        "experience": 0.25,
-        "education": 0.15,
+        "role": 0.20,
+        "skill": 0.40,
+        "experience": 0.20,
+        "education": 0.10,
         "location": 0.10,
     }
 
@@ -190,14 +210,18 @@ class MatchingEngine:
             else:
                 exp_score = round(cand_exp / req_exp, 2)
 
-            # 3. Education Match Calculation using canonical normalizer
+            # 3. Education Match Calculation
             edu_score = evaluate_education_match(cand_edu_raw, req_edu_raw)
 
-            # 4. Location Match Calculation using canonical normalizer
+            # 4. Location Match Calculation
             loc_score = evaluate_location_match(cand_loc_raw, opp_loc_raw, work_mode_raw)
 
-            # Finding #6 Fix: Scalable Dynamic Weight Normalization
+            # 5. Role Match Calculation
+            role_score = evaluate_role_match(target_role_name, opp_title)
+
+            # Dynamic Weight Normalization
             components = {
+                "role": role_score,
                 "skill": skill_score,
                 "experience": exp_score,
                 "education": edu_score,
@@ -207,20 +231,22 @@ class MatchingEngine:
             available = {k: v for k, v in components.items() if v is not None}
             total_weight = sum(self.BASE_WEIGHTS[k] for k in available)
 
+            # Finding #3 Fix: Honest score availability contract (None + insufficient_data when 0 weights available)
             if total_weight > 0:
                 overall_score = round(sum((v * self.BASE_WEIGHTS[k]) / total_weight for k, v in available.items()), 2)
+                compatibility_status = "evaluated"
             else:
-                overall_score = 0.50
+                overall_score = None
+                compatibility_status = "insufficient_data"
 
-            if target_role_name and (target_role_name.lower() in opp_title.lower() or opp_title.lower() in target_role_name.lower()):
-                overall_score = min(1.0, overall_score + 0.10)
-
-            # Finding #1 & #2 Fix: Honest API Contract for Missing Data
             ranked.append({
                 "title": opp_title,
                 "company": opp_company,
-                "compatibility_score": int(overall_score * 100),
+                "compatibility_score": int(overall_score * 100) if overall_score is not None else None,
+                "compatibility_status": compatibility_status,
                 "breakdown": {
+                    "role_match": int(role_score * 100) if role_score is not None else None,
+                    "role_match_status": "evaluated" if role_score is not None else "insufficient_data",
                     "skill_match": int(skill_score * 100) if skill_score is not None else None,
                     "skill_match_status": "evaluated" if skill_score is not None else "insufficient_data",
                     "experience_match": int(exp_score * 100),
@@ -232,5 +258,11 @@ class MatchingEngine:
                 "gaps": missing_skills,
             })
 
-        ranked.sort(key=lambda x: (x["compatibility_score"], len(x["why_matched"])), reverse=True)
+        ranked.sort(
+            key=lambda x: (
+                x["compatibility_score"] if x["compatibility_score"] is not None else -1,
+                len(x["why_matched"]),
+            ),
+            reverse=True,
+        )
         return ranked

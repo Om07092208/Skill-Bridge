@@ -16,6 +16,7 @@ authors = [
 dependencies = [
     "pydantic>=2.0.0",
     "pytest>=7.0.0",
+    "pycountry>=24.3.6",
 ]
 
 [tool.pytest.ini_options]

@@ -6,6 +6,12 @@ from pydantic import BaseModel, Field
 DEFAULT_DECLARED_SKILL_PROFICIENCY = 0.50
 _default_skill_engine = None
 
+# Finding #1 & #2 Fix: Top-level pycountry import with narrow exception handling
+try:
+    import pycountry
+except ImportError:
+    pycountry = None
+
 
 def get_skill_engine():
     """Module-level singleton to avoid repeated instantiation overhead in batch runs."""
@@ -36,7 +42,8 @@ class CanonicalLocation(BaseModel):
 class CanonicalEducation(BaseModel):
     raw: str = ""
     degree_level: str = "unknown"  # 'bachelor', 'master', 'phd', 'high_school', 'unknown'
-    field: str = ""
+    primary_field: str = ""
+    fields: List[str] = Field(default_factory=list)  # Finding #5 Fix: Structurally supports multi-domain degrees
 
 
 DEGREE_PATTERNS = {
@@ -76,28 +83,28 @@ def get_field_similarity(field_a: str, field_b: str) -> float:
     return FIELD_SIMILARITY.get((field_a, field_b), FIELD_SIMILARITY.get((field_b, field_a), 0.0))
 
 
-# Finding #3 Fix: Comprehensive country resolution dataset with pycountry lookup fallback
+# Finding #7 Fix: Explicit canonical country dataset with unambiguous nation entries
 KNOWN_COUNTRIES: Set[str] = {
     "india", "usa", "united states", "us", "uk", "united kingdom", "canada",
     "germany", "france", "australia", "japan", "singapore", "brazil",
     "netherlands", "sweden", "spain", "italy", "uae", "united arab emirates",
-    "switzerland", "south korea", "korea", "china", "russia", "mexico",
-    "south africa", "new zealand", "ireland", "belgium", "austria"
+    "switzerland", "south korea", "republic of korea", "north korea", "china",
+    "russia", "mexico", "south africa", "new zealand", "ireland", "belgium", "austria"
 }
 
 
 def is_known_country(term: str) -> bool:
-    """Finding #3 Fix: Dynamic country lookup using pycountry if available, fallback to KNOWN_COUNTRIES set."""
+    """Finding #1 & #2 Fix: Efficient pycountry lookup with narrow LookupError exception handling."""
     val = term.strip().lower()
     if not val:
         return False
-    if val in KNOWN_COUNTRIES:
-        return True
-    try:
-        import pycountry
-        return bool(pycountry.countries.lookup(val))
-    except Exception:
-        return False
+    if pycountry is not None:
+        try:
+            pycountry.countries.lookup(val)
+            return True
+        except LookupError:
+            pass
+    return val in KNOWN_COUNTRIES
 
 
 def normalize_candidate_skills(raw_skills: List[Any], skill_engine: Any = None) -> List[CanonicalSkill]:
@@ -169,7 +176,7 @@ def normalize_candidate_skill_map(raw_skills: List[Any], skill_engine: Any = Non
 
 
 def normalize_location(loc_input: Any, work_mode_input: Any = "") -> CanonicalLocation:
-    """Finding #3 Fix: Accurately parses City/State vs City/Country using dynamic country resolver."""
+    """Accurately parses City/State vs City/Country using dynamic country resolver."""
     loc_str = str(loc_input or "").strip()
     loc_lower = loc_str.lower()
     work_mode_str = str(work_mode_input or "").strip().lower()
@@ -211,12 +218,11 @@ def normalize_location(loc_input: Any, work_mode_input: Any = "") -> CanonicalLo
 
 
 def normalize_single_education(edu_str: str) -> CanonicalEducation:
-    """Finding #4 & #5 Fix: Longest-match regex boundary alias extraction."""
+    """Finding #5 Fix: Supports multi-domain education fields for joint degrees (e.g. AI & ML)."""
     edu_lower = edu_str.strip().lower()
     if not edu_lower:
-        return CanonicalEducation(raw="", degree_level="unknown", field="")
+        return CanonicalEducation(raw="", degree_level="unknown", primary_field="", fields=[])
 
-    # Degree level extraction using word boundaries
     detected_level = "unknown"
     for level, patterns in DEGREE_PATTERNS.items():
         for pat in patterns:
@@ -226,7 +232,6 @@ def normalize_single_education(edu_str: str) -> CanonicalEducation:
         if detected_level != "unknown":
             break
 
-    # Finding #4 & #5 Fix: Collect all regex boundary matches and pick the longest matching alias
     matches = []
     for field_key, aliases in FIELD_ALIASES.items():
         for alias in aliases:
@@ -234,9 +239,16 @@ def normalize_single_education(edu_str: str) -> CanonicalEducation:
             if re.search(pattern, edu_lower):
                 matches.append((len(alias), field_key))
 
-    detected_field = max(matches, key=lambda x: x[0])[1] if matches else ""
+    all_fields = list(dict.fromkeys([m[1] for m in matches]))
+    primary_field = max(matches, key=lambda x: x[0])[1] if matches else ""
 
-    return CanonicalEducation(raw=edu_str, degree_level=detected_level, field=detected_field)
+    return CanonicalEducation(
+        raw=edu_str,
+        degree_level=detected_level,
+        primary_field=primary_field,
+        field=primary_field,
+        fields=all_fields,
+    )
 
 
 def normalize_education_list(edu_input: Any) -> List[CanonicalEducation]:
@@ -249,7 +261,7 @@ def normalize_education_list(edu_input: Any) -> List[CanonicalEducation]:
         items = []
 
     if not items:
-        return [CanonicalEducation(raw="", degree_level="unknown", field="")]
+        return [CanonicalEducation(raw="", degree_level="unknown", primary_field="", fields=[])]
 
     return [normalize_single_education(item) for item in items]
 
