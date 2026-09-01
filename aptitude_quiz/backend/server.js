@@ -31,13 +31,15 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static frontend files for Aptitude Arena directly
-app.use('/aptitude_arena', express.static(path.join(__dirname, '../aptitude_arena')));
-app.use(express.static(path.join(__dirname, '../aptitude_arena')));
+// Serve static frontend files for Aptitude Quiz directly
+const frontendDir = path.join(__dirname, '../frontend');
+app.use('/aptitude_arena', express.static(frontendDir));
+app.use('/aptitude_quiz', express.static(frontendDir));
+app.use(express.static(frontendDir));
 
-// Default root serves Aptitude Arena app
+// Default root serves Aptitude Quiz app
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../aptitude_arena/index.html'));
+  res.sendFile(path.join(frontendDir, 'index.html'));
 });
 
 // Initialize Socket.IO
