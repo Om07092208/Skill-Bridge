@@ -130,12 +130,10 @@ class LLMProvider:
 
         base_url = settings.NVIDIA_BASE_URL.rstrip("/")
         url = f"{base_url}/chat/completions" if not base_url.endswith("/chat/completions") else base_url
-        candidate_models = [
-            self.model_name,
-            "nvidia/nemotron-3-ultra-550b-a55b",
-            "nvidia/nemotron-3-nano-30b-a3b",
-            "meta/llama-3.2-11b-vision-instruct",
-        ]
+        candidate_models = []
+        for m in [self.model_name, "meta/llama-3.2-11b-vision-instruct", "meta/llama-3.2-90b-vision-instruct"]:
+            if m and m not in candidate_models:
+                candidate_models.append(m)
 
         messages = [
             {"role": "system", "content": system_instruction or "You are an AI Career Engine Assistant."},
@@ -160,12 +158,13 @@ class LLMProvider:
                     },
                     method="POST",
                 )
-                resp = urllib.request.urlopen(req, timeout=45)
+                resp = urllib.request.urlopen(req, timeout=15)
                 try:
                     data = json.loads(resp.read().decode("utf-8"))
                     choices = data.get("choices", [])
                     if choices:
-                        content = choices[0].get("message", {}).get("content", "").strip()
+                        msg = choices[0].get("message", {})
+                        content = (msg.get("content") or msg.get("reasoning_content") or "").strip()
                         if content:
                             return content
                 finally:
