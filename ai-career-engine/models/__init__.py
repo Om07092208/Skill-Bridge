@@ -17,6 +17,8 @@ from .normalizers import (
     normalize_candidate_skill_map,
     normalize_location,
     normalize_education,
+    normalize_education_list,
+    get_field_similarity,
 )
 
 __all__ = [
@@ -36,4 +38,6 @@ __all__ = [
     "normalize_candidate_skill_map",
     "normalize_location",
     "normalize_education",
+    "normalize_education_list",
+    "get_field_similarity",
 ]

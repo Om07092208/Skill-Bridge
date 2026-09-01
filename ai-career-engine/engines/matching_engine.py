@@ -5,6 +5,7 @@ from models.normalizers import (
     normalize_candidate_skill_map,
     normalize_location,
     normalize_education,
+    get_field_similarity,
 )
 
 
@@ -16,13 +17,15 @@ def calculate_effective_experience(experience_years: float, career_gaps: List[Di
         return 0.0
 
 
-def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: Any) -> float:
-    """Evaluates structured location compatibility using canonical location normalizer."""
+def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: Any) -> Optional[float]:
+    """Finding #4 Fix: Returns None if job location is unknown to signal missing location data rather than assuming 1.0."""
     cand_loc = normalize_location(cand_loc_raw)
     opp_loc = normalize_location(opp_loc_raw, work_mode_raw)
 
-    if opp_loc.is_remote or not opp_loc.is_known:
+    if opp_loc.is_remote:
         return 1.0
+    if not opp_loc.is_known:
+        return None  # Missing data signal
 
     if cand_loc.city and opp_loc.city and cand_loc.city.lower() == opp_loc.city.lower():
         return 1.0
@@ -37,7 +40,7 @@ def evaluate_location_match(cand_loc_raw: Any, opp_loc_raw: Any, work_mode_raw: 
 
 
 def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
-    """Evaluates semantic education match using canonical education normalizer."""
+    """Finding #1 Fix: Evaluates degree level & domain similarity matrix between academic fields."""
     if not req_edu_raw:
         return 1.0
 
@@ -59,10 +62,13 @@ def evaluate_education_match(cand_edu_raw: Any, req_edu_raw: Any) -> float:
         base = 0.40
 
     if req_edu.field and cand_edu.field:
-        if req_edu.field == cand_edu.field:
+        sim = get_field_similarity(cand_edu.field, req_edu.field)
+        if sim == 1.0:
             base = min(1.0, base + 0.10)
+        elif sim >= 0.70:
+            base = min(1.0, base + 0.05)
         else:
-            base = max(0.30, base - 0.10)
+            base = max(0.30, base - 0.05)
 
     return round(base, 2)
 
@@ -182,24 +188,38 @@ class MatchingEngine:
 
             # 4. Location Match Calculation using canonical normalizer
             loc_score = evaluate_location_match(cand_loc_raw, opp_loc_raw, work_mode_raw)
+            loc_score_val = loc_score if loc_score is not None else 0.50
 
             # Dynamic Component Weighting
             if skill_score is None:
-                overall_score = round(
-                    (exp_score * 0.50) +
-                    (edu_score * 0.30) +
-                    (loc_score * 0.20),
-                    2,
-                )
+                if loc_score is None:
+                    # Missing both skill and location data
+                    overall_score = round((exp_score * 0.65) + (edu_score * 0.35), 2)
+                else:
+                    overall_score = round(
+                        (exp_score * 0.50) +
+                        (edu_score * 0.30) +
+                        (loc_score_val * 0.20),
+                        2,
+                    )
                 skill_score_display = 50
             else:
-                overall_score = round(
-                    (skill_score * 0.50) +
-                    (exp_score * 0.25) +
-                    (edu_score * 0.15) +
-                    (loc_score * 0.10),
-                    2,
-                )
+                if loc_score is None:
+                    # Missing location data: redistribute weight (Skill 55%, Experience 30%, Education 15%)
+                    overall_score = round(
+                        (skill_score * 0.55) +
+                        (exp_score * 0.30) +
+                        (edu_score * 0.15),
+                        2,
+                    )
+                else:
+                    overall_score = round(
+                        (skill_score * 0.50) +
+                        (exp_score * 0.25) +
+                        (edu_score * 0.15) +
+                        (loc_score_val * 0.10),
+                        2,
+                    )
                 skill_score_display = int(skill_score * 100)
 
             if target_role_name and (target_role_name.lower() in opp_title.lower() or opp_title.lower() in target_role_name.lower()):
@@ -213,7 +233,7 @@ class MatchingEngine:
                     "skill_match": skill_score_display,
                     "experience_match": int(exp_score * 100),
                     "education_match": int(edu_score * 100),
-                    "location_match": int(loc_score * 100),
+                    "location_match": int(loc_score_val * 100),
                 },
                 "why_matched": matched_skills,
                 "gaps": missing_skills,
