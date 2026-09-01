@@ -15,12 +15,11 @@ class ReadinessEngine:
         candidate: Dict[str, Any],
         target_role: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Calculates readiness score based on skill overlap, project coverage, and effective experience."""
         cand_skills = {}
         for s in candidate.get("skills", []):
             if isinstance(s, str):
                 raw_name = s
-                prof = 1.0
+                prof = 0.50  # Problem 5 Fix: Declared string skill baseline uncertainty model (0.50)
                 norm = self.skill_engine.normalize_skill_name(raw_name)
             elif isinstance(s, dict):
                 raw_name = s.get("name", "")
