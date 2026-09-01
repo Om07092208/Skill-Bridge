@@ -18,22 +18,22 @@ def main():
 
     if target in ["unit", "u"]:
         print("[RUNNER] Executing Layer 1: Unit Tests (tests/unit)...")
-        suite.addTests(loader.discover(os.path.join(tests_dir, "unit")))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "unit"), top_level_dir=PROJECT_ROOT))
     elif target in ["integration", "int", "i"]:
         print("[RUNNER] Executing Layer 2: Mocked Integration Tests (tests/integration)...")
-        suite.addTests(loader.discover(os.path.join(tests_dir, "integration")))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "integration"), top_level_dir=PROJECT_ROOT))
     elif target in ["live", "l"]:
         print("[RUNNER] Executing Layer 3: Live E2E Tests (tests/live)...")
-        suite.addTests(loader.discover(os.path.join(tests_dir, "live")))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "live"), top_level_dir=PROJECT_ROOT))
     elif target in ["all", "a"]:
         print("[RUNNER] Executing ALL Test Layers (unit + integration + live)...")
-        suite.addTests(loader.discover(os.path.join(tests_dir, "unit")))
-        suite.addTests(loader.discover(os.path.join(tests_dir, "integration")))
-        suite.addTests(loader.discover(os.path.join(tests_dir, "live")))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "unit"), top_level_dir=PROJECT_ROOT))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "integration"), top_level_dir=PROJECT_ROOT))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "live"), top_level_dir=PROJECT_ROOT))
     else:
         print("[RUNNER] Executing Fast Automated Tests (Unit + Integration)...")
-        suite.addTests(loader.discover(os.path.join(tests_dir, "unit")))
-        suite.addTests(loader.discover(os.path.join(tests_dir, "integration")))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "unit"), top_level_dir=PROJECT_ROOT))
+        suite.addTests(loader.discover(os.path.join(tests_dir, "integration"), top_level_dir=PROJECT_ROOT))
 
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
