@@ -2,8 +2,29 @@ from __future__ import annotations
 import re
 import json
 import os
+import math
 from typing import Dict, List, Any, Optional, Set
 from pydantic import BaseModel, Field
+
+
+class RoleTaxonomyError(Exception):
+    """Base exception for all role taxonomy validation errors."""
+    pass
+
+
+class AliasCollisionError(RoleTaxonomyError, ValueError):
+    """Raised when a role alias maps to multiple specializations."""
+    pass
+
+
+class InvalidSimilarityError(RoleTaxonomyError, ValueError):
+    """Raised when a similarity score is non-finite, out of bounds [0.0, 1.0], or refers to a missing specialization."""
+    pass
+
+
+class AsymmetricSimilarityError(RoleTaxonomyError, ValueError):
+    """Raised when forward and reverse relationship scores conflict."""
+    pass
 
 DEFAULT_DECLARED_SKILL_PROFICIENCY = 0.50
 _default_skill_engine = None
@@ -137,7 +158,7 @@ _role_alias_index: Optional[Dict[str, tuple[str, str]]] = None
 
 
 def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
-    """Loads role taxonomy JSON file from data directory. Fails fast if file is missing, malformed, or has alias collisions."""
+    """Loads role taxonomy JSON file from data directory. Fails fast if file is missing, malformed, or has alias collisions/asymmetry."""
     global _role_taxonomy_cache, _role_alias_index
     if _role_taxonomy_cache is None or reload:
         base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -150,16 +171,16 @@ def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
 
         # Build and validate alias index and related mappings in local variables first (Atomic update)
         new_index: Dict[str, tuple[str, str]] = {}
-        all_specs: Set[str] = set()
+        spec_map: Dict[str, tuple[str, Dict[str, Any]]] = {}
 
-        for fam_key, fam_data in new_cache.items():
-            specs = fam_data.get("specializations", {})
-            for spec_key in specs.keys():
-                all_specs.add(spec_key)
-
+        # Pass 1: Index all specializations (including qualified family.specialization keys) and validate alias collisions
         for fam_key, fam_data in new_cache.items():
             specs = fam_data.get("specializations", {})
             for spec_key, spec_data in specs.items():
+                qual_key = f"{fam_key}.{spec_key}"
+                spec_map[spec_key] = (fam_key, spec_data)
+                spec_map[qual_key] = (fam_key, spec_data)
+
                 aliases = spec_data.get("aliases", [])
                 for alias in aliases:
                     raw_alias = alias.strip().lower()
@@ -170,23 +191,43 @@ def load_role_taxonomy(reload: bool = False) -> Dict[str, Any]:
                             continue
                         existing = new_index.get(target_alias)
                         if existing and existing != (fam_key, spec_key):
-                            raise ValueError(
+                            raise AliasCollisionError(
                                 f"Role taxonomy alias collision: '{target_alias}' maps to both {existing} and {(fam_key, spec_key)}"
                             )
                         new_index[target_alias] = (fam_key, spec_key)
 
-                related = spec_data.get("related", {})
-                for rel_spec, sim in related.items():
-                    if rel_spec not in all_specs:
-                        raise ValueError(f"Role taxonomy related specialization '{rel_spec}' in '{spec_key}' does not exist")
-                    try:
-                        sim_val = float(sim)
-                        if not (0.0 <= sim_val <= 1.0):
-                            raise ValueError
-                    except (ValueError, TypeError):
-                        raise ValueError(f"Role taxonomy invalid similarity score '{sim}' for related key '{rel_spec}' in '{spec_key}'")
+        # Pass 2: Validate related targets exist, math.isfinite, range [0.0, 1.0], and bidirectional symmetry
+        for spec_key, (fam_key, spec_data) in spec_map.items():
+            if "." in spec_key:
+                continue
 
-        # Atomic assignment only after full validation
+            related = spec_data.get("related", {})
+            for rel_spec, sim in related.items():
+                if rel_spec not in spec_map:
+                    raise InvalidSimilarityError(f"Role taxonomy related specialization '{rel_spec}' in '{spec_key}' does not exist")
+
+                try:
+                    sim_val = float(sim)
+                    if not math.isfinite(sim_val) or not (0.0 <= sim_val <= 1.0):
+                        raise InvalidSimilarityError(f"Role taxonomy invalid similarity score '{sim}' for related key '{rel_spec}' in '{spec_key}'")
+                except (ValueError, TypeError):
+                    raise InvalidSimilarityError(f"Role taxonomy invalid similarity score '{sim}' for related key '{rel_spec}' in '{spec_key}'")
+
+                # Symmetric score enforcement: if rel_spec has spec_key in its related dict, their scores MUST be equal
+                target_spec_data = spec_map[rel_spec][1]
+                target_related = target_spec_data.get("related", {})
+                if spec_key in target_related:
+                    try:
+                        target_sim_val = float(target_related[spec_key])
+                    except (ValueError, TypeError):
+                        target_sim_val = None
+
+                    if target_sim_val is not None and abs(sim_val - target_sim_val) > 1e-6:
+                        raise AsymmetricSimilarityError(
+                            f"Asymmetric role similarity between '{spec_key}' and '{rel_spec}': forward {sim_val} vs reverse {target_sim_val}"
+                        )
+
+        # Atomic assignment only after full validation passes
         _role_taxonomy_cache = new_cache
         _role_alias_index = new_index
 

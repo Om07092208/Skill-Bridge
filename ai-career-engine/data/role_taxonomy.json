@@ -114,7 +114,8 @@
         ],
         "related": {
           "bi_analyst": 0.55,
-          "data_scientist": 0.50
+          "data_scientist": 0.50,
+          "data_engineer": 0.50
         }
       },
       "bi_analyst": {
