@@ -2,15 +2,18 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Any, Optional
 from engines.skill_engine import SkillEngine
+from models.taxonomy import (
+    normalize_role_title,
+    resolve_role_taxonomy,
+    get_specialization_similarity,
+    get_role_token_weight,
+    GENERIC_ROLE_TOKENS,
+)
 from models.normalizers import (
     normalize_candidate_skill_map,
     normalize_location,
     normalize_education,
     get_field_similarity,
-    normalize_role_title,
-    resolve_role_taxonomy,
-    get_specialization_similarity,
-    GENERIC_ROLE_TOKENS,
 )
 
 
@@ -118,18 +121,21 @@ def evaluate_role_match(target_role_name: str, opp_title: str) -> Optional[float
     if not overlap:
         return 0.0
 
-    def get_word_weight(w: str) -> float:
-        return 0.25 if w in GENERIC_ROLE_TOKENS else 1.0
-
-    overlap_weight_sum = sum(get_word_weight(w) for w in overlap)
-    t_weight_sum = sum(get_word_weight(w) for w in t_words)
-    o_weight_sum = sum(get_word_weight(w) for w in o_words)
+    overlap_weight_sum = sum(get_role_token_weight(w) for w in overlap)
+    t_weight_sum = sum(get_role_token_weight(w) for w in t_words)
+    o_weight_sum = sum(get_role_token_weight(w) for w in o_words)
 
     max_weight_sum = max(t_weight_sum, o_weight_sum)
     if max_weight_sum <= 0:
         return 0.0
 
     weighted_ratio = overlap_weight_sum / max_weight_sum
+
+    # Require domain token overlap or a minimum threshold (>= 0.15) for generic role filler overlap
+    domain_overlap = (t_words - GENERIC_ROLE_TOKENS) & (o_words - GENERIC_ROLE_TOKENS)
+    if not domain_overlap and weighted_ratio < 0.15:
+        return 0.0
+
     return min(0.40, round(weighted_ratio, 2))
 
 

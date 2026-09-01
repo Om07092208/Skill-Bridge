@@ -11,6 +11,7 @@ from models.normalizers import (
     AliasCollisionError,
     InvalidSimilarityError,
     AsymmetricSimilarityError,
+    AmbiguousSpecializationError,
 )
 from unittest.mock import patch
 
@@ -112,10 +113,9 @@ class TestMatchingEngineUnit(unittest.TestCase):
 
     def test_unknown_role_token_overlap_capped_and_domain_filtered(self):
         # "Security Engineer" vs "Software Systems Engineer" share generic token "engineer" (weight 0.25),
-        # yielding a low weighted overlap score (0.11 <= 0.40)
+        # but have 0 domain token overlap and weighted ratio 0.11 < 0.15 threshold => returns 0.0
         score = evaluate_role_match("Security Engineer", "Software Systems Engineer")
-        self.assertEqual(score, 0.11)
-        self.assertLessEqual(score, 0.40)
+        self.assertEqual(score, 0.0)
 
         # "Cloud Architect" vs "Solutions Architect" share generic token "architect" (weight 0.25) => 0.20
         score_architect = evaluate_role_match("Cloud Architect", "Solutions Architect")
@@ -246,6 +246,44 @@ class TestMatchingEngineUnit(unittest.TestCase):
                             f"Alias collision detected for '{normalized}' in ({family}, {spec}) vs existing {seen.get(normalized)}"
                         )
                         seen[normalized] = (family, spec)
+
+    def test_ambiguous_specialization_keys_rejected(self):
+        # Unqualified specialization key "architect" in both "software" and "cloud" families must raise AmbiguousSpecializationError
+        ambiguous_taxonomy = {
+            "software": {
+                "specializations": {
+                    "architect": {"aliases": ["software architect"]}
+                }
+            },
+            "cloud": {
+                "specializations": {
+                    "architect": {"aliases": ["cloud architect"]}
+                }
+            }
+        }
+        with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(ambiguous_taxonomy))):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(AmbiguousSpecializationError):
+                    load_role_taxonomy(reload=True)
+
+        load_role_taxonomy(reload=True)
+
+    def test_missing_reverse_relationship_link_rejected(self):
+        # A -> B link present, but B does NOT define a reverse link to A -> AsymmetricSimilarityError
+        one_way_taxonomy = {
+            "fam_a": {
+                "specializations": {
+                    "spec_a": {"aliases": ["a"], "related": {"spec_b": 0.75}},
+                    "spec_b": {"aliases": ["b"], "related": {}},
+                }
+            }
+        }
+        with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(one_way_taxonomy))):
+            with patch("os.path.exists", return_value=True):
+                with self.assertRaises(AsymmetricSimilarityError):
+                    load_role_taxonomy(reload=True)
+
+        load_role_taxonomy(reload=True)
 
     def test_known_country_lookup(self):
         self.assertTrue(is_known_country("Germany"))
