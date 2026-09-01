@@ -1,0 +1,118 @@
+[
+  {
+    "scenario_id": "CT-001",
+    "name": "Career Switcher Mechanical Engineer Transitioning to Data Science",
+    "candidate": {
+      "title": "Mechanical Engineer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.85},
+        {"name": "Machine Learning", "proficiency": 0.8},
+        {"name": "CAD", "proficiency": 0.9},
+        {"name": "SQL", "proficiency": 0.75}
+      ],
+      "experience_years": 4.0,
+      "education": ["Bachelor of Mechanical Engineering"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-JR-DS-TRANSITION",
+        "title": "Junior Data Scientist",
+        "required_skills": ["Python", "Machine Learning", "SQL"],
+        "experience_min": 1.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-MECH-ENG-ORIGINAL",
+        "title": "Mechanical Engineer",
+        "required_skills": ["CAD", "Thermodynamics"],
+        "experience_min": 3.0,
+        "location": "Onsite"
+      },
+      {
+        "id": "OP-SR-ML-LEAD",
+        "title": "Principal Machine Learning Engineer",
+        "required_skills": ["Python", "PyTorch", "Kubeflow", "C++"],
+        "experience_min": 10.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-JR-DS-TRANSITION": 3,
+      "OP-MECH-ENG-ORIGINAL": 2,
+      "OP-SR-ML-LEAD": 1
+    }
+  },
+  {
+    "scenario_id": "CT-002",
+    "name": "Critical Skill Veto Domain Mismatch (Generic Tech vs Cyber Penetration Testing)",
+    "candidate": {
+      "title": "Web Developer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.85},
+        {"name": "React", "proficiency": 0.9},
+        {"name": "AWS", "proficiency": 0.8}
+      ],
+      "experience_years": 3.0,
+      "education": ["Bachelor of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-WEB-DEV-FIT",
+        "title": "Frontend Developer",
+        "required_skills": ["React", "Python"],
+        "experience_min": 2.0,
+        "location": "Remote"
+      },
+      {
+        "id": "OP-CYBER-PENTEST",
+        "title": "Cybersecurity Penetration Tester",
+        "required_skills": ["Penetration Testing", "Metasploit", "Reverse Engineering"],
+        "experience_min": 3.0,
+        "location": "Remote"
+      }
+    ],
+    "expected_relevance": {
+      "OP-WEB-DEV-FIT": 3,
+      "OP-CYBER-PENTEST": 0
+    }
+  },
+  {
+    "scenario_id": "CT-003",
+    "name": "Conflicting Signals Trade-off (100% Skills Onsite Deficit vs Partial Skills Remote Fit)",
+    "candidate": {
+      "title": "Backend Developer",
+      "skills": [
+        {"name": "Python", "proficiency": 0.9},
+        {"name": "FastAPI", "proficiency": 0.85},
+        {"name": "PostgreSQL", "proficiency": 0.8}
+      ],
+      "experience_years": 3.0,
+      "education": ["Bachelor of Computer Science"],
+      "location": "Remote"
+    },
+    "opportunities": [
+      {
+        "id": "OP-FIT-REMOTE",
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "FastAPI"],
+        "experience_min": 3.0,
+        "location": "Remote",
+        "work_mode": "remote"
+      },
+      {
+        "id": "OP-ONSITE-SENIOR-CONFLICT",
+        "title": "Lead Software Architect",
+        "required_skills": ["Python", "FastAPI", "PostgreSQL", "System Design"],
+        "experience_min": 12.0,
+        "location": "London, UK",
+        "work_mode": "onsite"
+      }
+    ],
+    "expected_relevance": {
+      "OP-FIT-REMOTE": 3,
+      "OP-ONSITE-SENIOR-CONFLICT": 1
+    }
+  }
+]
