@@ -1,32 +1,69 @@
-# React + TypeScript + Vite
+# 🌉 Skill Bridge
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Skill Bridge includes unit tests, integration suites, fairness validation, and performance benchmarks.
 
-Currently, two official plugins are available:
+### Fast Unit & Integration Tests
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+From the project root:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+python run_tests.py
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Or target specific layers directly from `ai-career-engine/`:
+
+```bash
+cd ai-career-engine
+
+# Run Unit Tests only
+python run_tests.py unit
+
+# Run Mocked Integration Tests
+python run_tests.py integration
+
+# Run All Tests
+python run_tests.py all
+```
+
+### System Evaluation & Benchmark Suite
+
+Execute the benchmark suite to measure latency, ranking precision, and career-gap fairness:
+
+```bash
+cd ai-career-engine
+python evaluate.py
+```
+
+Evaluation charts will be generated in `ai-career-engine/reports/charts/`:
+* `chart_protected_gap_fairness.png`
+* `chart_agent_execution_times.png`
+* `chart_readiness_distribution.png`
+* `chart_skill_gap_prioritization.png`
+
+---
+
+## 🛡️ Protected Career Gap Policy
+
+Skill Bridge enforces an explicit fairness constraint in all ranking and readiness calculations:
+
+$$\text{Readiness}(\text{Candidate with Protected Gap}) \equiv \text{Readiness}(\text{Candidate without Gap})$$
+
+* Any career interruption marked as `protected: true` (such as parental leave, family caregiving, or medical treatment) is isolated from penalty logic in `MatchingEngine` and `ReadinessEngine`.
+* Automated regression tests (`tests/integration/test_invariants_mocked.py`) verify this invariant continuously to prevent bias regressions.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature-name`.
+3. Ensure all tests pass: `python run_tests.py`.
+4. Commit your changes: `git commit -m "Add new capability"`.
+5. Push to the branch: `git push origin feature/your-feature-name`.
+6. Open a Pull Request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
