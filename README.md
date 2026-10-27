@@ -1,4 +1,4 @@
-# 🌉 Skill Bridge
+#Skill Bridge
 
 Skill Bridge includes unit tests, integration suites, fairness validation, and performance benchmarks.
 
@@ -42,7 +42,7 @@ Evaluation charts will be generated in `ai-career-engine/reports/charts/`:
 
 ---
 
-## 🛡️ Protected Career Gap Policy
+## Protected Career Gap Policy
 
 Skill Bridge enforces an explicit fairness constraint in all ranking and readiness calculations:
 
@@ -53,7 +53,7 @@ $$\text{Readiness}(\text{Candidate with Protected Gap}) \equiv \text{Readiness}(
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/your-feature-name`.
@@ -64,6 +64,6 @@ $$\text{Readiness}(\text{Candidate with Protected Gap}) \equiv \text{Readiness}(
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
